@@ -1,47 +1,205 @@
-# Dependencies
+# =========================================================
+# DEPENDENCIES
+# =========================================================
+
 node_modules/
+.pnp/
+.pnp.js
 
-# Angular build
-dist/
+
+# =========================================================
+# ANGULAR
+# =========================================================
+
 .angular/
+dist/
+out-tsc/
+bazel-out/
 
-# Environment files
+# Angular cache
+.cache/
+
+
+# =========================================================
+# ENVIRONMENT / SECRETS
+# =========================================================
+
 .env
 .env.*
 !.env.example
 
-# Firebase
+# Angular environment files with local/private configuration
+src/environments/environment.local.ts
+src/environments/environment.*.local.ts
+
+# Firebase service account / admin credentials
+serviceAccountKey.json
+*-firebase-adminsdk-*.json
+firebase-service-account*.json
+
+
+# =========================================================
+# FIREBASE LOCAL EMULATORS / CONFIG
+# =========================================================
+
 .firebase/
 firebase-debug.log
 firestore-debug.log
 ui-debug.log
+database-debug.log
+storage-debug.log
 
-# IDEs
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+
+# =========================================================
+# VSCODE
+# =========================================================
+
+.vscode/
+
+# =========================================================
+# JETBRAINS / OTHER IDEs
+# =========================================================
 
 .idea/
+*.iml
+*.ipr
+*.iws
 
-# OS
-.DS_Store
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Visual Studio
+.vs/
+
+
+# =========================================================
+# OPERATING SYSTEM
+# =========================================================
+
+# Windows
 Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+Desktop.ini
 
-# Logs
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+.directory
+
+
+# =========================================================
+# LOGS
+# =========================================================
+
 *.log
 npm-debug.log*
 yarn-debug.log*
+yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-# Testing
-/coverage/
+logs/
+*.log.*
 
-# Temporary files
+
+# =========================================================
+# TESTING / COVERAGE
+# =========================================================
+
+coverage/
+.nyc_output/
+test-results/
+
+
+# =========================================================
+# TYPESCRIPT
+# =========================================================
+
+*.tsbuildinfo
+
+
+# =========================================================
+# TEMPORARY / CACHE
+# =========================================================
+
 .tmp/
-temp/
 tmp/
+temp/
+.cache/
+.eslintcache
+.stylelintcache
 
-# Local configuration
+
+# =========================================================
+# BUILD / BUNDLER
+# =========================================================
+
+.parcel-cache/
+.next/
+.nuxt/
+.svelte-kit/
+
+
+# =========================================================
+# BACKUP / TEMPORARY FILES
+# =========================================================
+
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*.swo
+*~
+
+# Temporary exported files
+*.orig
+
+
+# =========================================================
+# PACKAGE MANAGER
+# =========================================================
+
+.npm/
+.yarn/
+.pnpm-store/
+
+# npm cache
+.npmrc.local
+
+
+# =========================================================
+# LOCAL DATABASE / FIREBASE DATA
+# =========================================================
+
+firebase-export-*/
+firestore-data/
+firebase-data/
+
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+
+
+# =========================================================
+# GENERATED FILES
+# =========================================================
+
+generated/
+generated-files/
+
+
+# =========================================================
+# LOCAL DEVELOPMENT
+# =========================================================
+
 *.local
+local/

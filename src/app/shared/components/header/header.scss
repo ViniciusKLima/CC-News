@@ -1,0 +1,39 @@
+header {
+  background-color: var(--bgc-header-primary);
+  height: var(--header-height);
+
+  .container {
+    background-color: white;
+
+    .logo {
+      height: 5vh;
+      max-height: 50px;
+
+      .img-logo {
+        max-height: 100%;
+        object-fit: cover;
+      }
+
+      .tt-logo {
+        font-weight: 600;
+        font-size: 1rem;
+      }
+    }
+
+    nav {
+      .btn-header {
+        color: var(--color-text);
+        font-weight: 600;
+        font-size: 0.75rem;
+        border: none;
+        border-radius: 8px;
+        padding: 7px 10px;
+        transition: all 100ms ease;
+      }
+
+      .btn-header:hover {
+        background: #e4e4e4;
+      }
+    }
+  }
+}

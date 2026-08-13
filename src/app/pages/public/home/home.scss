@@ -1,0 +1,46 @@
+.hero {
+  background-color: var(--color-secondary);
+  color: white;
+  height: 60vh;
+  max-height: 500px;
+
+  .txt-hero {
+    width: 500px;
+    max-width: 90vw;
+
+    .conecta {
+      font-size: clamp(0.8rem, 2vw, 0.95rem);
+      font-weight: 700;
+      margin: 0 !important;
+    }
+    .news {
+      font-size: 4rem;
+      font-weight: 700;
+    }
+
+    .p-hero{
+        font-size: 0.85rem;
+        border-left: 4px solid var(--color-primary);
+        padding: 10px;
+        margin: 0;
+    }
+  }
+}
+
+.search{
+    height: 40vh;
+    background-color: green;
+    .text-search{
+        background-color: blue;
+        width: 500px;
+        max-width: 90vw;
+        .tt-search{
+            font-weight: 900;
+            font-size: 1.5rem;
+        }
+        .p-search{
+            font-size: 0.78rem;
+            margin: 0;
+        }
+    }
+}

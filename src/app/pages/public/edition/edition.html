@@ -1,6 +1,10 @@
 <app-header></app-header>
 <main class="main-content edition-page">
   <section class="edition-intro container">
+    <a class="btn-voltar" routerLink="/">
+      <i class="bi bi-arrow-left"></i> Voltar
+    </a>
+
     <div class="intro-top d-flex justify-content-between align-items-start flex-wrap gap-3">
       @if (loading()) {
         <div class="intro-text">
@@ -15,10 +19,6 @@
           <p class="edition-resumo">{{ ed.resumo }}</p>
         </div>
       }
-
-      <a class="btn-historico" routerLink="/arquivo">
-        Ver histórico completo <i class="bi bi-arrow-right m-0"></i>
-      </a>
     </div>
   </section>
 

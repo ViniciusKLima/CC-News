@@ -8,6 +8,8 @@ header {
     .logo {
       height: 5vh;
       max-height: 50px;
+      text-decoration: none;
+      color: inherit;
 
       .img-logo {
         max-height: 100%;
@@ -22,7 +24,10 @@ header {
 
     nav {
       .btn-header {
+        display: inline-flex;
+        align-items: center;
         color: var(--color-text);
+        text-decoration: none;
         font-weight: 600;
         font-size: 0.75rem;
         border: none;

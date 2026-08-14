@@ -2,14 +2,16 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
-  OnDestroy,
+  HostListener,
+  Injector,
   OnInit,
   QueryList,
   ViewChildren,
   computed,
+  effect,
+  inject,
   signal,
 } from '@angular/core';
-import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Header } from '../../../shared/components/header/header';
@@ -36,9 +38,12 @@ const MESES_NOMES = [
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
-export class Home implements OnInit, AfterViewInit, OnDestroy {
+export class Home implements OnInit, AfterViewInit {
+  private readonly injector = inject(Injector);
+
   loading = signal(true);
   edicoesPorMes = signal<Mes[]>([]);
+  mostrarVoltarTopo = signal(false);
 
   termoBusca = signal('');
   filtroAno = signal('');
@@ -98,7 +103,7 @@ export class Home implements OnInit, AfterViewInit, OnDestroy {
   });
 
   @ViewChildren('slide') private slides!: QueryList<ElementRef<HTMLElement>>;
-  private slidesChangesSub?: Subscription;
+  private resizeRafId?: number;
 
   ngOnInit(): void {
     // TODO: substituir pelo carregamento real assim que o service de edições existir.
@@ -109,15 +114,34 @@ export class Home implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.slides.forEach((ref) => this.updateNavState(ref.nativeElement));
+    this.updateAllNavStates();
 
-    this.slidesChangesSub = this.slides.changes.subscribe((list: QueryList<ElementRef<HTMLElement>>) => {
-      setTimeout(() => list.forEach((ref) => this.updateNavState(ref.nativeElement)));
-    });
+    // Recalcula o estado dos botões sempre que a lista de edições exibidas mudar
+    // (carregamento inicial, busca ou filtros) — sem isso, o botão pode ficar
+    // com um estado desatualizado em relação à quantidade real de cards.
+    effect(
+      () => {
+        this.edicoesFiltradas();
+        setTimeout(() => this.updateAllNavStates());
+      },
+      { injector: this.injector },
+    );
   }
 
-  ngOnDestroy(): void {
-    this.slidesChangesSub?.unsubscribe();
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    // Coalesce múltiplos eventos de resize em um único recálculo por frame.
+    if (this.resizeRafId) cancelAnimationFrame(this.resizeRafId);
+    this.resizeRafId = requestAnimationFrame(() => this.updateAllNavStates());
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    this.mostrarVoltarTopo.set(window.scrollY > 400);
+  }
+
+  voltarAoTopo(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   limparFiltros(): void {
@@ -142,10 +166,14 @@ export class Home implements OnInit, AfterViewInit, OnDestroy {
 
     const prevBtn = wrapper.querySelector<HTMLButtonElement>('.slide-nav.prev');
     const nextBtn = wrapper.querySelector<HTMLButtonElement>('.slide-nav.next');
-    const maxScroll = container.scrollWidth - container.clientWidth;
+    const maxScroll = Math.max(0, container.scrollWidth - container.clientWidth);
 
     if (prevBtn) prevBtn.disabled = container.scrollLeft <= 1;
     if (nextBtn) nextBtn.disabled = container.scrollLeft >= maxScroll - 1;
+  }
+
+  private updateAllNavStates(): void {
+    this.slides?.forEach((ref) => this.updateNavState(ref.nativeElement));
   }
 }
 export interface Edicao {
@@ -176,24 +204,6 @@ export const edicoesPorMes: Mes[] = [
         descricao:
           'Confira as principais correções, melhorias e novidades que chegaram ao Conecta Cidades nesta semana.',
         totalNovidades: 12,
-      },
-      {
-        id: 'edicao-2026-08-07',
-        periodo: '4 a 7 de agosto',
-        tipo: 'Semanal',
-        titulo: 'Novas melhorias nos serviços digitais',
-        descricao:
-          'Atualizações importantes foram implementadas para tornar os fluxos mais rápidos, estáveis e eficientes.',
-        totalNovidades: 8,
-      },
-      {
-        id: 'edicao-2026-08-07',
-        periodo: '4 a 7 de agosto',
-        tipo: 'Semanal',
-        titulo: 'Novas melhorias nos serviços digitais',
-        descricao:
-          'Atualizações importantes foram implementadas para tornar os fluxos mais rápidos, estáveis e eficientes.',
-        totalNovidades: 8,
       },
       {
         id: 'edicao-2026-08-07',

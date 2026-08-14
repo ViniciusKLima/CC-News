@@ -195,4 +195,11 @@
     }
   </section>
 </main>
+
+@if (mostrarVoltarTopo()) {
+  <button type="button" class="btn-voltar-topo" aria-label="Voltar ao topo" (click)="voltarAoTopo()">
+    <i class="bi bi-arrow-up"></i>
+  </button>
+}
+
 <app-footer></app-footer>

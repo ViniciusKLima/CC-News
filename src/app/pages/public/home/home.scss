@@ -101,6 +101,7 @@
 }
 
 .slide-wrapper {
+  --card-w: 330px;
   padding: 0 4px;
 }
 
@@ -108,7 +109,8 @@
   overflow-x: auto;
   overflow-y: hidden;
   scroll-behavior: smooth;
-  scroll-snap-type: x proximity;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0;
   padding-bottom: 12px;
   margin-bottom: 24px;
 
@@ -147,6 +149,12 @@
     background-color: var(--bgc-azul-opacity);
   }
 
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+    pointer-events: none;
+  }
+
   &.prev {
     left: -14px;
   }
@@ -157,9 +165,9 @@
 
 .card-edicao {
   background-color: var(--color-secondary);
-  width: 330px;
+  width: var(--card-w);
   height: 400px;
-  flex: 0 0 330px;
+  flex: 0 0 var(--card-w);
   scroll-snap-align: start;
   border-radius: 15px;
   color: white;
@@ -226,6 +234,30 @@
       input {
         background-color: rgb(255, 254, 254) !important;
       }
+    }
+  }
+}
+
+@media (max-width: 767.98px) {
+  .slide-wrapper {
+    --card-w: min(300px, 84vw);
+  }
+
+  .slide-edicoes {
+    padding-inline: calc((100% - var(--card-w)) / 2);
+    scroll-padding-inline: calc((100% - var(--card-w)) / 2);
+  }
+
+  .card-edicao {
+    scroll-snap-align: center;
+  }
+
+  .slide-nav {
+    &.prev {
+      left: 6px;
+    }
+    &.next {
+      right: 6px;
     }
   }
 }

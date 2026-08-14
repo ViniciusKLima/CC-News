@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
 import { Header } from '../../../shared/components/header/header';
 import { Footer } from '../../../shared/components/footer/footer';
 
@@ -8,12 +8,34 @@ import { Footer } from '../../../shared/components/footer/footer';
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
-export class Home {
+export class Home implements AfterViewInit {
   edicoesPorMes = edicoesPorMes;
 
+  @ViewChildren('slide') private slides!: QueryList<ElementRef<HTMLElement>>;
+
+  ngAfterViewInit(): void {
+    this.slides.forEach((ref) => this.updateNavState(ref.nativeElement));
+  }
+
   scrollSlide(container: HTMLElement, direction: number): void {
-    const amount = container.clientWidth * 0.9;
-    container.scrollBy({ left: direction * amount, behavior: 'smooth' });
+    const card = container.querySelector<HTMLElement>('.card-edicao');
+    if (!card) return;
+
+    const gap = parseFloat(getComputedStyle(container).columnGap) || 0;
+    const step = card.getBoundingClientRect().width + gap;
+    container.scrollBy({ left: direction * step, behavior: 'smooth' });
+  }
+
+  updateNavState(container: HTMLElement): void {
+    const wrapper = container.closest<HTMLElement>('.slide-wrapper');
+    if (!wrapper) return;
+
+    const prevBtn = wrapper.querySelector<HTMLButtonElement>('.slide-nav.prev');
+    const nextBtn = wrapper.querySelector<HTMLButtonElement>('.slide-nav.next');
+    const maxScroll = container.scrollWidth - container.clientWidth;
+
+    if (prevBtn) prevBtn.disabled = container.scrollLeft <= 1;
+    if (nextBtn) nextBtn.disabled = container.scrollLeft >= maxScroll - 1;
   }
 }
 export interface Edicao {

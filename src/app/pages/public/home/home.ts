@@ -6,24 +6,96 @@ import {
   OnInit,
   QueryList,
   ViewChildren,
+  computed,
+  signal,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Header } from '../../../shared/components/header/header';
 import { Footer } from '../../../shared/components/footer/footer';
 
+const MESES_NOMES = [
+  'Janeiro',
+  'Fevereiro',
+  'Março',
+  'Abril',
+  'Maio',
+  'Junho',
+  'Julho',
+  'Agosto',
+  'Setembro',
+  'Outubro',
+  'Novembro',
+  'Dezembro',
+];
+
 @Component({
   selector: 'app-home',
-  imports: [Header, Footer, RouterLink],
+  imports: [Header, Footer, RouterLink, FormsModule],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
 export class Home implements OnInit, AfterViewInit, OnDestroy {
-  loading = true;
-  edicoesPorMes: Mes[] = [];
+  loading = signal(true);
+  edicoesPorMes = signal<Mes[]>([]);
+
+  termoBusca = signal('');
+  filtroAno = signal('');
+  filtroMes = signal('');
+  filtroCategoria = signal('');
 
   readonly skeletonMeses = Array.from({ length: 2 });
   readonly skeletonCards = Array.from({ length: 3 });
+
+  readonly anosDisponiveis = computed(() => {
+    const anos = new Set(this.edicoesPorMes().map((mes) => mes.id.split('-')[0]));
+    return Array.from(anos).sort((a, b) => b.localeCompare(a));
+  });
+
+  readonly mesesDisponiveis = computed(() => {
+    const indices = new Set(this.edicoesPorMes().map((mes) => Number(mes.id.split('-')[1]) - 1));
+    return Array.from(indices)
+      .sort((a, b) => a - b)
+      .map((indice) => ({ valor: String(indice + 1).padStart(2, '0'), nome: MESES_NOMES[indice] }));
+  });
+
+  readonly categoriasDisponiveis = computed(() => {
+    const categorias = new Set(this.edicoesPorMes().flatMap((mes) => mes.edicoes.map((edicao) => edicao.tipo)));
+    return Array.from(categorias).sort();
+  });
+
+  readonly temFiltrosAtivos = computed(
+    () => !!this.termoBusca() || !!this.filtroAno() || !!this.filtroMes() || !!this.filtroCategoria(),
+  );
+
+  readonly edicoesFiltradas = computed<Mes[]>(() => {
+    const termo = this.termoBusca().trim().toLowerCase();
+    const ano = this.filtroAno();
+    const mesFiltro = this.filtroMes();
+    const categoria = this.filtroCategoria();
+
+    return this.edicoesPorMes()
+      .filter((mes) => {
+        if (ano && mes.id.split('-')[0] !== ano) return false;
+        if (mesFiltro && mes.id.split('-')[1] !== mesFiltro) return false;
+        return true;
+      })
+      .map((mes) => ({
+        ...mes,
+        edicoes: mes.edicoes.filter((edicao) => {
+          if (categoria && edicao.tipo !== categoria) return false;
+          if (!termo) return true;
+
+          return (
+            edicao.titulo.toLowerCase().includes(termo) ||
+            edicao.descricao.toLowerCase().includes(termo) ||
+            edicao.periodo.toLowerCase().includes(termo)
+          );
+        }),
+      }))
+      .filter((mes) => mes.edicoes.length > 0);
+  });
 
   @ViewChildren('slide') private slides!: QueryList<ElementRef<HTMLElement>>;
   private slidesChangesSub?: Subscription;
@@ -31,8 +103,8 @@ export class Home implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     // TODO: substituir pelo carregamento real assim que o service de edições existir.
     setTimeout(() => {
-      this.edicoesPorMes = edicoesPorMes;
-      this.loading = false;
+      this.edicoesPorMes.set(edicoesPorMes);
+      this.loading.set(false);
     }, 700);
   }
 
@@ -46,6 +118,13 @@ export class Home implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.slidesChangesSub?.unsubscribe();
+  }
+
+  limparFiltros(): void {
+    this.termoBusca.set('');
+    this.filtroAno.set('');
+    this.filtroMes.set('');
+    this.filtroCategoria.set('');
   }
 
   scrollSlide(container: HTMLElement, direction: number): void {

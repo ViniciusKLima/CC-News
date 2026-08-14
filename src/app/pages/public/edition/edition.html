@@ -1,2 +1,241 @@
-<h1>CC News</h1>
-<p>Edição</p>
+<app-header></app-header>
+<main class="main-content edition-page">
+  <section class="edition-intro container">
+    <div class="intro-top d-flex justify-content-between align-items-start flex-wrap gap-3">
+      @if (loading()) {
+        <div class="intro-text">
+          <div class="skeleton skeleton-badge-itens"></div>
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-subtitle"></div>
+        </div>
+      } @else if (edicao(); as ed) {
+        <div class="intro-text">
+          <span class="badge-itens"><span class="dot"></span>{{ ed.itens.length }} itens</span>
+          <h1 class="edition-status">{{ ed.statusEdicao }}</h1>
+          <p class="edition-resumo">{{ ed.resumo }}</p>
+        </div>
+      }
+
+      <a class="btn-historico" routerLink="/arquivo">
+        Ver histórico completo <i class="bi bi-arrow-right m-0"></i>
+      </a>
+    </div>
+  </section>
+
+  <section class="edition-content container">
+    @if (loading()) {
+      <div class="edition-grid">
+        <div class="edition-main">
+          <div class="skeleton skeleton-label"></div>
+          <div class="destaque-card destaque-card-skeleton">
+            <div class="destaque-texto">
+              <div class="skeleton skeleton-line skeleton-line-lg"></div>
+              <div class="skeleton skeleton-line"></div>
+              <div class="skeleton skeleton-line skeleton-line-sm"></div>
+            </div>
+            <div class="destaque-visual skeleton"></div>
+          </div>
+
+          <div class="skeleton skeleton-heading"></div>
+
+          <div class="categorias-tabs">
+            @for (t of [1, 2, 3, 4]; track $index) {
+              <div class="skeleton skeleton-tab"></div>
+            }
+          </div>
+
+          <div class="itens-grid">
+            @for (c of skeletonItens; track $index) {
+              <div class="item-card item-card-skeleton">
+                <div class="item-topo d-flex justify-content-between align-items-start">
+                  <div class="skeleton skeleton-icon"></div>
+                  <div class="skeleton skeleton-pill"></div>
+                </div>
+                <div class="skeleton skeleton-line skeleton-line-lg"></div>
+                <div class="skeleton skeleton-line"></div>
+                <div class="skeleton skeleton-line skeleton-line-sm"></div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <aside class="edition-sidebar">
+          <div class="sidebar-card">
+            <div class="skeleton skeleton-heading"></div>
+            <ul class="destaques-lista">
+              @for (d of skeletonDestaques; track $index) {
+                <li class="skeleton skeleton-list-item"></li>
+              }
+            </ul>
+          </div>
+
+          <div class="sidebar-card">
+            <div class="skeleton skeleton-heading"></div>
+            <ul class="passos-lista">
+              @for (p of skeletonPassos; track $index) {
+                <li class="skeleton skeleton-list-item-lg"></li>
+              }
+            </ul>
+          </div>
+        </aside>
+      </div>
+
+      <div class="resumo-edicao">
+        @for (s of skeletonStats; track $index) {
+          <div class="stat-tile stat-tile-skeleton">
+            <div class="skeleton skeleton-icon"></div>
+            <div class="stat-texto">
+              <div class="skeleton skeleton-line-sm"></div>
+              <div class="skeleton skeleton-line-sm"></div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="transparencia-banner transparencia-skeleton">
+        <div class="skeleton skeleton-icon-lg"></div>
+        <div class="transparencia-texto">
+          <div class="skeleton skeleton-line skeleton-line-lg"></div>
+          <div class="skeleton skeleton-line"></div>
+        </div>
+      </div>
+    } @else if (edicao(); as ed) {
+      <div class="edition-grid">
+        <div class="edition-main">
+          <span class="destaque-label">Destaque da edição</span>
+          <article class="destaque-card">
+            <div class="destaque-texto">
+              <h2>{{ ed.destaque.titulo }}</h2>
+              <p>{{ ed.destaque.descricao }}</p>
+              <a class="destaque-link" [routerLink]="[ed.destaque.linkUrl]">
+                {{ ed.destaque.linkTexto }} <i class="bi bi-arrow-right m-0"></i>
+              </a>
+            </div>
+
+            <div class="destaque-visual">
+              @if (ed.destaque.imagemUrl) {
+                <img [src]="ed.destaque.imagemUrl" [alt]="ed.destaque.imagemAlt" />
+              } @else {
+                <div class="destaque-mockup" role="img" [attr.aria-label]="ed.destaque.imagemAlt">
+                  <div class="mockup-tela">
+                    <i class="bi bi-wallet2"></i>
+                    <span class="mockup-linha"></span>
+                    <span class="mockup-linha curta"></span>
+                  </div>
+                </div>
+              }
+            </div>
+          </article>
+
+          <h3 class="categorias-heading">Atualizações por categoria</h3>
+
+          <div class="categorias-tabs" role="tablist" aria-label="Filtrar atualizações por categoria">
+            @for (aba of abas; track aba.valor) {
+              <button
+                type="button"
+                role="tab"
+                class="tab-btn"
+                [class.active]="filtro() === aba.valor"
+                [attr.aria-selected]="filtro() === aba.valor"
+                (click)="selecionarFiltro(aba.valor)"
+              >
+                {{ aba.label }}
+              </button>
+            }
+          </div>
+
+          <div class="itens-grid" #itensGrid>
+            @if (itensFiltrados().length === 0) {
+              <p class="itens-vazio">Nenhuma atualização encontrada nesta categoria.</p>
+            } @else {
+              @for (item of itensFiltrados(); track item.id) {
+                <article class="item-card">
+                  <div class="item-topo d-flex justify-content-between align-items-start">
+                    <span class="item-icone" [class]="'cor-' + item.status">
+                      <i [class]="'bi ' + item.icone"></i>
+                    </span>
+                    <span class="status-pill" [class]="'status-' + item.status">{{ item.statusLabel }}</span>
+                  </div>
+                  <h4>{{ item.titulo }}</h4>
+                  <p class="item-descricao">{{ item.descricao }}</p>
+                  <p class="item-observacao">{{ item.observacao }}</p>
+                </article>
+              }
+            }
+          </div>
+        </div>
+
+        <aside class="edition-sidebar">
+          <div class="sidebar-card">
+            <h3>Outros destaques</h3>
+            <ul class="destaques-lista">
+              @for (item of outrosDestaques(); track item.id) {
+                <li>
+                  <span class="item-icone item-icone-sm" [class]="'cor-' + item.status">
+                    <i [class]="'bi ' + item.icone"></i>
+                  </span>
+                  <span class="destaque-titulo">{{ item.titulo }}</span>
+                  <span class="status-pill status-pill-sm" [class]="'status-' + item.status">{{
+                    item.statusLabel
+                  }}</span>
+                </li>
+              }
+            </ul>
+            <button type="button" class="ver-mais-btn" (click)="selecionarFiltro('todos'); scrollPara(itensGrid)">
+              Ver todos os itens <i class="bi bi-arrow-right m-0"></i>
+            </button>
+          </div>
+
+          <div class="sidebar-card">
+            <h3>Próximos passos</h3>
+            <ul class="passos-lista">
+              @for (passo of ed.proximosPassos; track passo.id) {
+                <li>
+                  <span class="passo-dot" [class]="'dot-' + passo.cor"></span>
+                  <div class="passo-conteudo">
+                    <div class="passo-topo d-flex justify-content-between align-items-start">
+                      <span class="passo-titulo">{{ passo.titulo }}</span>
+                      <span class="passo-status" [class]="'passo-status-' + passo.status">{{
+                        passo.statusLabel
+                      }}</span>
+                    </div>
+                    <p class="passo-descricao">{{ passo.descricao }}</p>
+                  </div>
+                </li>
+              }
+            </ul>
+            <a class="ver-mais-btn" routerLink="/">
+              Ver roadmap completo <i class="bi bi-arrow-right m-0"></i>
+            </a>
+          </div>
+        </aside>
+      </div>
+
+      <div class="resumo-edicao">
+        @for (stat of resumoStats(); track stat.label) {
+          <div class="stat-tile">
+            <span class="stat-icone" [class]="'cor-' + stat.cor">
+              <i [class]="'bi ' + stat.icone"></i>
+            </span>
+            <div class="stat-texto">
+              <strong>{{ stat.valor }}</strong>
+              <span>{{ stat.label }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="transparencia-banner">
+        <i class="bi bi-shield-check"></i>
+        <div class="transparencia-texto">
+          <h4>{{ ed.transparencia.titulo }}</h4>
+          <p>{{ ed.transparencia.descricao }}</p>
+        </div>
+        <a class="transparencia-link" [routerLink]="[ed.transparencia.linkUrl]">
+          {{ ed.transparencia.linkTexto }} <i class="bi bi-arrow-right m-0"></i>
+        </a>
+      </div>
+    }
+  </section>
+</main>
+<app-footer></app-footer>

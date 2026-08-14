@@ -16,43 +16,90 @@
   </section>
 
   <section class="search">
-    <div
-      class="container h-100 d-flex flex-column justify-content-center align-items-center align-items-md-start gap-4"
-    >
-      <div class="text-search">
-        <h2 class="tt-search">Histórico de edições</h2>
-        <p class="p-search">
-          Todas as atualizações publicadas no Conecta Cidades News. Use a busca e os filtros para
-          encontrar o que precisa.
-        </p>
+    <div class="container">
+      <div class="search-card">
+        <div class="text-search">
+          <h2 class="tt-search">Histórico de edições</h2>
+          <p class="p-search">
+            Todas as atualizações publicadas no Conecta Cidades News. Use a busca e os filtros para
+            encontrar o que precisa.
+          </p>
+        </div>
+
+        <form class="news-filters" (ngSubmit)="$event.preventDefault()">
+          <div class="pesquisa">
+            <i class="bi bi-search"></i>
+            <input
+              type="text"
+              name="busca"
+              placeholder="Buscar por título ou palavra-chave..."
+              [ngModel]="termoBusca()"
+              (ngModelChange)="termoBusca.set($event)"
+            />
+            @if (termoBusca()) {
+              <button type="button" class="limpar-busca" aria-label="Limpar busca" (click)="termoBusca.set('')">
+                <i class="bi bi-x-lg"></i>
+              </button>
+            }
+          </div>
+
+          <div class="selects-filter">
+            <div class="select-wrap">
+              <select
+                name="ano"
+                aria-label="Filtrar por ano"
+                [ngModel]="filtroAno()"
+                (ngModelChange)="filtroAno.set($event)"
+              >
+                <option value="">Todos os anos</option>
+                @for (ano of anosDisponiveis(); track ano) {
+                  <option [value]="ano">{{ ano }}</option>
+                }
+              </select>
+              <i class="bi bi-chevron-down"></i>
+            </div>
+
+            <div class="select-wrap">
+              <select
+                name="mes"
+                aria-label="Filtrar por mês"
+                [ngModel]="filtroMes()"
+                (ngModelChange)="filtroMes.set($event)"
+              >
+                <option value="">Todos os meses</option>
+                @for (mes of mesesDisponiveis(); track mes.valor) {
+                  <option [value]="mes.valor">{{ mes.nome }}</option>
+                }
+              </select>
+              <i class="bi bi-chevron-down"></i>
+            </div>
+
+            <div class="select-wrap">
+              <select
+                name="categoria"
+                aria-label="Filtrar por categoria"
+                [ngModel]="filtroCategoria()"
+                (ngModelChange)="filtroCategoria.set($event)"
+              >
+                <option value="">Todas as categorias</option>
+                @for (categoria of categoriasDisponiveis(); track categoria) {
+                  <option [value]="categoria">{{ categoria }}</option>
+                }
+              </select>
+              <i class="bi bi-chevron-down"></i>
+            </div>
+
+            <button type="button" class="btn-limpar" [disabled]="!temFiltrosAtivos()" (click)="limparFiltros()">
+              <i class="bi bi-x-circle"></i> Limpar filtros
+            </button>
+          </div>
+        </form>
       </div>
-
-      <form
-        class="news-filters d-flex flex-column align-items-center align-items-md-start gap-3 w-100"
-      >
-        <div class="pesquisa">
-          <i class="bi bi-search"></i>
-          <input type="input-pesquisa" placeholder="Buscar atualizações..." />
-        </div>
-
-        <div class="selects-filter w-100 d-flex gap-2">
-          <select>
-            <option value="ano">Todos os anos</option>
-          </select>
-          <select>
-            <option value="mes">Todos os meses</option>
-          </select>
-          <select>
-            <option value="categoria">Todas as categorias</option>
-          </select>
-          <button type="button">XT</button>
-        </div>
-      </form>
     </div>
   </section>
 
   <section class="materias container">
-    @if (loading) {
+    @if (loading()) {
       @for (m of skeletonMeses; track $index) {
         <div class="header-edicao d-flex align-items-center">
           <i class="bi bi-calendar-week"></i>
@@ -80,13 +127,19 @@
           }
         </div>
       }
-    } @else if (edicoesPorMes.length === 0) {
+    } @else if (edicoesPorMes().length === 0) {
       <div class="empty-state text-center">
         <i class="bi bi-calendar-x"></i>
         <p>Nenhuma edição publicada ainda.</p>
       </div>
+    } @else if (edicoesFiltradas().length === 0) {
+      <div class="empty-state text-center">
+        <i class="bi bi-search"></i>
+        <p>Nenhuma edição encontrada com os filtros selecionados.</p>
+        <button type="button" class="btn-limpar-vazio" (click)="limparFiltros()">Limpar filtros</button>
+      </div>
     } @else {
-      @for (mes of edicoesPorMes; track mes.id) {
+      @for (mes of edicoesFiltradas(); track mes.id) {
         <div class="header-edicao d-flex align-items-center">
           <i class="bi bi-calendar-week"></i>
           <h4 class="periodo m-0">{{ mes.nome }}</h4>

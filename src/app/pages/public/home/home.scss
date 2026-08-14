@@ -18,29 +18,131 @@
       font-weight: 700;
     }
 
-    .p-hero{
-        font-size: 0.85rem;
-        border-left: 4px solid var(--color-primary);
-        padding: 10px;
-        margin: 0;
+    .p-hero {
+      font-size: 0.85rem;
+      border-left: 4px solid var(--color-primary);
+      padding: 10px;
+      margin: 0;
     }
   }
 }
 
-.search{
-    height: 40vh;
-    background-color: green;
-    .text-search{
-        background-color: blue;
-        width: 500px;
-        max-width: 90vw;
-        .tt-search{
-            font-weight: 900;
-            font-size: 1.5rem;
-        }
-        .p-search{
-            font-size: 0.78rem;
-            margin: 0;
-        }
+.search {
+  height: auto;
+  padding: 5vh 0;
+  .text-search {
+    width: 500px;
+    max-width: 90vw;
+    .tt-search {
+      font-weight: 900;
+      font-size: 1.5rem;
     }
+    .p-search {
+      font-size: 0.78rem;
+      margin: 0;
+    }
+  }
+
+  .news-filters {
+    .pesquisa {
+      width: 100%;
+      position: relative;
+
+      i {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 14px;
+        font-size: 1.2rem;
+        color: var(--color-text);
+      }
+
+      input {
+        width: 100%;
+        border: var(--color-border) 1px solid;
+        border-radius: 10px;
+        padding: 10px 20px 10px 45px;
+      }
+    }
+    .selects-filter {
+      font-size: 0.8rem;
+
+      select {
+        width: 100%;
+        border: solid 1px var(--color-border);
+        padding: 8px;
+        border-radius: 5px;
+      }
+      button {
+        border: none;
+        color: var(--text-color);
+        background: none;
+      }
+    }
+  }
+}
+
+.card-edicao {
+  background-color: var(--color-secondary);
+  width: 330px;
+  height: 400px;
+  border-radius: 15px;
+  color: white;
+  padding: 25px 20px;
+
+  .data-edicao {
+    font-size: 0.65rem;
+  }
+
+  .tipo-edicao {
+    font-size: 0.7rem;
+    background-color: var(--bgc-purple);
+    padding: 3px 8px;
+    border-radius: 30px;
+    font-weight: 600;
+  }
+
+  .txt-edicao {
+    width: 75%;
+    .tt-edicao {
+      font-size: 1.4rem;
+      font-weight: 800;
+    }
+
+    .p-edicao {
+      font-size: 0.8rem;
+    }
+  }
+
+  .footer-edicao {
+    .total-novo {
+      font-size: 0.7rem;
+      font-weight: 600;
+      background-color: #ffffff34;
+      padding: 3px 10px;
+      margin: 0;
+      border-radius: 20px;
+    }
+
+    .ver-edicao {
+      background: none;
+      color: white;
+      border: none;
+      font-size: 0.8rem;
+
+      i {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+@media (min-width: 700px) {
+  .search {
+    .pesquisa {
+      input {
+        background-color: rgb(255, 254, 254) !important;
+      }
+    }
+  }
 }

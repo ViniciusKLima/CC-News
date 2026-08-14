@@ -16,33 +16,50 @@
   </section>
 
   <section class="search">
-    <div class="container h-100 d-flex flex-column justify-content-center">
+    <div class="container h-100 d-flex flex-column justify-content-center align-items-center align-items-md-start gap-4">
       <div class="text-search">
         <h2 class="tt-search">Histórico de edições</h2>
         <p class="p-search">
-          Todas as atualizações publicadas no Conecta Cidades News. Use a busca e os filtros para encontrar o que precisa.
+          Todas as atualizações publicadas no Conecta Cidades News. Use a busca e os filtros para
+          encontrar o que precisa.
         </p>
       </div>
 
-      <form class="news-filters">
-        <div class="search-field">
-          <input type="search" placeholder="Buscar atualizações..." />
+      <form class="news-filters d-flex flex-column align-items-center align-items-md-start gap-3 w-100">
+        <div class="pesquisa">
+          <i class="bi bi-search"></i>
+          <input type="input-pesquisa" placeholder="Buscar atualizações..." />
         </div>
 
-        <select>
-          <option value="">Todos os anos</option>
-        </select>
-
-        <select>
-          <option value="">Todos os meses</option>
-        </select>
-
-        <select>
-          <option value="">Todas as categorias</option>
-        </select>
-
-        <button type="button">Limpar filtros</button>
+        <div class="selects-filter w-100 d-flex gap-2">
+          <select>
+            <option value="ano">Todos os anos</option>
+          </select>
+          <select>
+            <option value="mes">Todos os meses</option>
+          </select>
+          <select>
+            <option value="categoria">Todas as categorias</option>
+          </select>
+          <button type="button">XT</button>
+        </div>
       </form>
+    </div>
+  </section>
+
+  <section class="materias container">
+    <div class="header-edicao"><i class="bi bi-calendar"></i>JUNHO DE 2026 <hr></div>
+    <div class="card-edicao d-flex flex-column justify-content-between align-items-start">
+      <div class="data-edicao"><i class="bi bi-calendar"></i>29 DE JUNHO A 06 DE JULHO DE 2026</div>
+      <div class="tipo-edicao text-center">EDIÇÃO SEMANAL</div>
+      <div class="txt-edicao">
+        <h4 class="tt-edicao">Atualizações da Semana</h4>
+        <p class="p-edicao">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quae, neque?</p>
+      </div>
+      <div class="footer-edicao d-flex justify-content-between w-100">
+        <div class="total-novo">18 novidades</div>
+        <button class="ver-edicao">Ver edição <i class="bi bi-arrow-right"></i></button>
+      </div>
     </div>
   </section>
 </main>

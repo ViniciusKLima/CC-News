@@ -1,20 +1,51 @@
-import { AfterViewInit, Component, ElementRef, QueryList, ViewChildren } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
+import { Subscription } from 'rxjs';
+import { RouterLink } from '@angular/router';
 import { Header } from '../../../shared/components/header/header';
 import { Footer } from '../../../shared/components/footer/footer';
 
 @Component({
   selector: 'app-home',
-  imports: [Header, Footer],
+  imports: [Header, Footer, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
-export class Home implements AfterViewInit {
-  edicoesPorMes = edicoesPorMes;
+export class Home implements OnInit, AfterViewInit, OnDestroy {
+  loading = true;
+  edicoesPorMes: Mes[] = [];
+
+  readonly skeletonMeses = Array.from({ length: 2 });
+  readonly skeletonCards = Array.from({ length: 3 });
 
   @ViewChildren('slide') private slides!: QueryList<ElementRef<HTMLElement>>;
+  private slidesChangesSub?: Subscription;
+
+  ngOnInit(): void {
+    // TODO: substituir pelo carregamento real assim que o service de edições existir.
+    setTimeout(() => {
+      this.edicoesPorMes = edicoesPorMes;
+      this.loading = false;
+    }, 700);
+  }
 
   ngAfterViewInit(): void {
     this.slides.forEach((ref) => this.updateNavState(ref.nativeElement));
+
+    this.slidesChangesSub = this.slides.changes.subscribe((list: QueryList<ElementRef<HTMLElement>>) => {
+      setTimeout(() => list.forEach((ref) => this.updateNavState(ref.nativeElement)));
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.slidesChangesSub?.unsubscribe();
   }
 
   scrollSlide(container: HTMLElement, direction: number): void {

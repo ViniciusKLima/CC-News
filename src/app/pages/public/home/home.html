@@ -52,56 +52,93 @@
   </section>
 
   <section class="materias container">
-    @for (mes of edicoesPorMes; track mes.id) {
-      <div class="header-edicao d-flex align-items-center">
-        <i class="bi bi-calendar-week"></i>
-        <h4 class="periodo m-0">{{ mes.nome }}</h4>
-        <span></span>
-      </div>
+    @if (loading) {
+      @for (m of skeletonMeses; track $index) {
+        <div class="header-edicao d-flex align-items-center">
+          <i class="bi bi-calendar-week"></i>
+          <div class="skeleton skeleton-title"></div>
+          <span></span>
+        </div>
 
-      <div class="slide-wrapper position-relative">
-        <button
-          type="button"
-          class="slide-nav prev"
-          aria-label="Ver edições anteriores"
-          (click)="scrollSlide(slide, -1)"
-        >
-          <i class="bi bi-chevron-left"></i>
-        </button>
-
-        <div class="slide-edicoes d-flex gap-4" #slide (scroll)="updateNavState(slide)">
-          @for (edicao of mes.edicoes; track edicao.id) {
-            <div class="card-edicao d-flex flex-column justify-content-between align-items-start">
-              <div class="data-edicao d-flex align-items-center">
-                <i class="bi bi-calendar-week"></i>
-                <h4 class="data m-0">{{ edicao.periodo }}</h4>
-              </div>
-              <div class="tipo-edicao text-center">Edição {{ edicao.tipo }}</div>
-              <div class="txt-edicao">
-                <h4 class="tt-edicao">{{ edicao.titulo }}</h4>
-                <p class="p-edicao">
-                  {{ edicao.descricao }}
-                </p>
+        <div class="slide-edicoes d-flex gap-4">
+          @for (c of skeletonCards; track $index) {
+            <div
+              class="card-edicao card-edicao-skeleton d-flex flex-column justify-content-between align-items-start"
+            >
+              <div class="skeleton skeleton-pill"></div>
+              <div class="skeleton skeleton-badge"></div>
+              <div class="txt-edicao w-100">
+                <div class="skeleton skeleton-line skeleton-line-lg"></div>
+                <div class="skeleton skeleton-line"></div>
+                <div class="skeleton skeleton-line skeleton-line-sm"></div>
               </div>
               <div class="footer-edicao d-flex justify-content-between align-items-center w-100">
-                <div class="total-novo m-0 d-flex align-items-center">
-                  {{ edicao.totalNovidades }} novidades
-                </div>
-                <button class="ver-edicao">Ver edição <i class="bi bi-arrow-right m-0"></i></button>
+                <div class="skeleton skeleton-pill"></div>
+                <div class="skeleton skeleton-pill skeleton-pill-sm"></div>
               </div>
             </div>
           }
         </div>
-
-        <button
-          type="button"
-          class="slide-nav next"
-          aria-label="Ver próximas edições"
-          (click)="scrollSlide(slide, 1)"
-        >
-          <i class="bi bi-chevron-right"></i>
-        </button>
+      }
+    } @else if (edicoesPorMes.length === 0) {
+      <div class="empty-state text-center">
+        <i class="bi bi-calendar-x"></i>
+        <p>Nenhuma edição publicada ainda.</p>
       </div>
+    } @else {
+      @for (mes of edicoesPorMes; track mes.id) {
+        <div class="header-edicao d-flex align-items-center">
+          <i class="bi bi-calendar-week"></i>
+          <h4 class="periodo m-0">{{ mes.nome }}</h4>
+          <span></span>
+        </div>
+
+        <div class="slide-wrapper position-relative">
+          <button
+            type="button"
+            class="slide-nav prev"
+            aria-label="Ver edições anteriores"
+            (click)="scrollSlide(slide, -1)"
+          >
+            <i class="bi bi-chevron-left"></i>
+          </button>
+
+          <div class="slide-edicoes d-flex gap-4" #slide (scroll)="updateNavState(slide)">
+            @for (edicao of mes.edicoes; track edicao.id) {
+              <div class="card-edicao d-flex flex-column justify-content-between align-items-start">
+                <div class="data-edicao d-flex align-items-center">
+                  <i class="bi bi-calendar-week"></i>
+                  <h4 class="data m-0">{{ edicao.periodo }}</h4>
+                </div>
+                <div class="tipo-edicao text-center">Edição {{ edicao.tipo }}</div>
+                <div class="txt-edicao">
+                  <h4 class="tt-edicao">{{ edicao.titulo }}</h4>
+                  <p class="p-edicao">
+                    {{ edicao.descricao }}
+                  </p>
+                </div>
+                <div class="footer-edicao d-flex justify-content-between align-items-center w-100">
+                  <div class="total-novo m-0 d-flex align-items-center">
+                    {{ edicao.totalNovidades }} novidades
+                  </div>
+                  <a class="ver-edicao" [routerLink]="['/edicao', edicao.id]">
+                    Ver edição <i class="bi bi-arrow-right m-0"></i>
+                  </a>
+                </div>
+              </div>
+            }
+          </div>
+
+          <button
+            type="button"
+            class="slide-nav next"
+            aria-label="Ver próximas edições"
+            (click)="scrollSlide(slide, 1)"
+          >
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      }
     }
   </section>
 </main>

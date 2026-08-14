@@ -174,7 +174,7 @@
   padding: 25px 20px;
 
   .data-edicao {
-    i{
+    i {
       margin-right: 5px;
       font-size: 0.75rem;
     }
@@ -218,13 +218,106 @@
       background: none;
       color: white;
       border: none;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       font-size: 0.8rem;
       font-weight: 600;
+      cursor: pointer;
 
       i {
         font-size: 1rem;
       }
     }
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton {
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(16, 47, 85, 0.08) 25%,
+    rgba(16, 47, 85, 0.16) 37%,
+    rgba(16, 47, 85, 0.08) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.header-edicao {
+  .skeleton-title {
+    width: 180px;
+    height: 1rem;
+  }
+}
+
+.card-edicao-skeleton {
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.08) 25%,
+      rgba(255, 255, 255, 0.18) 37%,
+      rgba(255, 255, 255, 0.08) 63%
+    );
+    background-size: 400% 100%;
+  }
+
+  .skeleton-pill {
+    width: 90px;
+    height: 22px;
+    border-radius: 30px;
+
+    &.skeleton-pill-sm {
+      width: 70px;
+    }
+  }
+
+  .skeleton-badge {
+    width: 120px;
+    height: 20px;
+    border-radius: 30px;
+  }
+
+  .skeleton-line {
+    height: 12px;
+    width: 100%;
+    margin-bottom: 10px;
+
+    &.skeleton-line-lg {
+      height: 20px;
+      width: 90%;
+    }
+    &.skeleton-line-sm {
+      width: 60%;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.empty-state {
+  padding: 60px 20px;
+  color: var(--color-text-secondary);
+
+  i {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 2rem;
+    color: var(--color-border);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.95rem;
   }
 }
 

@@ -1,2 +1,243 @@
-<h1>CC News</h1>
-<p>Painel administrativo</p>
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <a class="admin-logo" routerLink="/admin">
+      <span>Conecta Cidades</span>
+      <strong>NEWS</strong>
+    </a>
+
+    <nav class="admin-nav" aria-label="Navegação administrativa">
+      <span class="admin-nav-item disabled" aria-disabled="true">
+        <i class="bi bi-people"></i> <span>Usuários Internos</span>
+      </span>
+      <a
+        class="admin-nav-item"
+        routerLink="/admin"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <i class="bi bi-journal-text"></i> <span>Publicações</span>
+      </a>
+    </nav>
+
+    <div class="admin-user">
+      <span class="admin-user-avatar">VK</span>
+      <div class="admin-user-info">
+        <strong>Vinícius Kauã</strong>
+        <span>Administrador</span>
+      </div>
+      <i class="bi bi-chevron-down"></i>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-header d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <div>
+        <h1>Publicações</h1>
+        <p>Gerencie as edições publicadas no Conecta Cidades News.</p>
+      </div>
+      <a class="btn-primario" routerLink="/admin/edicao/nova">
+        <i class="bi bi-plus-lg"></i> Nova edição
+      </a>
+    </div>
+
+    <div class="admin-filters">
+      <div class="pesquisa">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          name="busca"
+          placeholder="Buscar por título ou palavra-chave..."
+          [ngModel]="termoBusca()"
+          (ngModelChange)="termoBusca.set($event)"
+        />
+      </div>
+
+      <div class="select-wrap">
+        <select
+          name="mes"
+          aria-label="Filtrar por mês"
+          [ngModel]="filtroMes()"
+          (ngModelChange)="filtroMes.set($event)"
+        >
+          <option value="">Todos os meses</option>
+          @for (mes of mesesDisponiveis(); track mes.valor) {
+            <option [value]="mes.valor">{{ mes.nome }}</option>
+          }
+        </select>
+        <i class="bi bi-chevron-down"></i>
+      </div>
+
+      <div class="select-wrap">
+        <select
+          name="ano"
+          aria-label="Filtrar por ano"
+          [ngModel]="filtroAno()"
+          (ngModelChange)="filtroAno.set($event)"
+        >
+          <option value="">Todos os anos</option>
+          @for (ano of anosDisponiveis(); track ano) {
+            <option [value]="ano">{{ ano }}</option>
+          }
+        </select>
+        <i class="bi bi-chevron-down"></i>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="grupos-mensais">
+        @for (g of skeletonGrupos; track $index) {
+          <section class="grupo-mensal aberto">
+            <div class="grupo-header">
+              <div class="skeleton skeleton-icon-sm"></div>
+              <div class="skeleton skeleton-nome"></div>
+              <div class="skeleton skeleton-contagem"></div>
+            </div>
+            <div class="grupo-conteudo">
+              @for (l of skeletonLinhas; track $index) {
+                <div class="edicao-linha">
+                  <div class="edicao-info">
+                    <div class="skeleton edicao-capa"></div>
+                    <div class="edicao-textos">
+                      <div class="skeleton skeleton-line skeleton-line-lg"></div>
+                      <div class="skeleton skeleton-line skeleton-line-sm"></div>
+                    </div>
+                  </div>
+                  <div class="skeleton skeleton-line skeleton-periodo"></div>
+                  <div class="skeleton skeleton-pill"></div>
+                  <div class="skeleton skeleton-pill"></div>
+                  <div class="skeleton skeleton-acoes"></div>
+                </div>
+              }
+            </div>
+          </section>
+        }
+      </div>
+    } @else if (edicoes().length === 0) {
+      <div class="empty-state">
+        <i class="bi bi-journal-x"></i>
+        <p>Nenhuma edição cadastrada ainda.</p>
+        <a class="btn-primario" routerLink="/admin/edicao/nova">
+          <i class="bi bi-plus-lg"></i> Criar primeira edição
+        </a>
+      </div>
+    } @else if (gruposMensais().length === 0) {
+      <div class="empty-state">
+        <i class="bi bi-search"></i>
+        <p>Nenhuma edição encontrada com os filtros selecionados.</p>
+        <button type="button" class="btn-limpar-vazio" (click)="limparFiltros()">Limpar filtros</button>
+      </div>
+    } @else {
+      <div class="grupos-mensais">
+        @for (grupo of gruposMensais(); track grupo.chave) {
+          <section class="grupo-mensal" [class.aberto]="grupoEstaAberto(grupo.chave)">
+            <button
+              type="button"
+              class="grupo-header"
+              [attr.aria-expanded]="grupoEstaAberto(grupo.chave)"
+              [attr.aria-controls]="'grupo-' + grupo.chave"
+              (click)="alternarGrupo(grupo.chave)"
+            >
+              <i class="bi bi-calendar-week"></i>
+              <span class="grupo-nome">{{ grupo.nome }}</span>
+              <span class="grupo-contagem"
+                >{{ grupo.edicoes.length }} {{ grupo.edicoes.length === 1 ? 'edição' : 'edições' }}</span
+              >
+              <i class="bi bi-chevron-down grupo-chevron"></i>
+            </button>
+
+            @if (grupoEstaAberto(grupo.chave)) {
+              <div class="grupo-conteudo" [id]="'grupo-' + grupo.chave">
+                <div class="edicoes-cabecalho">
+                  <span>Edição</span>
+                  <span>Período</span>
+                  <span>Tipo</span>
+                  <span>Status</span>
+                  <span>Ações</span>
+                </div>
+
+                @for (edicao of grupo.edicoes; track edicao.id) {
+                  <div class="edicao-linha">
+                    <div class="edicao-info">
+                      <div class="edicao-capa" [class]="'capa-' + tipoSlug(edicao.tipo)">
+                        @if (edicao.capaUrl) {
+                          <img [src]="edicao.capaUrl" [alt]="edicao.titulo" />
+                        } @else {
+                          <i [class]="'bi ' + iconeTipo(edicao.tipo)"></i>
+                        }
+                      </div>
+                      <div class="edicao-textos">
+                        <strong>{{ edicao.titulo }}</strong>
+                        <span>{{ edicao.subtitulo }}</span>
+                      </div>
+                    </div>
+
+                    <div class="edicao-periodo">{{ edicao.periodo }}</div>
+
+                    <div class="edicao-tipo">
+                      <span class="pill" [class]="'tipo-' + tipoSlug(edicao.tipo)">Edição {{ edicao.tipo }}</span>
+                    </div>
+
+                    <div class="edicao-status">
+                      <span class="pill status-{{ edicao.status }}">
+                        <i
+                          class="bi"
+                          [class.bi-check-circle-fill]="edicao.status === 'publicada'"
+                          [class.bi-clock-fill]="edicao.status === 'rascunho'"
+                        ></i>
+                        {{ edicao.status === 'publicada' ? 'Publicada' : 'Rascunho' }}
+                      </span>
+                    </div>
+
+                    <div class="edicao-acoes">
+                      <a
+                        class="btn-icone"
+                        [routerLink]="['/admin/edicao', edicao.id, 'editar']"
+                        aria-label="Editar edição"
+                      >
+                        <i class="bi bi-pencil"></i>
+                      </a>
+
+                      <div class="menu-wrapper">
+                        <button
+                          type="button"
+                          class="btn-icone"
+                          aria-haspopup="menu"
+                          [attr.aria-expanded]="menuAbertoId() === edicao.id"
+                          aria-label="Mais ações"
+                          (click)="alternarMenu(edicao.id, $event)"
+                        >
+                          <i class="bi bi-three-dots"></i>
+                        </button>
+
+                        @if (menuAbertoId() === edicao.id) {
+                          <div class="menu-dropdown" role="menu" (click)="$event.stopPropagation()">
+                            <button type="button" role="menuitem" (click)="alternarStatus(edicao)">
+                              <i
+                                class="bi"
+                                [class.bi-eye]="edicao.status === 'rascunho'"
+                                [class.bi-eye-slash]="edicao.status === 'publicada'"
+                              ></i>
+                              {{ edicao.status === 'publicada' ? 'Transformar em rascunho' : 'Publicar edição' }}
+                            </button>
+                            <button
+                              type="button"
+                              role="menuitem"
+                              class="menu-item-perigo"
+                              (click)="excluir(edicao)"
+                            >
+                              <i class="bi bi-trash3"></i> Excluir
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </section>
+        }
+      </div>
+    }
+  </main>
+</div>

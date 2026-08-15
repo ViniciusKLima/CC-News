@@ -1,2 +1,49 @@
-<h1>CC News</h1>
-<p>Editor de edição</p>
+<div class="editor-shell">
+  <a class="btn-voltar" routerLink="/admin"><i class="bi bi-arrow-left"></i> Voltar para Publicações</a>
+
+  @if (carregando()) {
+    <div class="editor-placeholder">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-line"></div>
+    </div>
+  } @else if (modo() === 'criar') {
+    <div class="editor-placeholder">
+      <span class="badge-modo">Nova edição</span>
+      <h1>Criar edição</h1>
+      <p>O formulário de criação será implementado em seguida.</p>
+    </div>
+  } @else if (edicaoNaoEncontrada()) {
+    <div class="editor-placeholder">
+      <span class="badge-modo badge-erro">Não encontrada</span>
+      <h1>Edição não encontrada</h1>
+      <p>Não encontramos nenhuma edição com o id <strong>{{ edicaoId() }}</strong>.</p>
+    </div>
+  } @else if (edicao(); as ed) {
+    <div class="editor-placeholder">
+      <span class="badge-modo">Editando</span>
+      <h1>{{ ed.titulo }}</h1>
+      <p>{{ ed.subtitulo }}</p>
+
+      <dl class="editor-resumo">
+        <div>
+          <dt>ID</dt>
+          <dd>{{ ed.id }}</dd>
+        </div>
+        <div>
+          <dt>Período</dt>
+          <dd>{{ ed.periodo }}</dd>
+        </div>
+        <div>
+          <dt>Tipo</dt>
+          <dd>Edição {{ ed.tipo }}</dd>
+        </div>
+        <div>
+          <dt>Status</dt>
+          <dd>{{ ed.status === 'publicada' ? 'Publicada' : 'Rascunho' }}</dd>
+        </div>
+      </dl>
+
+      <p class="aviso">O formulário completo de edição será implementado em seguida.</p>
+    </div>
+  }
+</div>

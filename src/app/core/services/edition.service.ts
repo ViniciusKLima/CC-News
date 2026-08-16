@@ -1,124 +1,151 @@
 import { Injectable, signal } from '@angular/core';
-import { Edicao } from '../models/edition.model';
+import { Atualizacao, Edicao, StatusEdicao } from '../models/edition.model';
+
+function gerarId(prefixo: string): string {
+  const sufixo =
+    typeof crypto !== 'undefined' && 'randomUUID' in crypto
+      ? crypto.randomUUID().slice(0, 8)
+      : Math.random().toString(36).slice(2, 10);
+  return `${prefixo}-${sufixo}`;
+}
 
 const EDICOES_MOCK: Edicao[] = [
   {
     id: 'edicao-2026-08-25',
+    capaUrl: undefined,
     titulo: 'Atualizações da Semana',
-    subtitulo: 'Ajustes de performance e novas automações de atendimento',
-    periodo: '25 a 31 de agosto',
-    tipo: 'Semanal',
-    status: 'publicada',
-    totalNovidades: 9,
-    mes: 8,
-    ano: 2026,
+    resumo: 'Ajustes de performance e novas automações de atendimento.',
+    tipo: 'semanal',
+    periodo: { tipo: 'semanal', dataInicio: '2026-08-25', dataFim: '2026-08-31' },
+    status: 'publico',
+    criadoEm: '2026-08-31',
+    atualizacoes: [
+      {
+        id: 'atualizacao-01',
+        categoria: 'novidades',
+        icone: 'bi-diagram-3',
+        titulo: 'Seleção por departamento',
+        descricao: 'Em validação a seleção de serviços e departamentos para atendimento por perfil.',
+        impacto: 'Garante maior precisão na organização dos serviços.',
+        visivel: true,
+      },
+      {
+        id: 'atualizacao-02',
+        categoria: 'melhorias',
+        icone: 'bi-zoom-in',
+        titulo: 'Melhoria no zoom dos mapas do admin',
+        descricao: 'Ajuste no comportamento do zoom dos mapas utilizados nas áreas administrativas.',
+        impacto: 'Facilita a visualização de informações georreferenciadas.',
+        visivel: true,
+      },
+      {
+        id: 'atualizacao-03',
+        categoria: 'correcoes',
+        icone: 'bi-bell',
+        titulo: 'Correção na notificação de reagendamento',
+        descricao: 'Correção no fluxo de notificação enviada após o reagendamento de atendimentos.',
+        impacto: 'Evita retrabalho nas agendas das equipes.',
+        visivel: false,
+      },
+      {
+        id: 'atualizacao-04',
+        categoria: 'testes',
+        icone: 'bi-shield-lock',
+        titulo: 'Restrição de módulos por tags',
+        descricao: 'Em testes a possibilidade de restringir o acesso a módulos via tags de configuração.',
+        impacto: 'Permite maior flexibilidade na gestão de permissões.',
+        visivel: true,
+      },
+    ],
   },
   {
     id: 'edicao-2026-08-18',
     titulo: 'Atualizações da Semana',
-    subtitulo: 'Melhorias no mapa da cidade e nos módulos administrativos',
-    periodo: '18 a 24 de agosto',
-    tipo: 'Semanal',
-    status: 'publicada',
-    totalNovidades: 11,
-    mes: 8,
-    ano: 2026,
+    resumo: 'Melhorias no mapa da cidade e nos módulos administrativos.',
+    tipo: 'semanal',
+    periodo: { tipo: 'semanal', dataInicio: '2026-08-18', dataFim: '2026-08-24' },
+    status: 'publico',
+    criadoEm: '2026-08-24',
+    atualizacoes: [],
   },
   {
     id: 'edicao-2026-08-11',
     titulo: 'Wallet Digital em Testes',
-    subtitulo: 'Uma nova visão sobre carteira digital e benefícios',
-    periodo: '11 a 17 de agosto',
-    tipo: 'Especial',
-    status: 'rascunho',
-    totalNovidades: 5,
-    mes: 8,
-    ano: 2026,
+    resumo: 'Uma nova visão sobre carteira digital e benefícios.',
+    tipo: 'especial',
+    periodo: { tipo: 'especial', tema: 'Wallet Digital' },
+    status: 'arquivado',
+    criadoEm: '2026-08-17',
+    atualizacoes: [
+      {
+        id: 'atualizacao-05',
+        categoria: 'proximos-passos',
+        icone: 'bi-wallet2',
+        titulo: 'Armazenamento de documentos',
+        descricao: 'Continuidade dos testes de armazenamento de documentos e benefícios digitais.',
+        impacto: 'Amplia o alcance da carteira digital para novos serviços.',
+        visivel: true,
+      },
+    ],
   },
   {
     id: 'edicao-2026-08-01',
     titulo: 'Resumo de Agosto',
-    subtitulo: 'Panorama das principais entregas do mês',
-    periodo: '01 a 10 de agosto',
-    tipo: 'Mensal',
-    status: 'publicada',
-    totalNovidades: 15,
-    mes: 8,
-    ano: 2026,
+    resumo: 'Panorama das principais entregas do mês.',
+    tipo: 'mensal',
+    periodo: { tipo: 'mensal', mes: 8, ano: 2026 },
+    status: 'publico',
+    criadoEm: '2026-08-10',
+    atualizacoes: [],
   },
   {
     id: 'edicao-2026-07-21',
     titulo: 'Atualizações da Semana',
-    subtitulo: 'Aprimoramentos nos fluxos de atendimento',
-    periodo: '21 a 24 de julho',
-    tipo: 'Semanal',
-    status: 'publicada',
-    totalNovidades: 10,
-    mes: 7,
-    ano: 2026,
+    resumo: 'Aprimoramentos nos fluxos de atendimento.',
+    tipo: 'semanal',
+    periodo: { tipo: 'semanal', dataInicio: '2026-07-21', dataFim: '2026-07-24' },
+    status: 'publico',
+    criadoEm: '2026-07-24',
+    atualizacoes: [],
   },
   {
     id: 'edicao-2026-07-15',
     titulo: 'Resumo de Julho',
-    subtitulo: 'Principais entregas e correções do mês',
-    periodo: '15 de julho',
-    tipo: 'Mensal',
-    status: 'publicada',
-    totalNovidades: 18,
-    mes: 7,
-    ano: 2026,
+    resumo: 'Principais entregas e correções do mês.',
+    tipo: 'mensal',
+    periodo: { tipo: 'mensal', mes: 7, ano: 2026 },
+    status: 'publico',
+    criadoEm: '2026-07-15',
+    atualizacoes: [],
   },
   {
     id: 'edicao-2026-07-07',
     titulo: 'Atualizações da Semana',
-    subtitulo: 'Correções e melhorias de desempenho',
-    periodo: '07 a 08 de julho',
-    tipo: 'Semanal',
-    status: 'rascunho',
-    totalNovidades: 7,
-    mes: 7,
-    ano: 2026,
-  },
-  {
-    id: 'edicao-2026-06-23',
-    titulo: 'Atualizações da Semana',
-    subtitulo: 'Mais praticidade para gestores municipais',
-    periodo: '23 a 26 de junho',
-    tipo: 'Semanal',
-    status: 'publicada',
-    totalNovidades: 9,
-    mes: 6,
-    ano: 2026,
+    resumo: 'Correções e melhorias de desempenho.',
+    tipo: 'semanal',
+    periodo: { tipo: 'semanal', dataInicio: '2026-07-07', dataFim: '2026-07-08' },
+    status: 'arquivado',
+    criadoEm: '2026-07-08',
+    atualizacoes: [],
   },
   {
     id: 'edicao-2026-06-15',
     titulo: 'Destaques do Semestre',
-    subtitulo: 'Os principais avanços da plataforma no primeiro semestre',
-    periodo: '15 de junho',
-    tipo: 'Especial',
-    status: 'publicada',
-    totalNovidades: 21,
-    mes: 6,
-    ano: 2026,
-  },
-  {
-    id: 'edicao-2026-06-02',
-    titulo: 'Atualizações da Semana',
-    subtitulo: 'Novos ajustes chegam à plataforma',
-    periodo: '02 a 05 de junho',
-    tipo: 'Semanal',
-    status: 'publicada',
-    totalNovidades: 6,
-    mes: 6,
-    ano: 2026,
+    resumo: 'Os principais avanços da plataforma no primeiro semestre.',
+    tipo: 'anual',
+    periodo: { tipo: 'anual', ano: 2026 },
+    status: 'publico',
+    criadoEm: '2026-06-15',
+    atualizacoes: [],
   },
 ];
 
 /**
  * Fonte única dos dados de edições. Hoje entrega um mock local; quando o
- * Firestore for integrado, apenas o carregamento interno deste service
- * precisa mudar — os consumidores (Home, Edição, área administrativa)
- * continuam lendo os mesmos signals.
+ * Firestore for integrado, apenas o carregamento e a persistência internos
+ * deste service precisam mudar — os consumidores (Home, Edição pública,
+ * área administrativa) continuam lendo os mesmos signals e chamando os
+ * mesmos métodos.
  */
 @Injectable({ providedIn: 'root' })
 export class EditionService {
@@ -140,17 +167,75 @@ export class EditionService {
     return this._edicoes().find((edicao) => edicao.id === id);
   }
 
-  alternarStatus(id: string): void {
+  criar(dados: Omit<Edicao, 'id' | 'criadoEm' | 'atualizacoes'>): Edicao {
+    const novaEdicao: Edicao = {
+      ...dados,
+      id: gerarId('edicao'),
+      criadoEm: new Date().toISOString().slice(0, 10),
+      atualizacoes: [],
+    };
+    this._edicoes.update((lista) => [novaEdicao, ...lista]);
+    return novaEdicao;
+  }
+
+  atualizar(id: string, dados: Partial<Omit<Edicao, 'id' | 'atualizacoes'>>): void {
+    this._edicoes.update((lista) => lista.map((edicao) => (edicao.id === id ? { ...edicao, ...dados } : edicao)));
+  }
+
+  atualizarStatus(id: string, status: StatusEdicao): void {
+    this.atualizar(id, { status });
+  }
+
+  remover(id: string): void {
+    this._edicoes.update((lista) => lista.filter((edicao) => edicao.id !== id));
+  }
+
+  adicionarAtualizacao(edicaoId: string, dados: Omit<Atualizacao, 'id'>): void {
+    const nova: Atualizacao = { ...dados, id: gerarId('atualizacao') };
     this._edicoes.update((lista) =>
       lista.map((edicao) =>
-        edicao.id === id
-          ? { ...edicao, status: edicao.status === 'publicada' ? 'rascunho' : 'publicada' }
+        edicao.id === edicaoId ? { ...edicao, atualizacoes: [...edicao.atualizacoes, nova] } : edicao,
+      ),
+    );
+  }
+
+  atualizarAtualizacao(edicaoId: string, atualizacaoId: string, dados: Omit<Atualizacao, 'id'>): void {
+    this._edicoes.update((lista) =>
+      lista.map((edicao) =>
+        edicao.id === edicaoId
+          ? {
+              ...edicao,
+              atualizacoes: edicao.atualizacoes.map((item) =>
+                item.id === atualizacaoId ? { ...dados, id: atualizacaoId } : item,
+              ),
+            }
           : edicao,
       ),
     );
   }
 
-  remover(id: string): void {
-    this._edicoes.update((lista) => lista.filter((edicao) => edicao.id !== id));
+  removerAtualizacao(edicaoId: string, atualizacaoId: string): void {
+    this._edicoes.update((lista) =>
+      lista.map((edicao) =>
+        edicao.id === edicaoId
+          ? { ...edicao, atualizacoes: edicao.atualizacoes.filter((item) => item.id !== atualizacaoId) }
+          : edicao,
+      ),
+    );
+  }
+
+  alternarVisibilidadeAtualizacao(edicaoId: string, atualizacaoId: string): void {
+    this._edicoes.update((lista) =>
+      lista.map((edicao) =>
+        edicao.id === edicaoId
+          ? {
+              ...edicao,
+              atualizacoes: edicao.atualizacoes.map((item) =>
+                item.id === atualizacaoId ? { ...item, visivel: !item.visivel } : item,
+              ),
+            }
+          : edicao,
+      ),
+    );
   }
 }

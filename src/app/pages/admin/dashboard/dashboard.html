@@ -158,7 +158,7 @@
                 @for (edicao of grupo.edicoes; track edicao.id) {
                   <div class="edicao-linha">
                     <div class="edicao-info">
-                      <div class="edicao-capa" [class]="'capa-' + tipoSlug(edicao.tipo)">
+                      <div class="edicao-capa" [class]="'capa-' + edicao.tipo">
                         @if (edicao.capaUrl) {
                           <img [src]="edicao.capaUrl" [alt]="edicao.titulo" />
                         } @else {
@@ -167,24 +167,24 @@
                       </div>
                       <div class="edicao-textos">
                         <strong>{{ edicao.titulo }}</strong>
-                        <span>{{ edicao.subtitulo }}</span>
+                        <span>{{ edicao.resumo }}</span>
                       </div>
                     </div>
 
-                    <div class="edicao-periodo">{{ edicao.periodo }}</div>
+                    <div class="edicao-periodo">{{ formatarPeriodo(edicao.periodo) }}</div>
 
                     <div class="edicao-tipo">
-                      <span class="pill" [class]="'tipo-' + tipoSlug(edicao.tipo)">Edição {{ edicao.tipo }}</span>
+                      <span class="pill" [class]="'tipo-' + edicao.tipo">Edição {{ labelTipo(edicao.tipo) }}</span>
                     </div>
 
                     <div class="edicao-status">
                       <span class="pill status-{{ edicao.status }}">
                         <i
                           class="bi"
-                          [class.bi-check-circle-fill]="edicao.status === 'publicada'"
-                          [class.bi-clock-fill]="edicao.status === 'rascunho'"
+                          [class.bi-check-circle-fill]="edicao.status === 'publico'"
+                          [class.bi-archive-fill]="edicao.status === 'arquivado'"
                         ></i>
-                        {{ edicao.status === 'publicada' ? 'Publicada' : 'Rascunho' }}
+                        {{ edicao.status === 'publico' ? 'Público' : 'Arquivado' }}
                       </span>
                     </div>
 
@@ -214,10 +214,10 @@
                             <button type="button" role="menuitem" (click)="alternarStatus(edicao)">
                               <i
                                 class="bi"
-                                [class.bi-eye]="edicao.status === 'rascunho'"
-                                [class.bi-eye-slash]="edicao.status === 'publicada'"
+                                [class.bi-globe]="edicao.status === 'arquivado'"
+                                [class.bi-archive]="edicao.status === 'publico'"
                               ></i>
-                              {{ edicao.status === 'publicada' ? 'Transformar em rascunho' : 'Publicar edição' }}
+                              {{ edicao.status === 'publico' ? 'Arquivar edição' : 'Tornar pública' }}
                             </button>
                             <button
                               type="button"

@@ -1,0 +1,11 @@
+<div class="toast-host" aria-live="polite" aria-atomic="true">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="toast" [class.toast-erro]="toast.tipo === 'erro'" role="status">
+      <i class="bi" [class.bi-check-circle-fill]="toast.tipo === 'sucesso'" [class.bi-exclamation-circle-fill]="toast.tipo === 'erro'"></i>
+      <span>{{ toast.mensagem }}</span>
+      <button type="button" aria-label="Fechar notificação" (click)="toastService.fechar(toast.id)">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  }
+</div>

@@ -1,49 +1,341 @@
 <div class="editor-shell">
-  <a class="btn-voltar" routerLink="/admin"><i class="bi bi-arrow-left"></i> Voltar para Publicações</a>
+  <header class="editor-topbar">
+    <a class="btn-voltar" routerLink="/admin"><i class="bi bi-arrow-left"></i> Voltar para publicações</a>
+
+    @if (!carregando() && !edicaoNaoEncontrada()) {
+      <div class="editor-topbar-acoes">
+        @if (modo() === 'editar') {
+          <button type="button" class="btn-perigo" (click)="excluirEdicao()">
+            <i class="bi bi-trash3"></i> Excluir
+          </button>
+        }
+        <button type="button" class="btn-salvar" [disabled]="salvando()" (click)="salvar()">
+          <i class="bi bi-save"></i> {{ salvando() ? 'Salvando...' : 'Salvar' }}
+        </button>
+      </div>
+    }
+  </header>
 
   @if (carregando()) {
-    <div class="editor-placeholder">
-      <div class="skeleton skeleton-title"></div>
-      <div class="skeleton skeleton-line"></div>
-    </div>
-  } @else if (modo() === 'criar') {
-    <div class="editor-placeholder">
-      <span class="badge-modo">Nova edição</span>
-      <h1>Criar edição</h1>
-      <p>O formulário de criação será implementado em seguida.</p>
+    <div class="editor-conteudo">
+      <div class="painel-secao skeleton-secao">
+        <div class="skeleton skeleton-linha-lg"></div>
+        <div class="skeleton skeleton-linha"></div>
+        <div class="skeleton skeleton-linha skeleton-linha-sm"></div>
+      </div>
     </div>
   } @else if (edicaoNaoEncontrada()) {
-    <div class="editor-placeholder">
-      <span class="badge-modo badge-erro">Não encontrada</span>
-      <h1>Edição não encontrada</h1>
-      <p>Não encontramos nenhuma edição com o id <strong>{{ edicaoId() }}</strong>.</p>
+    <div class="editor-conteudo">
+      <div class="empty-state">
+        <i class="bi bi-journal-x"></i>
+        <p>Não encontramos nenhuma edição com o id <strong>{{ edicaoId() }}</strong>.</p>
+        <a class="btn-primario" routerLink="/admin"><i class="bi bi-arrow-left"></i> Voltar para publicações</a>
+      </div>
     </div>
-  } @else if (edicao(); as ed) {
-    <div class="editor-placeholder">
-      <span class="badge-modo">Editando</span>
-      <h1>{{ ed.titulo }}</h1>
-      <p>{{ ed.subtitulo }}</p>
+  } @else {
+    <div class="editor-conteudo">
+      <!-- DADOS DA EDIÇÃO -->
+      <section class="painel-secao">
+        <div class="secao-titulo">
+          <span class="secao-icone"><i class="bi bi-file-earmark-text"></i></span>
+          <h2>Dados da edição</h2>
+        </div>
 
-      <dl class="editor-resumo">
-        <div>
-          <dt>ID</dt>
-          <dd>{{ ed.id }}</dd>
-        </div>
-        <div>
-          <dt>Período</dt>
-          <dd>{{ ed.periodo }}</dd>
-        </div>
-        <div>
-          <dt>Tipo</dt>
-          <dd>Edição {{ ed.tipo }}</dd>
-        </div>
-        <div>
-          <dt>Status</dt>
-          <dd>{{ ed.status === 'publicada' ? 'Publicada' : 'Rascunho' }}</dd>
-        </div>
-      </dl>
+        <form class="dados-grid" [formGroup]="form">
+          <div class="campo campo-capa">
+            <label>Capa da edição</label>
+            <div class="capa-upload">
+              @if (capaPreviewUrl()) {
+                <img [src]="capaPreviewUrl()" alt="Pré-visualização da capa" />
+                <button type="button" class="capa-remover" aria-label="Remover capa" (click)="removerCapa()">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              } @else {
+                <label class="capa-vazia" for="capa-input">
+                  <i class="bi bi-image"></i>
+                  <span>Adicionar capa</span>
+                  <small>PNG, JPG ou WEBP<br />Recomendado: 720x1080px (retrato)</small>
+                </label>
+              }
+              <input
+                id="capa-input"
+                type="file"
+                accept="image/*"
+                class="visually-hidden"
+                (change)="onCapaSelecionada($event)"
+              />
+            </div>
+          </div>
 
-      <p class="aviso">O formulário completo de edição será implementado em seguida.</p>
+          <div class="campo-principal">
+            <div class="campo-linha">
+              <div class="campo campo-flex-2">
+                <div class="campo-cabecalho">
+                  <label for="titulo">Título da edição *</label>
+                  <span class="contador">{{ form.controls.titulo.value.length }}/{{ tituloMaxlength }}</span>
+                </div>
+                <input
+                  id="titulo"
+                  type="text"
+                  formControlName="titulo"
+                  [maxlength]="tituloMaxlength"
+                  placeholder="Ex.: Atualizações da Semana"
+                  [class.invalido]="campoInvalido('titulo')"
+                />
+                @if (campoInvalido('titulo')) {
+                  <span class="erro-campo">Informe um título para a edição.</span>
+                }
+              </div>
+
+              <div class="campo">
+                <label for="tipo">Tipo de edição *</label>
+                <div class="select-wrap">
+                  <select id="tipo" formControlName="tipo" [class.invalido]="campoInvalido('tipo')">
+                    <option value="" disabled>Selecione o tipo</option>
+                    @for (t of tiposEdicao; track t.valor) {
+                      <option [value]="t.valor">{{ t.label }}</option>
+                    }
+                  </select>
+                  <i class="bi bi-chevron-down"></i>
+                </div>
+                @if (campoInvalido('tipo')) {
+                  <span class="erro-campo">Selecione o tipo da edição.</span>
+                }
+              </div>
+            </div>
+
+            <div class="campo">
+              <div class="campo-cabecalho">
+                <label for="resumo">Resumo da edição</label>
+                <span class="contador">{{ form.controls.resumo.value.length }}/{{ resumoMaxlength }}</span>
+              </div>
+              <textarea
+                id="resumo"
+                formControlName="resumo"
+                [maxlength]="resumoMaxlength"
+                rows="3"
+                placeholder="Descreva os principais destaques desta edição..."
+              ></textarea>
+            </div>
+
+            <div class="campo">
+              <label id="label-periodo">Período *</label>
+
+              <div class="periodo-slider" [class.desabilitado]="!form.controls.tipo.value">
+                <div class="periodo-slider-track" [style.transform]="'translateX(-' + indiceSlide() * 25 + '%)'">
+                  <div class="periodo-painel" [formGroup]="form.controls.periodoSemanal">
+                    <div class="campo-linha">
+                      <div class="campo">
+                        <label for="data-inicio">Data inicial</label>
+                        <input
+                          id="data-inicio"
+                          type="date"
+                          formControlName="dataInicio"
+                          [class.invalido]="periodoCampoInvalido('periodoSemanal', 'dataInicio')"
+                        />
+                      </div>
+                      <div class="campo">
+                        <label for="data-fim">Data final</label>
+                        <input
+                          id="data-fim"
+                          type="date"
+                          formControlName="dataFim"
+                          [class.invalido]="periodoCampoInvalido('periodoSemanal', 'dataFim')"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="periodo-painel" [formGroup]="form.controls.periodoMensal">
+                    <div class="campo-linha">
+                      <div class="campo">
+                        <label for="periodo-mes">Mês</label>
+                        <div class="select-wrap">
+                          <select id="periodo-mes" formControlName="mes">
+                            <option value="" disabled>Selecione o mês</option>
+                            @for (m of meses; track m.valor) {
+                              <option [value]="m.valor">{{ m.nome }}</option>
+                            }
+                          </select>
+                          <i class="bi bi-chevron-down"></i>
+                        </div>
+                      </div>
+                      <div class="campo">
+                        <label for="periodo-ano-mensal">Ano</label>
+                        <div class="select-wrap">
+                          <select id="periodo-ano-mensal" formControlName="ano">
+                            <option value="" disabled>Selecione o ano</option>
+                            @for (a of anos; track a) {
+                              <option [value]="a">{{ a }}</option>
+                            }
+                          </select>
+                          <i class="bi bi-chevron-down"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="periodo-painel" [formGroup]="form.controls.periodoAnual">
+                    <div class="campo campo-metade">
+                      <label for="periodo-ano-anual">Ano</label>
+                      <div class="select-wrap">
+                        <select id="periodo-ano-anual" formControlName="ano">
+                          <option value="" disabled>Selecione o ano</option>
+                          @for (a of anos; track a) {
+                            <option [value]="a">{{ a }}</option>
+                          }
+                        </select>
+                        <i class="bi bi-chevron-down"></i>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="periodo-painel" [formGroup]="form.controls.periodoEspecial">
+                    <div class="campo">
+                      <div class="campo-cabecalho">
+                        <label for="periodo-tema">Tema da edição</label>
+                        <span class="contador"
+                          >{{ form.controls.periodoEspecial.controls.tema.value.length }}/{{ temaMaxlength }}</span
+                        >
+                      </div>
+                      <input
+                        id="periodo-tema"
+                        type="text"
+                        formControlName="tema"
+                        [maxlength]="temaMaxlength"
+                        placeholder='Ex.: "Dia dos Pais"'
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              @if (!form.controls.tipo.value) {
+                <span class="dica-campo">Selecione o tipo da edição para informar o período.</span>
+              }
+            </div>
+          </div>
+
+          <div class="campo campo-status">
+            <label id="label-status">Status *</label>
+            <div class="status-opcoes" role="radiogroup" aria-labelledby="label-status">
+              <button
+                type="button"
+                class="status-opcao status-opcao-publico"
+                role="radio"
+                [attr.aria-checked]="form.controls.status.value === 'publico'"
+                [class.selecionado]="form.controls.status.value === 'publico'"
+                (click)="form.controls.status.setValue('publico')"
+              >
+                <i class="bi bi-globe"></i> Público
+              </button>
+              <button
+                type="button"
+                class="status-opcao status-opcao-arquivado"
+                role="radio"
+                [attr.aria-checked]="form.controls.status.value === 'arquivado'"
+                [class.selecionado]="form.controls.status.value === 'arquivado'"
+                (click)="form.controls.status.setValue('arquivado')"
+              >
+                <i class="bi bi-archive"></i> Arquivado
+              </button>
+            </div>
+            <p class="dica-campo">
+              @if (form.controls.status.value === 'publico') {
+                Visível para todos os usuários no site público.
+              } @else {
+                Fica salva, mas não aparece para o público.
+              }
+            </p>
+          </div>
+        </form>
+      </section>
+
+      <!-- ATUALIZAÇÕES -->
+      @for (categoria of categorias; track categoria.valor) {
+        <section class="painel-secao">
+          <div class="secao-cabecalho">
+            <div class="secao-titulo-bloco">
+              <h2>{{ categoria.label }}</h2>
+              <p>{{ categoria.descricao }}</p>
+            </div>
+            <button type="button" class="btn-primario" (click)="abrirModalNovaAtualizacao(categoria.valor)">
+              <i class="bi bi-plus-lg"></i> Nova atualização
+            </button>
+          </div>
+
+          @if (atualizacoesPorCategoria(categoria.valor).length === 0) {
+            <div class="secao-vazia">Nenhum item nesta categoria.</div>
+          } @else {
+            <div class="atualizacoes-grid">
+              @for (atualizacao of atualizacoesPorCategoria(categoria.valor); track atualizacao.id) {
+                <article class="atualizacao-card" [class.oculta]="!atualizacao.visivel">
+                  @if (atualizacao.midia) {
+                    <div class="atualizacao-midia">
+                      @if (atualizacao.midia.tipo === 'video') {
+                        <span class="midia-play"><i class="bi bi-play-fill"></i></span>
+                      } @else {
+                        <img [src]="atualizacao.midia.url" alt="" />
+                      }
+                    </div>
+                  }
+
+                  <div class="atualizacao-topo">
+                    <span class="atualizacao-icone"><i [class]="'bi ' + atualizacao.icone"></i></span>
+
+                    <div class="atualizacao-acoes">
+                      <button
+                        type="button"
+                        class="btn-mini"
+                        [attr.aria-pressed]="atualizacao.visivel"
+                        [attr.aria-label]="
+                          atualizacao.visivel ? 'Ocultar atualização do público' : 'Tornar atualização visível'
+                        "
+                        (click)="alternarVisibilidade(atualizacao)"
+                      >
+                        <i class="bi" [class.bi-eye]="atualizacao.visivel" [class.bi-eye-slash]="!atualizacao.visivel"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn-mini"
+                        aria-label="Editar atualização"
+                        (click)="abrirModalEditarAtualizacao(atualizacao)"
+                      >
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn-mini btn-mini-perigo"
+                        aria-label="Excluir atualização"
+                        (click)="excluirAtualizacao(atualizacao)"
+                      >
+                        <i class="bi bi-trash3"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <h3>{{ atualizacao.titulo }}</h3>
+                  <p class="atualizacao-descricao">{{ atualizacao.descricao }}</p>
+                  <p class="atualizacao-impacto">{{ atualizacao.impacto }}</p>
+
+                  @if (!atualizacao.visivel) {
+                    <span class="badge-oculta"><i class="bi bi-eye-slash"></i> Oculta para o público</span>
+                  }
+                </article>
+              }
+            </div>
+          }
+        </section>
+      }
     </div>
   }
 </div>
+
+@if (modalAberto(); as modal) {
+  <app-atualizacao-modal
+    [categoria]="modal.categoria"
+    [atualizacaoEditando]="modal.atualizacaoEditando"
+    (salvar)="salvarAtualizacao($event)"
+    (fechar)="fecharModal()"
+  />
+}

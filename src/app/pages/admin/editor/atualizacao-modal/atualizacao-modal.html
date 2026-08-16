@@ -1,0 +1,121 @@
+<div class="modal-backdrop" (click)="onBackdropClick($event)">
+  <div class="modal-painel" role="dialog" aria-modal="true" [attr.aria-label]="(modoEdicao ? 'Editar' : 'Nova') + ' atualização de ' + labelCategoria(categoria())">
+    <header class="modal-cabecalho">
+      <div>
+        <span class="modal-categoria">{{ labelCategoria(categoria()) }}</span>
+        <h2>{{ modoEdicao ? 'Editar atualização' : 'Nova atualização' }}</h2>
+      </div>
+      <button type="button" class="modal-fechar" aria-label="Fechar" (click)="onFechar()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <form class="modal-corpo" [formGroup]="form" (ngSubmit)="onSalvar()">
+      <div class="campo">
+        <label id="label-icone">Ícone *</label>
+        <div class="icone-grid" role="radiogroup" aria-labelledby="label-icone">
+          @for (icone of icones; track icone) {
+            <button
+              type="button"
+              class="icone-opcao"
+              role="radio"
+              [attr.aria-checked]="form.controls.icone.value === icone"
+              [class.selecionado]="form.controls.icone.value === icone"
+              (click)="selecionarIcone(icone)"
+            >
+              <i [class]="'bi ' + icone"></i>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="campo">
+        <div class="campo-cabecalho">
+          <label for="atualizacao-titulo">Título *</label>
+          <span class="contador">{{ form.controls.titulo.value.length }}/{{ tituloMaxlength }}</span>
+        </div>
+        <input
+          id="atualizacao-titulo"
+          type="text"
+          formControlName="titulo"
+          [maxlength]="tituloMaxlength"
+          placeholder="Ex.: Seleção por departamento"
+          [class.invalido]="campoInvalido('titulo')"
+        />
+        @if (campoInvalido('titulo')) {
+          <span class="erro-campo">Informe um título para a atualização.</span>
+        }
+      </div>
+
+      <div class="campo">
+        <div class="campo-cabecalho">
+          <label for="atualizacao-descricao">Descrição *</label>
+          <span class="contador">{{ form.controls.descricao.value.length }}/{{ descricaoMaxlength }}</span>
+        </div>
+        <textarea
+          id="atualizacao-descricao"
+          formControlName="descricao"
+          [maxlength]="descricaoMaxlength"
+          rows="3"
+          placeholder="Descreva o que mudou nesta atualização..."
+          [class.invalido]="campoInvalido('descricao')"
+        ></textarea>
+        @if (campoInvalido('descricao')) {
+          <span class="erro-campo">Descreva a atualização.</span>
+        }
+      </div>
+
+      <div class="campo">
+        <div class="campo-cabecalho">
+          <label for="atualizacao-impacto">Impacto *</label>
+          <span class="contador">{{ form.controls.impacto.value.length }}/{{ impactoMaxlength }}</span>
+        </div>
+        <input
+          id="atualizacao-impacto"
+          type="text"
+          formControlName="impacto"
+          [maxlength]="impactoMaxlength"
+          placeholder="Ex.: Garante maior precisão na organização dos serviços."
+          [class.invalido]="campoInvalido('impacto')"
+        />
+        @if (campoInvalido('impacto')) {
+          <span class="erro-campo">Explique o impacto desta atualização para o usuário.</span>
+        }
+      </div>
+
+      <div class="campo-linha">
+        <div class="campo">
+          <label for="atualizacao-midia-tipo">Tipo de mídia</label>
+          <div class="select-wrap">
+            <select id="atualizacao-midia-tipo" formControlName="midiaTipo">
+              <option value="imagem">Foto</option>
+              <option value="video">Vídeo</option>
+            </select>
+            <i class="bi bi-chevron-down"></i>
+          </div>
+        </div>
+
+        <div class="campo campo-flex">
+          <label for="atualizacao-midia-url">Link da foto ou vídeo (opcional)</label>
+          <input
+            id="atualizacao-midia-url"
+            type="text"
+            formControlName="midiaUrl"
+            placeholder="https://..."
+          />
+        </div>
+      </div>
+      <p class="dica-midia">
+        <i class="bi bi-info-circle"></i>
+        O upload direto de arquivos será integrado futuramente ao Firebase Storage. Por enquanto, informe um link.
+      </p>
+
+      <footer class="modal-rodape">
+        <button type="button" class="btn-secundario" (click)="onFechar()">Cancelar</button>
+        <button type="submit" class="btn-primario">
+          <i class="bi bi-check-lg"></i> Salvar
+        </button>
+      </footer>
+    </form>
+  </div>
+</div>

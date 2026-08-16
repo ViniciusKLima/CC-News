@@ -1,36 +1,15 @@
 import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { Edicao, EdicaoTipo } from '../../../core/models/edition.model';
+import { Edicao, MESES_NOMES, TipoEdicao, formatarPeriodo, labelTipo } from '../../../core/models/edition.model';
 import { EditionService } from '../../../core/services/edition.service';
+import { ToastService } from '../../../core/services/toast.service';
 
-const MESES_NOMES = [
-  'Janeiro',
-  'Fevereiro',
-  'Março',
-  'Abril',
-  'Maio',
-  'Junho',
-  'Julho',
-  'Agosto',
-  'Setembro',
-  'Outubro',
-  'Novembro',
-  'Dezembro',
-];
-
-const TIPO_SLUGS: Record<EdicaoTipo, string> = {
-  Semanal: 'semanal',
-  Especial: 'especial',
-  Mensal: 'mensal',
-  Diária: 'diaria',
-};
-
-const TIPO_ICONES: Record<EdicaoTipo, string> = {
-  Semanal: 'bi-graph-up-arrow',
-  Especial: 'bi-stars',
-  Mensal: 'bi-calendar3',
-  Diária: 'bi-lightning-charge',
+const TIPO_ICONES: Record<TipoEdicao, string> = {
+  semanal: 'bi-graph-up-arrow',
+  mensal: 'bi-calendar3',
+  anual: 'bi-calendar-range',
+  especial: 'bi-stars',
 };
 
 interface GrupoMensal {
@@ -47,12 +26,16 @@ interface GrupoMensal {
 })
 export class Dashboard {
   private readonly editionService = inject(EditionService);
+  private readonly toastService = inject(ToastService);
 
   readonly edicoes = this.editionService.edicoes;
   readonly loading = this.editionService.loading;
 
   readonly skeletonGrupos = Array.from({ length: 2 });
   readonly skeletonLinhas = Array.from({ length: 3 });
+
+  protected readonly formatarPeriodo = formatarPeriodo;
+  protected readonly labelTipo = labelTipo;
 
   termoBusca = signal('');
   filtroMes = signal('');
@@ -63,12 +46,12 @@ export class Dashboard {
   private primeiroGrupoJaAberto = false;
 
   readonly anosDisponiveis = computed(() => {
-    const anos = new Set(this.edicoes().map((edicao) => edicao.ano));
+    const anos = new Set(this.edicoes().map((edicao) => this.anoDe(edicao)));
     return Array.from(anos).sort((a, b) => b - a);
   });
 
   readonly mesesDisponiveis = computed(() => {
-    const indices = new Set(this.edicoes().map((edicao) => edicao.mes));
+    const indices = new Set(this.edicoes().map((edicao) => this.mesDe(edicao)));
     return Array.from(indices)
       .sort((a, b) => a - b)
       .map((mes) => ({ valor: mes, nome: MESES_NOMES[mes - 1] }));
@@ -84,14 +67,14 @@ export class Dashboard {
     const ano = this.filtroAno();
 
     return this.edicoes().filter((edicao) => {
-      if (mes && edicao.mes !== Number(mes)) return false;
-      if (ano && edicao.ano !== Number(ano)) return false;
+      if (mes && this.mesDe(edicao) !== Number(mes)) return false;
+      if (ano && this.anoDe(edicao) !== Number(ano)) return false;
       if (!termo) return true;
 
       return (
         edicao.titulo.toLowerCase().includes(termo) ||
-        edicao.subtitulo.toLowerCase().includes(termo) ||
-        edicao.periodo.toLowerCase().includes(termo)
+        edicao.resumo.toLowerCase().includes(termo) ||
+        formatarPeriodo(edicao.periodo).toLowerCase().includes(termo)
       );
     });
   });
@@ -103,10 +86,12 @@ export class Dashboard {
     const mapa = new Map<string, GrupoMensal>();
 
     for (const edicao of this.edicoesFiltradas()) {
-      const chave = `${edicao.ano}-${String(edicao.mes).padStart(2, '0')}`;
+      const ano = this.anoDe(edicao);
+      const mes = this.mesDe(edicao);
+      const chave = `${ano}-${String(mes).padStart(2, '0')}`;
       let grupo = mapa.get(chave);
       if (!grupo) {
-        grupo = { chave, nome: `${MESES_NOMES[edicao.mes - 1]} de ${edicao.ano}`, edicoes: [] };
+        grupo = { chave, nome: `${MESES_NOMES[mes - 1]} de ${ano}`, edicoes: [] };
         mapa.set(chave, grupo);
       }
       grupo.edicoes.push(edicao);
@@ -169,25 +154,38 @@ export class Dashboard {
   }
 
   alternarStatus(edicao: Edicao): void {
-    this.editionService.alternarStatus(edicao.id);
+    const novoStatus = edicao.status === 'publico' ? 'arquivado' : 'publico';
+    this.editionService.atualizarStatus(edicao.id, novoStatus);
     this.fecharMenu();
+    this.toastService.sucesso(
+      novoStatus === 'publico' ? 'Edição publicada com sucesso.' : 'Edição arquivada com sucesso.',
+    );
   }
 
   excluir(edicao: Edicao): void {
     this.fecharMenu();
     const confirmado = window.confirm(
-      `Tem certeza que deseja excluir a edição "${edicao.titulo}" (${edicao.periodo})? Essa ação não pode ser desfeita.`,
+      `Tem certeza que deseja excluir a edição "${edicao.titulo}" (${formatarPeriodo(edicao.periodo)})? Essa ação não pode ser desfeita.`,
     );
     if (confirmado) {
       this.editionService.remover(edicao.id);
+      this.toastService.sucesso('Edição excluída com sucesso.');
     }
   }
 
-  tipoSlug(tipo: EdicaoTipo): string {
-    return TIPO_SLUGS[tipo];
+  iconeTipo(tipo: TipoEdicao): string {
+    return TIPO_ICONES[tipo];
   }
 
-  iconeTipo(tipo: EdicaoTipo): string {
-    return TIPO_ICONES[tipo];
+  private anoDe(edicao: Edicao): number {
+    const periodo = edicao.periodo;
+    if (periodo.tipo === 'mensal' || periodo.tipo === 'anual') return periodo.ano;
+    return Number(edicao.criadoEm.slice(0, 4));
+  }
+
+  private mesDe(edicao: Edicao): number {
+    const periodo = edicao.periodo;
+    if (periodo.tipo === 'mensal') return periodo.mes;
+    return Number(edicao.criadoEm.slice(5, 7));
   }
 }

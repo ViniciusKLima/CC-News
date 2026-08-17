@@ -18,7 +18,7 @@ const CHAVE_VERSAO_MOCK = 'cc-news:edicoes:versao-mock';
 // Sobe sempre que EDICOES_MOCK abaixo muda de conteúdo. Sem isso, quem já
 // tinha dados salvos no localStorage (de um teste anterior) nunca veria as
 // atualizações feitas aqui no código — o localStorage sempre "vencia" o mock.
-const VERSAO_MOCK_ATUAL = '2026-08-17-conteudo-demo';
+const VERSAO_MOCK_ATUAL = '2026-08-17-fotos-profissionais';
 
 const EDICOES_MOCK: Edicao[] = [
   {
@@ -34,7 +34,7 @@ const EDICOES_MOCK: Edicao[] = [
       titulo: 'Wallet Digital chega para todos os municípios',
       descricao:
         'A carteira digital do cidadão sai da fase de testes e passa a armazenar documentos, comprovantes e benefícios em um único lugar, direto pelo app.',
-      imagemUrl: 'https://picsum.photos/seed/ccnews-wallet/900/650',
+      imagemUrl: 'https://loremflickr.com/900/650/fintech',
       imagemPosicao: 'centro',
       cor: 'roxo',
     },
@@ -46,7 +46,7 @@ const EDICOES_MOCK: Edicao[] = [
         titulo: 'Seleção por departamento',
         descricao: 'Em validação a seleção de serviços e departamentos para atendimento por perfil.',
         impacto: 'Garante maior precisão na organização dos serviços.',
-        midia: { tipo: 'imagem', url: 'https://picsum.photos/seed/ccnews-atendimento/900/650' },
+        midia: { tipo: 'imagem', url: 'https://loremflickr.com/900/650/office,teamwork,technology' },
         visivel: true,
       },
       {
@@ -56,7 +56,7 @@ const EDICOES_MOCK: Edicao[] = [
         titulo: 'Melhoria no zoom dos mapas do admin',
         descricao: 'Ajuste no comportamento do zoom dos mapas utilizados nas áreas administrativas.',
         impacto: 'Facilita a visualização de informações georreferenciadas.',
-        midia: { tipo: 'imagem', url: 'https://picsum.photos/seed/ccnews-mapa/900/650' },
+        midia: { tipo: 'imagem', url: 'https://loremflickr.com/900/650/citystreet,aerial' },
         visivel: true,
       },
       {
@@ -105,7 +105,7 @@ const EDICOES_MOCK: Edicao[] = [
         titulo: 'Assinatura digital de requerimentos',
         descricao: 'Cidadãos agora podem assinar requerimentos digitalmente, sem precisar comparecer presencialmente.',
         impacto: 'Reduz deslocamentos e agiliza a abertura de processos.',
-        midia: { tipo: 'imagem', url: 'https://picsum.photos/seed/ccnews-permissoes/900/650' },
+        midia: { tipo: 'imagem', url: 'https://loremflickr.com/900/650/handshake,business' },
         visivel: true,
       },
       {
@@ -171,7 +171,7 @@ const EDICOES_MOCK: Edicao[] = [
       titulo: 'Feliz Dia dos Pais!',
       descricao:
         'Para celebrar a data, destacamos as funcionalidades que ajudam famílias a organizar o dia a dia com o poder público de forma mais leve e prática.',
-      imagemUrl: 'https://picsum.photos/seed/ccnews-paisfilho/900/650',
+      imagemUrl: 'https://loremflickr.com/900/650/fatherdaughter',
       imagemPosicao: 'centro',
       cor: 'laranja',
     },
@@ -183,7 +183,7 @@ const EDICOES_MOCK: Edicao[] = [
         titulo: 'Agendamento em família',
         descricao: 'Agora é possível agendar atendimentos para mais de um membro da família em um único horário.',
         impacto: 'Facilita a vida de pais que cuidam da agenda de toda a casa.',
-        midia: { tipo: 'imagem', url: 'https://picsum.photos/seed/ccnews-familia/900/650' },
+        midia: { tipo: 'imagem', url: 'https://loremflickr.com/900/650/appointment,schedule' },
         visivel: true,
       },
       {
@@ -213,7 +213,7 @@ const EDICOES_MOCK: Edicao[] = [
         titulo: 'Painel de indicadores por secretaria',
         descricao: 'Cada secretaria agora tem um painel próprio com indicadores de atendimento em tempo real.',
         impacto: 'Facilita o acompanhamento de metas por gestores setoriais.',
-        midia: { tipo: 'imagem', url: 'https://picsum.photos/seed/ccnews-indicadores/900/650' },
+        midia: { tipo: 'imagem', url: 'https://loremflickr.com/900/650/chart,report' },
         visivel: true,
       },
       {
@@ -243,7 +243,7 @@ const EDICOES_MOCK: Edicao[] = [
         titulo: 'Mapa de pontos de atendimento',
         descricao: 'Novo mapa interativo com todos os pontos de atendimento presencial da prefeitura.',
         impacto: 'Ajuda o cidadão a encontrar a unidade mais próxima.',
-        midia: { tipo: 'imagem', url: 'https://picsum.photos/seed/ccnews-pontos/900/650' },
+        midia: { tipo: 'imagem', url: 'https://loremflickr.com/900/650/citystreet,aerial' },
         visivel: true,
       },
     ],

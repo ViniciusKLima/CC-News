@@ -30,6 +30,12 @@
   color: #fff;
   text-decoration: none;
   width: 60%;
+
+  .img-logo {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
 }
 
 .admin-nav {
@@ -729,6 +735,8 @@
     align-items: baseline;
     gap: 6px;
     margin-bottom: 0;
+    width: 130px;
+    flex-shrink: 0;
 
     span {
       display: none;

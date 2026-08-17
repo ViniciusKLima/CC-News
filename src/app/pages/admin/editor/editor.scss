@@ -486,6 +486,178 @@ textarea {
 }
 
 // ---------------------------------------------------------------------------
+// Serviço em destaque
+// ---------------------------------------------------------------------------
+
+.toggle-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+
+  input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .toggle-slider {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    border-radius: 30px;
+    background: var(--color-border);
+    transition: background-color 0.15s ease;
+    flex-shrink: 0;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.15s ease;
+    }
+  }
+
+  input:checked + .toggle-slider {
+    background: var(--color-primary);
+
+    &::before {
+      transform: translateX(18px);
+    }
+  }
+
+  input:focus-visible + .toggle-slider {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  .toggle-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+}
+
+.destaque-imagem-upload {
+  aspect-ratio: 1 / 1;
+
+  img {
+    object-fit: cover;
+
+    &.pos-esquerda {
+      object-position: left center;
+    }
+
+    &.pos-centro {
+      object-position: center center;
+    }
+
+    &.pos-direita {
+      object-position: right center;
+    }
+  }
+}
+
+.posicao-imagem {
+  margin-top: 12px;
+}
+
+.posicao-opcoes {
+  display: flex;
+  gap: 6px;
+}
+
+.posicao-opcao {
+  flex: 1;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 6px 8px;
+  background: #fff;
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  &.selecionada {
+    background: var(--bgc-azul-opacity);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+}
+
+.cor-opcoes {
+  display: flex;
+  gap: 10px;
+}
+
+.cor-opcao {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px var(--color-border);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &.cor-azul {
+    background: var(--color-primary);
+  }
+
+  &.cor-roxo {
+    background: var(--bgc-purple);
+  }
+
+  &.cor-verde {
+    background: var(--color-success);
+  }
+
+  &.cor-laranja {
+    background: var(--color-warning);
+  }
+
+  &.cor-rosa {
+    background: #d6336c;
+  }
+
+  &:hover {
+    transform: scale(1.08);
+  }
+
+  &.selecionada {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 3px;
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Seções de atualizações
 // ---------------------------------------------------------------------------
 

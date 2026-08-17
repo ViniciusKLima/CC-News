@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, computed, effect, signal } from '@angular/core';
 import { Atualizacao, Edicao, StatusEdicao } from '../models/edition.model';
 
 function gerarId(prefixo: string): string {
@@ -8,6 +8,11 @@ function gerarId(prefixo: string): string {
       : Math.random().toString(36).slice(2, 10);
   return `${prefixo}-${sufixo}`;
 }
+
+// Enquanto não existe backend, o localStorage funciona como a "fonte única"
+// compartilhada entre todas as abas — admin e área pública leem e escrevem
+// exatamente o mesmo estado, e mudanças em uma aba refletem nas outras.
+const CHAVE_ARMAZENAMENTO = 'cc-news:edicoes';
 
 const EDICOES_MOCK: Edicao[] = [
   {
@@ -155,12 +160,52 @@ export class EditionService {
   readonly edicoes = this._edicoes.asReadonly();
   readonly loading = this._loading.asReadonly();
 
+  /** Edição pública mais recente, usada pelo header para o link "Última edição". */
+  readonly ultimaEdicaoPublica = computed<Edicao | undefined>(() => {
+    const publicas = this._edicoes().filter((edicao) => edicao.status === 'publico');
+    if (!publicas.length) return undefined;
+    return [...publicas].sort((a, b) => b.criadoEm.localeCompare(a.criadoEm))[0];
+  });
+
   constructor() {
     // TODO: substituir pelo carregamento real (Firestore) quando o backend existir.
     setTimeout(() => {
-      this._edicoes.set(EDICOES_MOCK);
+      this._edicoes.set(this.carregarDoArmazenamento() ?? EDICOES_MOCK);
       this._loading.set(false);
     }, 700);
+
+    // Persiste qualquer mudança automaticamente (nunca durante o "carregamento"
+    // inicial, para não sobrescrever dados salvos com o array vazio de partida).
+    effect(() => {
+      const edicoes = this._edicoes();
+      if (this._loading()) return;
+
+      try {
+        localStorage.setItem(CHAVE_ARMAZENAMENTO, JSON.stringify(edicoes));
+      } catch {
+        // localStorage indisponível (modo privado, quota excedida etc.) — segue só em memória.
+      }
+    });
+
+    // Sincroniza em tempo real com o que for alterado em outras abas/janelas.
+    window.addEventListener('storage', (evento) => {
+      if (evento.key !== CHAVE_ARMAZENAMENTO || !evento.newValue) return;
+
+      try {
+        this._edicoes.set(JSON.parse(evento.newValue));
+      } catch {
+        // valor corrompido no storage — ignora e mantém o estado atual.
+      }
+    });
+  }
+
+  private carregarDoArmazenamento(): Edicao[] | null {
+    try {
+      const bruto = localStorage.getItem(CHAVE_ARMAZENAMENTO);
+      return bruto ? JSON.parse(bruto) : null;
+    } catch {
+      return null;
+    }
   }
 
   obterPorId(id: string): Edicao | undefined {

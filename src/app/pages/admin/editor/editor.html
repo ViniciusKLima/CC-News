@@ -251,6 +251,144 @@
         </form>
       </section>
 
+      <!-- SERVIÇO EM DESTAQUE -->
+      <section class="painel-secao">
+        <div class="secao-cabecalho">
+          <div class="secao-titulo-bloco">
+            <h2>Serviço em destaque</h2>
+            <p>Destaca um serviço ou funcionalidade no topo da edição pública. Totalmente opcional.</p>
+          </div>
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              [checked]="servicoDestaqueAtivo()"
+              (change)="alternarServicoDestaque($any($event.target).checked)"
+            />
+            <span class="toggle-slider"></span>
+            <span class="toggle-label">Adicionar serviço em destaque</span>
+          </label>
+        </div>
+
+        @if (servicoDestaqueAtivo()) {
+          <form class="dados-grid" [formGroup]="form.controls.servicoDestaque">
+            <div class="campo campo-capa">
+              <label>Foto do destaque</label>
+              <div class="capa-upload destaque-imagem-upload">
+                @if (imagemDestaquePreviewUrl()) {
+                  <img
+                    [src]="imagemDestaquePreviewUrl()"
+                    alt="Pré-visualização do serviço em destaque"
+                    [class]="'pos-' + form.controls.servicoDestaque.controls.imagemPosicao.value"
+                  />
+                  <button
+                    type="button"
+                    class="capa-remover"
+                    aria-label="Remover imagem do destaque"
+                    (click)="removerImagemDestaque()"
+                  >
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                } @else {
+                  <label class="capa-vazia" for="destaque-imagem-input">
+                    <i class="bi bi-image"></i>
+                    <span>Adicionar foto</span>
+                    <small>PNG, JPG ou WEBP<br />Recomendado: proporção quadrada</small>
+                  </label>
+                }
+                <input
+                  id="destaque-imagem-input"
+                  type="file"
+                  accept="image/*"
+                  class="visually-hidden"
+                  (change)="onImagemDestaqueSelecionada($event)"
+                />
+              </div>
+
+              @if (imagemDestaquePreviewUrl()) {
+                <div class="posicao-imagem">
+                  <label id="label-posicao-imagem">Posição da imagem</label>
+                  <div class="posicao-opcoes" role="radiogroup" aria-labelledby="label-posicao-imagem">
+                    @for (posicao of posicoesImagemDestaque; track posicao.valor) {
+                      <button
+                        type="button"
+                        class="posicao-opcao"
+                        role="radio"
+                        [attr.aria-checked]="form.controls.servicoDestaque.controls.imagemPosicao.value === posicao.valor"
+                        [class.selecionada]="form.controls.servicoDestaque.controls.imagemPosicao.value === posicao.valor"
+                        (click)="selecionarPosicaoImagemDestaque(posicao.valor)"
+                      >
+                        {{ posicao.label }}
+                      </button>
+                    }
+                  </div>
+                  <p class="dica-campo">Escolha qual parte da foto fica visível no card.</p>
+                </div>
+              }
+            </div>
+
+            <div class="campo-principal">
+              <div class="campo">
+                <div class="campo-cabecalho">
+                  <label for="destaque-titulo">Título *</label>
+                  <span class="contador"
+                    >{{ form.controls.servicoDestaque.controls.titulo.value.length }}/{{ tituloMaxlength }}</span
+                  >
+                </div>
+                <input
+                  id="destaque-titulo"
+                  type="text"
+                  formControlName="titulo"
+                  [maxlength]="tituloMaxlength"
+                  placeholder="Ex.: Nova carteira digital"
+                  [class.invalido]="servicoDestaqueCampoInvalido('titulo')"
+                />
+                @if (servicoDestaqueCampoInvalido('titulo')) {
+                  <span class="erro-campo">Informe um título para o destaque.</span>
+                }
+              </div>
+
+              <div class="campo">
+                <div class="campo-cabecalho">
+                  <label for="destaque-descricao">Descrição *</label>
+                  <span class="contador"
+                    >{{ form.controls.servicoDestaque.controls.descricao.value.length }}/{{ resumoMaxlength }}</span
+                  >
+                </div>
+                <textarea
+                  id="destaque-descricao"
+                  formControlName="descricao"
+                  [maxlength]="resumoMaxlength"
+                  rows="3"
+                  placeholder="Descreva o serviço em destaque..."
+                  [class.invalido]="servicoDestaqueCampoInvalido('descricao')"
+                ></textarea>
+                @if (servicoDestaqueCampoInvalido('descricao')) {
+                  <span class="erro-campo">Descreva o serviço em destaque.</span>
+                }
+              </div>
+
+              <div class="campo">
+                <label id="label-cor-destaque">Cor de fundo do card</label>
+                <div class="cor-opcoes" role="radiogroup" aria-labelledby="label-cor-destaque">
+                  @for (cor of coresDestaque; track cor.valor) {
+                    <button
+                      type="button"
+                      class="cor-opcao"
+                      [class]="'cor-' + cor.valor"
+                      role="radio"
+                      [attr.aria-checked]="form.controls.servicoDestaque.controls.cor.value === cor.valor"
+                      [class.selecionada]="form.controls.servicoDestaque.controls.cor.value === cor.valor"
+                      [attr.aria-label]="cor.label"
+                      (click)="selecionarCorDestaque(cor.valor)"
+                    ></button>
+                  }
+                </div>
+              </div>
+            </div>
+          </form>
+        }
+      </section>
+
       <!-- ATUALIZAÇÕES -->
       @for (categoria of categorias; track categoria.valor) {
         <section class="painel-secao">

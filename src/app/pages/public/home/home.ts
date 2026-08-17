@@ -4,7 +4,6 @@ import {
   ElementRef,
   HostListener,
   Injector,
-  OnInit,
   QueryList,
   ViewChildren,
   computed,
@@ -16,21 +15,14 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Header } from '../../../shared/components/header/header';
 import { Footer } from '../../../shared/components/footer/footer';
+import { Edicao, MESES_NOMES, formatarPeriodo, labelTipo } from '../../../core/models/edition.model';
+import { EditionService } from '../../../core/services/edition.service';
 
-const MESES_NOMES = [
-  'Janeiro',
-  'Fevereiro',
-  'Março',
-  'Abril',
-  'Maio',
-  'Junho',
-  'Julho',
-  'Agosto',
-  'Setembro',
-  'Outubro',
-  'Novembro',
-  'Dezembro',
-];
+interface GrupoMensal {
+  id: string;
+  nome: string;
+  edicoes: Edicao[];
+}
 
 @Component({
   selector: 'app-home',
@@ -38,11 +30,11 @@ const MESES_NOMES = [
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
-export class Home implements OnInit, AfterViewInit {
+export class Home implements AfterViewInit {
   private readonly injector = inject(Injector);
+  private readonly editionService = inject(EditionService);
 
-  loading = signal(true);
-  edicoesPorMes = signal<Mes[]>([]);
+  readonly loading = this.editionService.loading;
   mostrarVoltarTopo = signal(false);
 
   termoBusca = signal('');
@@ -53,65 +45,71 @@ export class Home implements OnInit, AfterViewInit {
   readonly skeletonMeses = Array.from({ length: 2 });
   readonly skeletonCards = Array.from({ length: 3 });
 
+  protected readonly formatarPeriodo = formatarPeriodo;
+  protected readonly labelTipo = labelTipo;
+
+  // A área pública só mostra edições com status "publico" — as arquivadas
+  // continuam existindo no service, mas não devem aparecer aqui.
+  readonly edicoesPublicas = computed(() => this.editionService.edicoes().filter((edicao) => edicao.status === 'publico'));
+
   readonly anosDisponiveis = computed(() => {
-    const anos = new Set(this.edicoesPorMes().map((mes) => mes.id.split('-')[0]));
-    return Array.from(anos).sort((a, b) => b.localeCompare(a));
+    const anos = new Set(this.edicoesPublicas().map((edicao) => this.anoDe(edicao)));
+    return Array.from(anos).sort((a, b) => b - a);
   });
 
   readonly mesesDisponiveis = computed(() => {
-    const indices = new Set(this.edicoesPorMes().map((mes) => Number(mes.id.split('-')[1]) - 1));
+    const indices = new Set(this.edicoesPublicas().map((edicao) => this.mesDe(edicao)));
     return Array.from(indices)
       .sort((a, b) => a - b)
-      .map((indice) => ({ valor: String(indice + 1).padStart(2, '0'), nome: MESES_NOMES[indice] }));
+      .map((mes) => ({ valor: String(mes).padStart(2, '0'), nome: MESES_NOMES[mes - 1] }));
   });
 
   readonly categoriasDisponiveis = computed(() => {
-    const categorias = new Set(this.edicoesPorMes().flatMap((mes) => mes.edicoes.map((edicao) => edicao.tipo)));
-    return Array.from(categorias).sort();
+    const tipos = new Set(this.edicoesPublicas().map((edicao) => edicao.tipo));
+    return Array.from(tipos).sort();
   });
 
   readonly temFiltrosAtivos = computed(
     () => !!this.termoBusca() || !!this.filtroAno() || !!this.filtroMes() || !!this.filtroCategoria(),
   );
 
-  readonly edicoesFiltradas = computed<Mes[]>(() => {
+  readonly edicoesFiltradas = computed<GrupoMensal[]>(() => {
     const termo = this.termoBusca().trim().toLowerCase();
     const ano = this.filtroAno();
     const mesFiltro = this.filtroMes();
     const categoria = this.filtroCategoria();
 
-    return this.edicoesPorMes()
-      .filter((mes) => {
-        if (ano && mes.id.split('-')[0] !== ano) return false;
-        if (mesFiltro && mes.id.split('-')[1] !== mesFiltro) return false;
-        return true;
-      })
-      .map((mes) => ({
-        ...mes,
-        edicoes: mes.edicoes.filter((edicao) => {
-          if (categoria && edicao.tipo !== categoria) return false;
-          if (!termo) return true;
+    const filtradas = this.edicoesPublicas().filter((edicao) => {
+      if (ano && String(this.anoDe(edicao)) !== ano) return false;
+      if (mesFiltro && String(this.mesDe(edicao)).padStart(2, '0') !== mesFiltro) return false;
+      if (categoria && edicao.tipo !== categoria) return false;
+      if (!termo) return true;
 
-          return (
-            edicao.titulo.toLowerCase().includes(termo) ||
-            edicao.descricao.toLowerCase().includes(termo) ||
-            edicao.periodo.toLowerCase().includes(termo)
-          );
-        }),
-      }))
-      .filter((mes) => mes.edicoes.length > 0);
+      return (
+        edicao.titulo.toLowerCase().includes(termo) ||
+        edicao.resumo.toLowerCase().includes(termo) ||
+        formatarPeriodo(edicao.periodo).toLowerCase().includes(termo)
+      );
+    });
+
+    const mapa = new Map<string, GrupoMensal>();
+    for (const edicao of filtradas) {
+      const ano2 = this.anoDe(edicao);
+      const mes2 = this.mesDe(edicao);
+      const id = `${ano2}-${String(mes2).padStart(2, '0')}`;
+      let grupo = mapa.get(id);
+      if (!grupo) {
+        grupo = { id, nome: `${MESES_NOMES[mes2 - 1]} de ${ano2}`, edicoes: [] };
+        mapa.set(id, grupo);
+      }
+      grupo.edicoes.push(edicao);
+    }
+
+    return Array.from(mapa.values()).sort((a, b) => b.id.localeCompare(a.id));
   });
 
   @ViewChildren('slide') private slides!: QueryList<ElementRef<HTMLElement>>;
   private resizeRafId?: number;
-
-  ngOnInit(): void {
-    // TODO: substituir pelo carregamento real assim que o service de edições existir.
-    setTimeout(() => {
-      this.edicoesPorMes.set(edicoesPorMes);
-      this.loading.set(false);
-    }, 700);
-  }
 
   ngAfterViewInit(): void {
     this.updateAllNavStates();
@@ -151,6 +149,10 @@ export class Home implements OnInit, AfterViewInit {
     this.filtroCategoria.set('');
   }
 
+  contarNovidades(edicao: Edicao): number {
+    return edicao.atualizacoes.filter((atualizacao) => atualizacao.visivel).length;
+  }
+
   scrollSlide(container: HTMLElement, direction: number): void {
     const card = container.querySelector<HTMLElement>('.card-edicao');
     if (!card) return;
@@ -175,122 +177,16 @@ export class Home implements OnInit, AfterViewInit {
   private updateAllNavStates(): void {
     this.slides?.forEach((ref) => this.updateNavState(ref.nativeElement));
   }
+
+  private anoDe(edicao: Edicao): number {
+    const periodo = edicao.periodo;
+    if (periodo.tipo === 'mensal' || periodo.tipo === 'anual') return periodo.ano;
+    return Number(edicao.criadoEm.slice(0, 4));
+  }
+
+  private mesDe(edicao: Edicao): number {
+    const periodo = edicao.periodo;
+    if (periodo.tipo === 'mensal') return periodo.mes;
+    return Number(edicao.criadoEm.slice(5, 7));
+  }
 }
-export interface Edicao {
-  id: string;
-  periodo: string;
-  tipo: 'Diária' | 'Semanal' | 'Mensal' | 'Especial';
-  titulo: string;
-  descricao: string;
-  totalNovidades: number;
-}
-
-export interface Mes {
-  id: string;
-  nome: string;
-  edicoes: Edicao[];
-}
-
-export const edicoesPorMes: Mes[] = [
-  {
-    id: '2026-08',
-    nome: 'Agosto de 2026',
-    edicoes: [
-      {
-        id: 'edicao-2026-08-14',
-        periodo: '11 a 14 de agosto',
-        tipo: 'Semanal',
-        titulo: 'Mais estabilidade e novos recursos na plataforma',
-        descricao:
-          'Confira as principais correções, melhorias e novidades que chegaram ao Conecta Cidades nesta semana.',
-        totalNovidades: 12,
-      },
-      {
-        id: 'edicao-2026-08-07',
-        periodo: '4 a 7 de agosto',
-        tipo: 'Semanal',
-        titulo: 'Novas melhorias nos serviços digitais',
-        descricao:
-          'Atualizações importantes foram implementadas para tornar os fluxos mais rápidos, estáveis e eficientes.',
-        totalNovidades: 8,
-      },
-      {
-        id: 'edicao-2026-08-01',
-        periodo: '1 de agosto',
-        tipo: 'Especial',
-        titulo: 'Uma nova fase para o Conecta Cidades',
-        descricao:
-          'Uma edição especial com os principais destaques e próximos passos da plataforma para os municípios.',
-        totalNovidades: 15,
-      },
-    ],
-  },
-
-  {
-    id: '2026-07',
-    nome: 'Julho de 2026',
-    edicoes: [
-      {
-        id: 'edicao-2026-07-24',
-        periodo: '21 a 24 de julho',
-        tipo: 'Semanal',
-        titulo: 'Aprimoramentos nos fluxos de atendimento',
-        descricao:
-          'Veja as melhorias realizadas nos processos de atendimento e as novidades que estão chegando à plataforma.',
-        totalNovidades: 10,
-      },
-      {
-        id: 'edicao-2026-07-15',
-        periodo: '15 de julho',
-        tipo: 'Mensal',
-        titulo: 'Resumo das principais atualizações de julho',
-        descricao:
-          'Um panorama das principais entregas, correções e funcionalidades trabalhadas durante o mês.',
-        totalNovidades: 18,
-      },
-      {
-        id: 'edicao-2026-07-08',
-        periodo: '7 a 8 de julho',
-        tipo: 'Semanal',
-        titulo: 'Correções e melhorias de desempenho',
-        descricao:
-          'A equipe trabalhou em ajustes para melhorar o desempenho e a estabilidade de diferentes áreas da plataforma.',
-        totalNovidades: 7,
-      },
-    ],
-  },
-
-  {
-    id: '2026-06',
-    nome: 'Junho de 2026',
-    edicoes: [
-      {
-        id: 'edicao-2026-06-26',
-        periodo: '23 a 26 de junho',
-        tipo: 'Semanal',
-        titulo: 'Mais praticidade para gestores municipais',
-        descricao:
-          'Novas melhorias tornam a gestão dos serviços municipais mais simples e proporcionam uma experiência melhor para os usuários.',
-        totalNovidades: 9,
-      },
-      {
-        id: 'edicao-2026-06-15',
-        periodo: '15 de junho',
-        tipo: 'Especial',
-        titulo: 'Destaques do primeiro semestre',
-        descricao:
-          'Confira os principais avanços da plataforma Conecta Cidades durante os primeiros meses do ano.',
-        totalNovidades: 21,
-      },
-      {
-        id: 'edicao-2026-06-05',
-        periodo: '2 a 5 de junho',
-        tipo: 'Semanal',
-        titulo: 'Novos ajustes chegam à plataforma',
-        descricao:
-          'Correções e melhorias foram disponibilizadas para deixar os serviços mais consistentes e confiáveis.',
-        totalNovidades: 6,
-      },
-    ],
-  },
-];

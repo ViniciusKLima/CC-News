@@ -44,6 +44,20 @@ export interface Atualizacao {
   visivel: boolean;
 }
 
+export type CorAcento = 'azul' | 'roxo' | 'verde' | 'laranja' | 'rosa';
+
+/** Controla qual parte da imagem fica visível dentro do container (que permanece sempre à esquerda do card). */
+export type PosicaoImagemDestaque = 'esquerda' | 'centro' | 'direita';
+
+/** Bloco opcional de destaque exibido no topo da edição pública. */
+export interface ServicoDestaque {
+  titulo: string;
+  descricao: string;
+  imagemUrl?: string;
+  imagemPosicao?: PosicaoImagemDestaque;
+  cor: CorAcento;
+}
+
 export interface Edicao {
   id: string;
   capaUrl?: string;
@@ -55,6 +69,7 @@ export interface Edicao {
   /** Data de criação/publicação (ISO), usada para agrupamento cronológico e ordenação. */
   criadoEm: string;
   atualizacoes: Atualizacao[];
+  servicoDestaque?: ServicoDestaque;
 }
 
 // ---------------------------------------------------------------------------
@@ -74,6 +89,20 @@ export const CATEGORIAS_ATUALIZACAO: { valor: CategoriaAtualizacao; label: strin
   { valor: 'correcoes', label: 'Correções', icone: 'bi-tools', descricao: 'Problemas resolvidos nesta edição.' },
   { valor: 'testes', label: 'Em fase de testes', icone: 'bi-flask', descricao: 'Funcionalidades sendo validadas antes de produção.' },
   { valor: 'proximos-passos', label: 'Próximos passos', icone: 'bi-signpost-2', descricao: 'O que vem a seguir na plataforma.' },
+];
+
+export const CORES_DESTAQUE: { valor: CorAcento; label: string }[] = [
+  { valor: 'azul', label: 'Azul' },
+  { valor: 'roxo', label: 'Roxo' },
+  { valor: 'verde', label: 'Verde' },
+  { valor: 'laranja', label: 'Laranja' },
+  { valor: 'rosa', label: 'Rosa' },
+];
+
+export const POSICOES_IMAGEM_DESTAQUE: { valor: PosicaoImagemDestaque; label: string }[] = [
+  { valor: 'esquerda', label: 'Esquerda' },
+  { valor: 'centro', label: 'Centro' },
+  { valor: 'direita', label: 'Direita' },
 ];
 
 export const MESES_NOMES = [

@@ -1,17 +1,14 @@
 <header class="d-flex">
   <div class="container d-flex align-items-center justify-content-between">
       <a class="logo d-flex align-items-center" routerLink="/" aria-label="Ir para a página inicial">
-        <img
-          src="https://ccnews.lovable.app/__l5e/assets-v1/b01b5a73-97ef-48d0-9073-a4beef4c8d65/app-icon.png"
-          alt="Logo CC News"
-          class="img-logo"
-        />
-        <h3 class="tt-logo">Conecta NEWS</h3>
+        <img src="/LogoConectaNews.svg" alt="Conecta News" class="img-logo" />
       </a>
 
       <nav class="d-flex align-items-center justify-content-between gap-3">
-        <a class="btn-header" routerLink="/">Última edição</a>
-        <a class="btn-header" routerLink="/arquivo">Histórico</a>
+        <a
+          class="btn-header"
+          [routerLink]="ultimaEdicao() ? ['/edicao', ultimaEdicao()!.id] : '/'"
+        >Última edição</a>
       </nav>
   </div>
 </header>

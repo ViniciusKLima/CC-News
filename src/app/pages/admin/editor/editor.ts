@@ -5,9 +5,14 @@ import {
   Atualizacao,
   CATEGORIAS_ATUALIZACAO,
   CategoriaAtualizacao,
+  CorAcento,
+  CORES_DESTAQUE,
   Edicao,
   MESES_NOMES,
   PeriodoEdicao,
+  PosicaoImagemDestaque,
+  POSICOES_IMAGEM_DESTAQUE,
+  ServicoDestaque,
   StatusEdicao,
   TIPOS_EDICAO,
   TipoEdicao,
@@ -37,6 +42,7 @@ interface ValoresFormulario {
   periodoMensal: { mes: string; ano: string };
   periodoAnual: { ano: string };
   periodoEspecial: { tema: string };
+  servicoDestaque: { titulo: string; descricao: string; cor: CorAcento; imagemPosicao: PosicaoImagemDestaque };
 }
 
 @Component({
@@ -83,6 +89,11 @@ export class Editor {
   readonly salvando = signal(false);
   readonly capaPreviewUrl = signal<string | null>(null);
 
+  readonly coresDestaque = CORES_DESTAQUE;
+  readonly posicoesImagemDestaque = POSICOES_IMAGEM_DESTAQUE;
+  readonly servicoDestaqueAtivo = signal(false);
+  readonly imagemDestaquePreviewUrl = signal<string | null>(null);
+
   readonly modalAberto = signal<{
     categoria: CategoriaAtualizacao;
     atualizacaoEditando: Atualizacao | null;
@@ -113,13 +124,21 @@ export class Editor {
     periodoEspecial: this.fb.nonNullable.group({
       tema: ['', [Validators.required, Validators.maxLength(TEMA_MAXLENGTH)]],
     }),
+    servicoDestaque: this.fb.nonNullable.group({
+      titulo: ['', [Validators.required, Validators.maxLength(TITULO_MAXLENGTH)]],
+      descricao: ['', [Validators.required, Validators.maxLength(RESUMO_MAXLENGTH)]],
+      cor: this.fb.nonNullable.control<CorAcento>('azul'),
+      imagemPosicao: this.fb.nonNullable.control<PosicaoImagemDestaque>('centro'),
+    }),
   });
 
   private capaArquivo: File | null = null;
+  private imagemDestaqueArquivo: File | null = null;
   private jaPreenchido = false;
 
   constructor() {
     this.desabilitarTodosPeriodos();
+    this.form.controls.servicoDestaque.disable({ emitEvent: false });
 
     this.form.controls.tipo.valueChanges.subscribe((tipo) => this.aplicarTipo(tipo));
 
@@ -192,10 +211,27 @@ export class Editor {
     }
 
     this.capaPreviewUrl.set(edicao.capaUrl ?? null);
+
+    if (edicao.servicoDestaque) {
+      this.servicoDestaqueAtivo.set(true);
+      this.form.controls.servicoDestaque.enable({ emitEvent: false });
+      this.form.controls.servicoDestaque.patchValue({
+        titulo: edicao.servicoDestaque.titulo,
+        descricao: edicao.servicoDestaque.descricao,
+        cor: edicao.servicoDestaque.cor,
+        imagemPosicao: edicao.servicoDestaque.imagemPosicao ?? 'centro',
+      });
+      this.imagemDestaquePreviewUrl.set(edicao.servicoDestaque.imagemUrl ?? null);
+    }
   }
 
   campoInvalido(campo: 'titulo' | 'resumo' | 'tipo'): boolean {
     const controle = this.form.controls[campo];
+    return controle.invalid && (controle.touched || controle.dirty);
+  }
+
+  servicoDestaqueCampoInvalido(campo: 'titulo' | 'descricao'): boolean {
+    const controle = this.form.controls.servicoDestaque.controls[campo];
     return controle.invalid && (controle.touched || controle.dirty);
   }
 
@@ -225,6 +261,50 @@ export class Editor {
   removerCapa(): void {
     this.capaArquivo = null;
     this.capaPreviewUrl.set(null);
+  }
+
+  // --- Serviço em destaque ---
+  alternarServicoDestaque(ativo: boolean): void {
+    this.servicoDestaqueAtivo.set(ativo);
+
+    if (ativo) {
+      this.form.controls.servicoDestaque.enable({ emitEvent: false });
+    } else {
+      this.form.controls.servicoDestaque.reset(
+        { titulo: '', descricao: '', cor: 'azul', imagemPosicao: 'centro' },
+        { emitEvent: false },
+      );
+      this.form.controls.servicoDestaque.disable({ emitEvent: false });
+      this.imagemDestaqueArquivo = null;
+      this.imagemDestaquePreviewUrl.set(null);
+    }
+  }
+
+  selecionarCorDestaque(cor: CorAcento): void {
+    this.form.controls.servicoDestaque.controls.cor.setValue(cor);
+  }
+
+  selecionarPosicaoImagemDestaque(posicao: PosicaoImagemDestaque): void {
+    this.form.controls.servicoDestaque.controls.imagemPosicao.setValue(posicao);
+  }
+
+  onImagemDestaqueSelecionada(evento: Event): void {
+    const input = evento.target as HTMLInputElement;
+    const arquivo = input.files?.[0];
+    if (!arquivo) return;
+
+    if (!arquivo.type.startsWith('image/')) {
+      this.toastService.erro('Selecione um arquivo de imagem válido para o destaque.');
+      return;
+    }
+
+    this.imagemDestaqueArquivo = arquivo;
+    this.imagemDestaquePreviewUrl.set(URL.createObjectURL(arquivo));
+  }
+
+  removerImagemDestaque(): void {
+    this.imagemDestaqueArquivo = null;
+    this.imagemDestaquePreviewUrl.set(null);
   }
 
   // --- Atualizações ---
@@ -311,6 +391,16 @@ export class Editor {
       return;
     }
 
+    const servicoDestaque: ServicoDestaque | undefined = this.servicoDestaqueAtivo()
+      ? {
+          titulo: valores.servicoDestaque.titulo.trim(),
+          descricao: valores.servicoDestaque.descricao.trim(),
+          cor: valores.servicoDestaque.cor,
+          imagemPosicao: valores.servicoDestaque.imagemPosicao,
+          imagemUrl: this.imagemDestaquePreviewUrl() ?? undefined,
+        }
+      : undefined;
+
     const dados = {
       titulo: valores.titulo.trim(),
       resumo: valores.resumo.trim(),
@@ -318,6 +408,7 @@ export class Editor {
       periodo,
       status: valores.status,
       capaUrl: this.capaPreviewUrl() ?? undefined,
+      servicoDestaque,
     };
 
     this.salvando.set(true);

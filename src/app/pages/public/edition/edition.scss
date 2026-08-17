@@ -1,7 +1,6 @@
 .edition-intro {
   padding: 40px 0 28px;
 }
-
 .btn-voltar {
   display: inline-flex;
   align-items: center;
@@ -73,6 +72,32 @@
   padding-bottom: 60px;
 }
 
+.empty-state {
+  padding: 70px 20px;
+  text-align: center;
+  color: var(--color-text-secondary);
+  background: #fff;
+  border: 1px solid rgba(160, 162, 174, 0.25);
+  border-radius: 16px;
+
+  i {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 2rem;
+    color: var(--color-border);
+  }
+
+  p {
+    margin: 0 0 16px;
+    font-size: 0.95rem;
+  }
+
+  .btn-voltar {
+    margin: 0 auto;
+    width: fit-content;
+  }
+}
+
 .edition-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -95,118 +120,144 @@
   margin-bottom: 10px;
 }
 
+// Cada variante de cor define seu próprio par de tons (início/fim do
+// degradê) via custom properties — o fundo E o degradê de esmaecimento da
+// imagem leem dos mesmos tokens, garantindo que as duas camadas combinem.
 .destaque-card {
+  position: relative;
   display: flex;
-  align-items: stretch;
-  gap: 24px;
-  background: var(--color-secondary);
+  align-items: center;
+  overflow: hidden;
   border-radius: 20px;
-  padding: 32px;
   color: #fff;
   margin-bottom: 32px;
-  overflow: hidden;
+  aspect-ratio: 2.4 / 1;
+
+  --destaque-cor-a: #0c3f9c;
+  --destaque-cor-b: var(--color-primary);
+  background: linear-gradient(120deg, var(--destaque-cor-a), var(--destaque-cor-b));
 
   @media (max-width: 640px) {
-    flex-direction: column;
-    padding: 24px;
+    aspect-ratio: 4 / 3;
+  }
+
+  &.cor-fundo-azul {
+    --destaque-cor-a: #0c3f9c;
+    --destaque-cor-b: var(--color-primary);
+  }
+
+  &.cor-fundo-roxo {
+    --destaque-cor-a: #34399e;
+    --destaque-cor-b: var(--bgc-purple);
+  }
+
+  &.cor-fundo-verde {
+    --destaque-cor-a: #0d6b32;
+    --destaque-cor-b: var(--color-success);
+  }
+
+  &.cor-fundo-laranja {
+    --destaque-cor-a: #9a4e04;
+    --destaque-cor-b: var(--color-warning);
+  }
+
+  &.cor-fundo-rosa {
+    --destaque-cor-a: #9c1049;
+    --destaque-cor-b: #d6336c;
+  }
+
+  // A cor real só é conhecida após o carregamento — o skeleton usa o tom
+  // neutro padrão em vez de "adivinhar" uma das variantes de cor.
+  &.destaque-card-skeleton {
+    background: #e4e5ea;
   }
 
   .destaque-texto {
-    flex: 1 1 55%;
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 12px;
+    width: 100%;
+    padding: 32px 40px;
 
-    h2 {
-      font-size: 1.6rem;
+    h3 {
+      font-size: 1.4rem;
       font-weight: 800;
+      color: #fff;
       margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     p {
-      font-size: 0.85rem;
-      color: rgba(255, 255, 255, 0.75);
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.88);
       margin: 0;
-      max-width: 420px;
+      max-width: 440px;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
   }
 
-  .destaque-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color: #fff;
-    font-weight: 700;
-    font-size: 0.85rem;
-    text-decoration: none;
-    margin-top: 6px;
-    width: fit-content;
+  // A div/container permanece sempre encostada em cima/direita/embaixo —
+  // só a posição da imagem DENTRO dela muda (controlada por .pos-*).
+  &.tem-imagem .destaque-texto {
+    padding-right: calc(42% + 32px);
 
-    i {
-      transition: transform 0.15s ease;
-    }
-
-    &:hover i {
-      transform: translateX(3px);
-    }
-  }
-
-  .destaque-visual {
-    flex: 1 1 45%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 180px;
-
-    img {
-      max-width: 100%;
-      max-height: 220px;
-      object-fit: contain;
-      border-radius: 14px;
-    }
-
-    &.skeleton {
-      border-radius: 14px;
+    @media (max-width: 640px) {
+      padding-right: calc(38% + 20px);
     }
   }
 }
 
-.destaque-mockup {
-  width: 160px;
-  aspect-ratio: 9 / 17;
-  border-radius: 28px;
-  background: linear-gradient(160deg, var(--color-primary), var(--bgc-purple));
-  padding: 10px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+.destaque-imagem-wrap {
+  position: absolute;
+  inset: 0;
+  left: auto;
+  right: 0;
+  width: 58%;
+  height: 100%;
+  overflow: hidden;
 
-  .mockup-tela {
+  @media (max-width: 640px) {
+    width: 54%;
+  }
+
+  img {
+    display: block;
+    width: 100%;
     height: 100%;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.12);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 16px;
+    object-fit: cover;
 
-    i {
-      font-size: 2rem;
-      color: #fff;
+    // A imagem esmaece em direção ao texto revelando o próprio degradê do
+    // card por baixo (mesma origem de cor) — por isso a "borda" some por
+    // completo, em vez de uma camada colorida sobreposta tentando imitar o tom.
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.5) 32%, #000 62%);
+    mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.5) 32%, #000 62%);
+
+    &.pos-esquerda {
+      object-position: left center;
     }
 
-    .mockup-linha {
-      display: block;
-      width: 70%;
-      height: 6px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.35);
-
-      &.curta {
-        width: 45%;
-      }
+    &.pos-centro {
+      object-position: center center;
     }
+
+    &.pos-direita {
+      object-position: right center;
+    }
+  }
+
+  &.skeleton {
+    border-radius: 0;
   }
 }
 
@@ -293,6 +344,22 @@
   }
 }
 
+.item-midia {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--color-secondary);
+
+  img,
+  video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
 .item-icone {
   width: 36px;
   height: 36px;
@@ -309,19 +376,29 @@
     font-size: 0.85rem;
   }
 
-  &.cor-testes {
+  &.cor-azul {
     background: var(--bgc-azul-opacity);
     color: var(--color-primary);
   }
 
-  &.cor-melhoria {
+  &.cor-roxo {
+    background: var(--bgc-purple-opacity);
+    color: var(--bgc-purple);
+  }
+
+  &.cor-verde {
     background: var(--bgc-verde-opacity);
     color: var(--color-success);
   }
 
-  &.cor-correcao {
+  &.cor-laranja {
     background: var(--bgc-yellow-opacity);
     color: var(--color-warning);
+  }
+
+  &.cor-rosa {
+    background: #ffe4f0;
+    color: #d6336c;
   }
 }
 
@@ -337,19 +414,29 @@
     padding: 2px 8px;
   }
 
-  &.status-testes {
+  &.cor-azul {
     background: var(--bgc-azul-opacity);
     color: var(--color-primary);
   }
 
-  &.status-melhoria {
+  &.cor-roxo {
+    background: var(--bgc-purple-opacity);
+    color: var(--bgc-purple);
+  }
+
+  &.cor-verde {
     background: var(--bgc-verde-opacity);
     color: var(--color-success);
   }
 
-  &.status-correcao {
+  &.cor-laranja {
     background: var(--bgc-yellow-opacity);
     color: var(--color-warning);
+  }
+
+  &.cor-rosa {
+    background: #ffe4f0;
+    color: #d6336c;
   }
 }
 
@@ -373,9 +460,9 @@
   }
 }
 
-.destaques-lista {
+.stats-lista {
   list-style: none;
-  margin: 0 0 16px;
+  margin: 0 0 4px;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -386,13 +473,61 @@
     align-items: center;
     gap: 10px;
   }
+}
 
-  .destaque-titulo {
-    flex: 1;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--color-text);
+.stat-icone-sm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  font-size: 0.85rem;
+
+  &.cor-azul {
+    background: var(--bgc-azul-opacity);
+    color: var(--color-primary);
   }
+
+  &.cor-roxo {
+    background: var(--bgc-purple-opacity);
+    color: var(--bgc-purple);
+  }
+
+  &.cor-verde {
+    background: var(--bgc-verde-opacity);
+    color: var(--color-success);
+  }
+
+  &.cor-laranja {
+    background: var(--bgc-yellow-opacity);
+    color: var(--color-warning);
+  }
+
+  &.cor-rosa {
+    background: #ffe4f0;
+    color: #d6336c;
+  }
+}
+
+.stat-label {
+  flex: 1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.stat-valor {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.sidebar-vazio {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  margin: 0 0 16px;
 }
 
 .passos-lista {
@@ -439,26 +574,14 @@
 
 .passo-conteudo {
   flex: 1;
+  min-width: 0;
 }
 
 .passo-titulo {
+  display: block;
   font-size: 0.82rem;
   font-weight: 700;
   color: var(--color-text);
-}
-
-.passo-status {
-  font-size: 0.65rem;
-  font-weight: 700;
-  white-space: nowrap;
-
-  &.passo-status-desenvolvimento {
-    color: var(--color-primary);
-  }
-
-  &.passo-status-planejado {
-    color: var(--color-text-secondary);
-  }
 }
 
 .passo-descricao {
@@ -486,79 +609,6 @@
 
   &:hover i {
     transform: translateX(3px);
-  }
-}
-
-.resumo-edicao {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-  margin-bottom: 28px;
-}
-
-.stat-tile {
-  background: #fff;
-  border: 1px solid rgba(160, 162, 174, 0.25);
-  border-radius: 14px;
-  padding: 16px 18px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.stat-icone {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-
-  &.cor-azul {
-    background: var(--bgc-azul-opacity);
-    color: var(--color-primary);
-  }
-
-  &.cor-roxo {
-    background: var(--bgc-purple-opacity);
-    color: var(--bgc-purple);
-  }
-
-  &.cor-verde {
-    background: var(--bgc-verde-opacity);
-    color: var(--color-success);
-  }
-
-  &.cor-laranja {
-    background: var(--bgc-yellow-opacity);
-    color: var(--color-warning);
-  }
-
-  &.cor-rosa {
-    background: #ffe4f0;
-    color: #d6336c;
-  }
-}
-
-.stat-texto {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-  gap: 4px;
-
-  strong {
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: var(--color-text);
-    line-height: 1.1;
-  }
-
-  span {
-    font-size: 0.72rem;
-    color: var(--color-text-secondary);
   }
 }
 

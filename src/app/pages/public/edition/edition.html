@@ -12,11 +12,11 @@
           <div class="skeleton skeleton-title"></div>
           <div class="skeleton skeleton-subtitle"></div>
         </div>
-      } @else if (edicao(); as ed) {
+      } @else if (!edicaoNaoEncontrada() && edicao(); as ed) {
         <div class="intro-text">
-          <span class="badge-itens"><span class="dot"></span>{{ ed.itens.length }} itens</span>
-          <h1 class="edition-status">{{ ed.statusEdicao }}</h1>
-          <p class="edition-resumo">{{ ed.resumo }}</p>
+          <span class="badge-itens"><span class="dot"></span>{{ atualizacoesVisiveis().length }} itens</span>
+          <h1 class="edition-status">{{ ed.titulo }}</h1>
+          <p class="edition-resumo">{{ formatarPeriodo(ed.periodo) }} · Edição {{ labelTipo(ed.tipo) }}</p>
         </div>
       }
     </div>
@@ -27,19 +27,19 @@
       <div class="edition-grid">
         <div class="edition-main">
           <div class="skeleton skeleton-label"></div>
-          <div class="destaque-card destaque-card-skeleton">
+          <div class="destaque-card destaque-card-skeleton tem-imagem">
+            <div class="destaque-imagem-wrap skeleton"></div>
             <div class="destaque-texto">
               <div class="skeleton skeleton-line skeleton-line-lg"></div>
               <div class="skeleton skeleton-line"></div>
               <div class="skeleton skeleton-line skeleton-line-sm"></div>
             </div>
-            <div class="destaque-visual skeleton"></div>
           </div>
 
           <div class="skeleton skeleton-heading"></div>
 
           <div class="categorias-tabs">
-            @for (t of [1, 2, 3, 4]; track $index) {
+            @for (t of abas; track $index) {
               <div class="skeleton skeleton-tab"></div>
             }
           </div>
@@ -62,8 +62,8 @@
         <aside class="edition-sidebar">
           <div class="sidebar-card">
             <div class="skeleton skeleton-heading"></div>
-            <ul class="destaques-lista">
-              @for (d of skeletonDestaques; track $index) {
+            <ul class="stats-lista">
+              @for (s of skeletonStats; track $index) {
                 <li class="skeleton skeleton-list-item"></li>
               }
             </ul>
@@ -80,18 +80,6 @@
         </aside>
       </div>
 
-      <div class="resumo-edicao">
-        @for (s of skeletonStats; track $index) {
-          <div class="stat-tile stat-tile-skeleton">
-            <div class="skeleton skeleton-icon"></div>
-            <div class="stat-texto">
-              <div class="skeleton skeleton-line-sm"></div>
-              <div class="skeleton skeleton-line-sm"></div>
-            </div>
-          </div>
-        }
-      </div>
-
       <div class="transparencia-banner transparencia-skeleton">
         <div class="skeleton skeleton-icon-lg"></div>
         <div class="transparencia-texto">
@@ -99,33 +87,38 @@
           <div class="skeleton skeleton-line"></div>
         </div>
       </div>
+    } @else if (edicaoNaoEncontrada()) {
+      <div class="empty-state">
+        <i class="bi bi-journal-x"></i>
+        <p>Não encontramos essa edição, ou ela não está mais disponível.</p>
+        <a class="btn-voltar" routerLink="/"><i class="bi bi-arrow-left"></i> Voltar para a Home</a>
+      </div>
     } @else if (edicao(); as ed) {
       <div class="edition-grid">
         <div class="edition-main">
-          <span class="destaque-label">Destaque da edição</span>
-          <article class="destaque-card">
-            <div class="destaque-texto">
-              <h2>{{ ed.destaque.titulo }}</h2>
-              <p>{{ ed.destaque.descricao }}</p>
-              <a class="destaque-link" [routerLink]="[ed.destaque.linkUrl]">
-                {{ ed.destaque.linkTexto }} <i class="bi bi-arrow-right m-0"></i>
-              </a>
-            </div>
-
-            <div class="destaque-visual">
-              @if (ed.destaque.imagemUrl) {
-                <img [src]="ed.destaque.imagemUrl" [alt]="ed.destaque.imagemAlt" />
-              } @else {
-                <div class="destaque-mockup" role="img" [attr.aria-label]="ed.destaque.imagemAlt">
-                  <div class="mockup-tela">
-                    <i class="bi bi-wallet2"></i>
-                    <span class="mockup-linha"></span>
-                    <span class="mockup-linha curta"></span>
-                  </div>
+          @if (ed.servicoDestaque; as destaque) {
+            <span class="destaque-label">Serviço em destaque</span>
+            <article
+              class="destaque-card"
+              [class]="'cor-fundo-' + destaque.cor"
+              [class.tem-imagem]="!!destaque.imagemUrl"
+            >
+              @if (destaque.imagemUrl) {
+                <div class="destaque-imagem-wrap">
+                  <img
+                    [src]="destaque.imagemUrl"
+                    [alt]="destaque.titulo"
+                    [class]="'pos-' + (destaque.imagemPosicao || 'centro')"
+                  />
                 </div>
               }
-            </div>
-          </article>
+
+              <div class="destaque-texto">
+                <h3>{{ destaque.titulo }}</h3>
+                <p>{{ destaque.descricao }}</p>
+              </div>
+            </article>
+          }
 
           <h3 class="categorias-heading">Atualizações por categoria</h3>
 
@@ -151,14 +144,27 @@
               @for (item of itensFiltrados(); track item.id) {
                 <article class="item-card">
                   <div class="item-topo d-flex justify-content-between align-items-start">
-                    <span class="item-icone" [class]="'cor-' + item.status">
+                    <span class="item-icone" [class]="'cor-' + corCategoria(item.categoria)">
                       <i [class]="'bi ' + item.icone"></i>
                     </span>
-                    <span class="status-pill" [class]="'status-' + item.status">{{ item.statusLabel }}</span>
+                    <span class="status-pill" [class]="'cor-' + corCategoria(item.categoria)">{{
+                      labelCategoria(item.categoria)
+                    }}</span>
                   </div>
+
+                  @if (item.midia) {
+                    <div class="item-midia">
+                      @if (item.midia.tipo === 'video') {
+                        <video [src]="item.midia.url" controls preload="metadata"></video>
+                      } @else {
+                        <img [src]="item.midia.url" [alt]="item.titulo" />
+                      }
+                    </div>
+                  }
+
                   <h4>{{ item.titulo }}</h4>
                   <p class="item-descricao">{{ item.descricao }}</p>
-                  <p class="item-observacao">{{ item.observacao }}</p>
+                  <p class="item-observacao">{{ item.impacto }}</p>
                 </article>
               }
             }
@@ -167,72 +173,55 @@
 
         <aside class="edition-sidebar">
           <div class="sidebar-card">
-            <h3>Outros destaques</h3>
-            <ul class="destaques-lista">
-              @for (item of outrosDestaques(); track item.id) {
+            <h3>Resumo da edição</h3>
+            <ul class="stats-lista">
+              @for (stat of resumoStats(); track stat.label) {
                 <li>
-                  <span class="item-icone item-icone-sm" [class]="'cor-' + item.status">
-                    <i [class]="'bi ' + item.icone"></i>
+                  <span class="stat-icone-sm" [class]="'cor-' + stat.cor">
+                    <i [class]="'bi ' + stat.icone"></i>
                   </span>
-                  <span class="destaque-titulo">{{ item.titulo }}</span>
-                  <span class="status-pill status-pill-sm" [class]="'status-' + item.status">{{
-                    item.statusLabel
-                  }}</span>
+                  <span class="stat-label">{{ stat.label }}</span>
+                  <span class="stat-valor">{{ stat.valor }}</span>
                 </li>
               }
             </ul>
-            <button type="button" class="ver-mais-btn" (click)="selecionarFiltro('todos'); scrollPara(itensGrid)">
-              Ver todos os itens <i class="bi bi-arrow-right m-0"></i>
-            </button>
           </div>
 
           <div class="sidebar-card">
             <h3>Próximos passos</h3>
-            <ul class="passos-lista">
-              @for (passo of ed.proximosPassos; track passo.id) {
-                <li>
-                  <span class="passo-dot" [class]="'dot-' + passo.cor"></span>
-                  <div class="passo-conteudo">
-                    <div class="passo-topo d-flex justify-content-between align-items-start">
+            @if (proximosPassos().length === 0) {
+              <p class="sidebar-vazio">Nenhum item nesta categoria por enquanto.</p>
+            } @else {
+              <ul class="passos-lista">
+                @for (passo of proximosPassos(); track passo.id) {
+                  <li>
+                    <span class="passo-dot" [class]="'dot-' + corCategoria(passo.categoria)"></span>
+                    <div class="passo-conteudo">
                       <span class="passo-titulo">{{ passo.titulo }}</span>
-                      <span class="passo-status" [class]="'passo-status-' + passo.status">{{
-                        passo.statusLabel
-                      }}</span>
+                      <p class="passo-descricao">{{ passo.descricao }}</p>
                     </div>
-                    <p class="passo-descricao">{{ passo.descricao }}</p>
-                  </div>
-                </li>
-              }
-            </ul>
-            <a class="ver-mais-btn" routerLink="/">
-              Ver roadmap completo <i class="bi bi-arrow-right m-0"></i>
-            </a>
+                  </li>
+                }
+              </ul>
+            }
+            <button type="button" class="ver-mais-btn" (click)="selecionarFiltro('proximos-passos'); scrollPara(itensGrid)">
+              Ver todos os itens <i class="bi bi-arrow-right m-0"></i>
+            </button>
           </div>
         </aside>
-      </div>
-
-      <div class="resumo-edicao">
-        @for (stat of resumoStats(); track stat.label) {
-          <div class="stat-tile">
-            <span class="stat-icone" [class]="'cor-' + stat.cor">
-              <i [class]="'bi ' + stat.icone"></i>
-            </span>
-            <div class="stat-texto">
-              <strong>{{ stat.valor }}</strong>
-              <span>{{ stat.label }}</span>
-            </div>
-          </div>
-        }
       </div>
 
       <div class="transparencia-banner">
         <i class="bi bi-shield-check"></i>
         <div class="transparencia-texto">
-          <h4>{{ ed.transparencia.titulo }}</h4>
-          <p>{{ ed.transparencia.descricao }}</p>
+          <h4>Transparência que gera confiança</h4>
+          <p>
+            Aqui você acompanha, de forma clara e aberta, tudo o que estamos desenvolvendo, testando e buscando
+            transformar a gestão pública.
+          </p>
         </div>
-        <a class="transparencia-link" [routerLink]="[ed.transparencia.linkUrl]">
-          {{ ed.transparencia.linkTexto }} <i class="bi bi-arrow-right m-0"></i>
+        <a class="transparencia-link" routerLink="/">
+          Sobre o CC News <i class="bi bi-arrow-right m-0"></i>
         </a>
       </div>
     }

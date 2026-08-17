@@ -19,10 +19,9 @@
     <div class="container">
       <div class="search-card">
         <div class="text-search">
-          <h2 class="tt-search">Histórico de edições</h2>
+          <h2 class="tt-search">Explore as edições</h2>
           <p class="p-search">
-            Todas as atualizações publicadas no Conecta Cidades News. Use a busca e os filtros para
-            encontrar o que precisa.
+            Consulte as publicações anteriores e encontre rapidamente uma edição.
           </p>
         </div>
 
@@ -83,7 +82,7 @@
               >
                 <option value="">Todas as categorias</option>
                 @for (categoria of categoriasDisponiveis(); track categoria) {
-                  <option [value]="categoria">{{ categoria }}</option>
+                  <option [value]="categoria">{{ labelTipo(categoria) }}</option>
                 }
               </select>
               <i class="bi bi-chevron-down"></i>
@@ -127,7 +126,7 @@
           }
         </div>
       }
-    } @else if (edicoesPorMes().length === 0) {
+    } @else if (edicoesPublicas().length === 0) {
       <div class="empty-state text-center">
         <i class="bi bi-calendar-x"></i>
         <p>Nenhuma edição publicada ainda.</p>
@@ -161,18 +160,18 @@
               <div class="card-edicao d-flex flex-column justify-content-between align-items-start">
                 <div class="data-edicao d-flex align-items-center">
                   <i class="bi bi-calendar-week"></i>
-                  <h4 class="data m-0">{{ edicao.periodo }}</h4>
+                  <h4 class="data m-0">{{ formatarPeriodo(edicao.periodo) }}</h4>
                 </div>
-                <div class="tipo-edicao text-center">Edição {{ edicao.tipo }}</div>
+                <div class="tipo-edicao text-center">Edição {{ labelTipo(edicao.tipo) }}</div>
                 <div class="txt-edicao">
                   <h4 class="tt-edicao">{{ edicao.titulo }}</h4>
                   <p class="p-edicao">
-                    {{ edicao.descricao }}
+                    {{ edicao.resumo }}
                   </p>
                 </div>
                 <div class="footer-edicao d-flex justify-content-between align-items-center w-100">
                   <div class="total-novo m-0 d-flex align-items-center">
-                    {{ edicao.totalNovidades }} novidades
+                    {{ contarNovidades(edicao) }} novidades
                   </div>
                   <a class="ver-edicao" [routerLink]="['/edicao', edicao.id]">
                     Ver edição <i class="bi bi-arrow-right m-0"></i>

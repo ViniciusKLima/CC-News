@@ -19,12 +19,24 @@
   --color-text-secondary: #64748b;
 
   // Bordas
-  --color-border: #a0a2ae;
+  --color-border: #d3dadf;
 
   // Estados
   --color-success: #16a34a;
   --color-warning: #d97706;
   --color-danger: #dc2626;
+
+  // Cores por tipo de edição — fonte única usada em qualquer lugar que
+  // exiba a etiqueta do tipo (Home, edição pública e área administrativa),
+  // para manter o mesmo código de cores em toda a aplicação.
+  --tipo-semanal-bg: #6d28d9;
+  --tipo-semanal-text: white;
+  --tipo-mensal-bg: #1369f5;
+  --tipo-mensal-text: #f2f6fd;
+  --tipo-anual-bg: #16a34a;
+  --tipo-anual-text: #e4ffe3;
+  --tipo-especial-bg: #e6a210;
+  --tipo-especial-text: white;
 
   // Layout
   --header-height: 8vh;

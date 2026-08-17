@@ -341,10 +341,26 @@
 
   .tipo-edicao {
     font-size: 0.7rem;
-    background-color: var(--bgc-purple);
     padding: 3px 8px;
     border-radius: 30px;
     font-weight: 600;
+
+    &.tipo-semanal {
+      background-color: var(--tipo-semanal-bg);
+      color: var(--tipo-semanal-text);
+    }
+    &.tipo-mensal {
+      background-color: var(--tipo-mensal-bg);
+      color: var(--tipo-mensal-text);
+    }
+    &.tipo-anual {
+      background-color: var(--tipo-anual-bg);
+      color: var(--tipo-anual-text);
+    }
+    &.tipo-especial {
+      background-color: var(--tipo-especial-bg);
+      color: var(--tipo-especial-text);
+    }
   }
 
   .txt-edicao {

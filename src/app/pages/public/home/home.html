@@ -162,7 +162,9 @@
                   <i class="bi bi-calendar-week"></i>
                   <h4 class="data m-0">{{ formatarPeriodo(edicao.periodo) }}</h4>
                 </div>
-                <div class="tipo-edicao text-center">Edição {{ labelTipo(edicao.tipo) }}</div>
+                <div [class]="'tipo-edicao text-center tipo-' + edicao.tipo">
+                  Edição {{ labelTipo(edicao.tipo) }}
+                </div>
                 <div class="txt-edicao">
                   <h4 class="tt-edicao">{{ edicao.titulo }}</h4>
                   <p class="p-edicao">

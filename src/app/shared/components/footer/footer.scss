@@ -10,4 +10,17 @@ footer {
   .p-footer {
     font-size: 0.7rem;
   }
+
+  .link-admin {
+    margin-left: 8px;
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    opacity: 0.55;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 1;
+      color: var(--color-primary);
+    }
+  }
 }

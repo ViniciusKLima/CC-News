@@ -42,7 +42,7 @@
   gap: 8px;
   border: none;
   border-radius: 10px;
-  padding: 11px 18px;
+  padding: 8px 12px;
   background: var(--color-primary);
   color: #fff;
   font-size: 0.85rem;
@@ -471,7 +471,7 @@
 // ---------------------------------------------------------------------------
 
 .empty-state {
-  padding: 70px 20px;
+  padding: 25px 20px;
   text-align: center;
   color: var(--color-text-secondary);
   background: #fff;
@@ -480,8 +480,7 @@
 
   i {
     display: block;
-    margin-bottom: 12px;
-    font-size: 2rem;
+    font-size: 1rem;
     color: var(--color-border);
   }
 
@@ -493,7 +492,7 @@
   .btn-limpar-vazio {
     border: 1px solid var(--color-border);
     border-radius: 10px;
-    padding: 9px 18px;
+    padding: 9px 12px;
     background: none;
     color: var(--color-primary);
     font-size: 0.82rem;

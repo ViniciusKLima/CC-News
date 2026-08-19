@@ -1,0 +1,373 @@
+.admin-shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--background-body);
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 36px 40px;
+}
+
+.admin-header {
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0 0 4px;
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--color-text);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+  }
+}
+
+.btn-primario {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 18px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+
+  &:hover {
+    filter: brightness(0.92);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Tabela
+// ---------------------------------------------------------------------------
+
+$grid-usuarios: minmax(160px, 1.6fr) minmax(200px, 2fr) 140px 120px 150px 70px;
+
+.usuarios-tabela {
+  background: #fff;
+  border: 1px solid rgba(160, 162, 174, 0.25);
+  border-radius: 14px;
+  // Sem overflow: hidden — clipava o menu de ações (3 pontos) quando ele
+  // abria pra fora dos limites da linha. Arredondamento feito diretamente
+  // no cabeçalho/última linha, abaixo.
+}
+
+.usuarios-cabecalho {
+  display: grid;
+  grid-template-columns: $grid-usuarios;
+  gap: 12px;
+  padding: 10px 20px;
+  background: var(--background-body);
+  border-radius: 14px 14px 0 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.usuario-linha {
+  display: grid;
+  grid-template-columns: $grid-usuarios;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(160, 162, 174, 0.15);
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--background-body);
+  }
+
+  &:last-child:hover {
+    border-radius: 0 0 14px 14px;
+  }
+}
+
+.usuario-nome {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.usuario-email,
+.usuario-acesso {
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 30px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.perfil-administrador {
+  background: var(--tipo-especial-bg);
+  color: var(--tipo-especial-text);
+}
+.perfil-editor {
+  background: var(--tipo-mensal-bg);
+  color: var(--tipo-mensal-text);
+}
+
+.status-usuario-ativo {
+  background: var(--bgc-verde-opacity);
+  color: var(--color-success);
+}
+.status-usuario-pendente {
+  background: var(--bgc-yellow-opacity);
+  color: var(--color-warning);
+}
+.status-usuario-inativo {
+  background: #fde8e8;
+  color: var(--color-danger);
+}
+
+.usuario-acoes {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.btn-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: var(--bgc-azul-opacity);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.menu-wrapper {
+  position: relative;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid rgba(160, 162, 174, 0.3);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    border-radius: 7px;
+    padding: 9px 10px;
+    background: none;
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--bgc-azul-opacity);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: -2px;
+    }
+
+    &.menu-item-perigo {
+      color: var(--color-danger);
+
+      &:hover {
+        background: #fde8e8;
+      }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Estado vazio
+// ---------------------------------------------------------------------------
+
+.empty-state {
+  padding: 70px 20px;
+  text-align: center;
+  color: var(--color-text-secondary);
+  background: #fff;
+  border: 1px solid rgba(160, 162, 174, 0.25);
+  border-radius: 14px;
+
+  i {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 2rem;
+    color: var(--color-border);
+  }
+
+  p {
+    margin: 0 0 16px;
+    font-size: 0.95rem;
+  }
+
+  .btn-limpar-vazio {
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 9px 18px;
+    background: none;
+    color: var(--color-primary);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+
+    &:hover {
+      background: var(--bgc-azul-opacity);
+      border-color: var(--color-primary);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Skeleton loading
+// ---------------------------------------------------------------------------
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton {
+  border-radius: 6px;
+  background-color: #e4e5ea;
+  background-image: linear-gradient(
+    90deg,
+    rgba(160, 162, 174, 0.25) 25%,
+    rgba(160, 162, 174, 0.5) 37%,
+    rgba(160, 162, 174, 0.25) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+.skeleton-line {
+  width: 130px;
+  height: 13px;
+}
+
+.skeleton-line-lg {
+  width: 160px;
+  height: 14px;
+}
+
+.skeleton-pill {
+  width: 90px;
+  height: 22px;
+  border-radius: 30px;
+}
+
+.skeleton-acoes {
+  width: 34px;
+  height: 34px;
+  margin-left: auto;
+  border-radius: 8px;
+}
+
+// ---------------------------------------------------------------------------
+// Responsivo
+// ---------------------------------------------------------------------------
+
+@media (max-width: 900px) {
+  .admin-shell {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  .admin-main {
+    height: auto;
+    overflow: visible;
+    padding: 24px 20px;
+  }
+}
+
+@media (max-width: 800px) {
+  .usuarios-cabecalho {
+    display: none;
+  }
+
+  .usuario-linha {
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 10px;
+    column-gap: 12px;
+    align-items: center;
+  }
+
+  .usuario-nome,
+  .usuario-email {
+    flex: 1 1 100%;
+  }
+
+  .usuario-acoes {
+    margin-left: auto;
+  }
+}

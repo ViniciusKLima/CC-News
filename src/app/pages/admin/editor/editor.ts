@@ -19,6 +19,8 @@ import {
 } from '../../../core/models/edition.model';
 import { EditionService } from '../../../core/services/edition.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
+import { CONFIRMACOES } from '../../../core/services/confirm-dialog.presets';
 import { AtualizacaoModal } from './atualizacao-modal/atualizacao-modal';
 
 const ORDEM_TIPOS: TipoEdicao[] = ['semanal', 'mensal', 'anual', 'especial'];
@@ -57,6 +59,7 @@ export class Editor {
   private readonly fb = inject(FormBuilder);
   private readonly editionService = inject(EditionService);
   private readonly toastService = inject(ToastService);
+  private readonly confirmDialogService = inject(ConfirmDialogService);
 
   // Enquanto o service ainda está carregando o mock, não dá para saber se o
   // id existe ou não — evita mostrar "edição não encontrada" precocemente.
@@ -320,55 +323,65 @@ export class Editor {
     this.modalAberto.set(null);
   }
 
-  salvarAtualizacao(dados: Omit<Atualizacao, 'id'>): void {
+  async salvarAtualizacao(dados: Omit<Atualizacao, 'id'>): Promise<void> {
     const modal = this.modalAberto();
     if (!modal) return;
 
     const id = this.edicaoId();
-    if (this.modo() === 'editar' && id) {
-      if (modal.atualizacaoEditando) {
-        this.editionService.atualizarAtualizacao(id, modal.atualizacaoEditando.id, dados);
+    try {
+      if (this.modo() === 'editar' && id) {
+        if (modal.atualizacaoEditando) {
+          await this.editionService.atualizarAtualizacao(id, modal.atualizacaoEditando.id, dados);
+        } else {
+          await this.editionService.adicionarAtualizacao(id, dados);
+        }
+      } else if (modal.atualizacaoEditando) {
+        const idEditando = modal.atualizacaoEditando.id;
+        this.atualizacoesPendentes.update((lista) =>
+          lista.map((item) => (item.id === idEditando ? { ...dados, id: idEditando } : item)),
+        );
       } else {
-        this.editionService.adicionarAtualizacao(id, dados);
+        this.atualizacoesPendentes.update((lista) => [...lista, { ...dados, id: gerarIdLocal() }]);
       }
-    } else if (modal.atualizacaoEditando) {
-      const idEditando = modal.atualizacaoEditando.id;
-      this.atualizacoesPendentes.update((lista) =>
-        lista.map((item) => (item.id === idEditando ? { ...dados, id: idEditando } : item)),
-      );
-    } else {
-      this.atualizacoesPendentes.update((lista) => [...lista, { ...dados, id: gerarIdLocal() }]);
-    }
 
-    this.fecharModal();
-    this.toastService.sucesso(
-      modal.atualizacaoEditando ? 'Atualização editada com sucesso.' : 'Atualização adicionada com sucesso.',
-    );
+      this.fecharModal();
+      this.toastService.sucesso(
+        modal.atualizacaoEditando ? 'Atualização editada com sucesso.' : 'Atualização adicionada com sucesso.',
+      );
+    } catch {
+      this.toastService.erro('Não foi possível salvar a atualização. Tente novamente em instantes.');
+    }
   }
 
-  excluirAtualizacao(atualizacao: Atualizacao): void {
-    const confirmado = window.confirm(
-      `Excluir a atualização "${atualizacao.titulo}"? Essa ação não pode ser desfeita.`,
-    );
+  async excluirAtualizacao(atualizacao: Atualizacao): Promise<void> {
+    const confirmado = await this.confirmDialogService.confirmar(CONFIRMACOES.excluirAtualizacao(atualizacao.titulo));
     if (!confirmado) return;
 
     const id = this.edicaoId();
-    if (this.modo() === 'editar' && id) {
-      this.editionService.removerAtualizacao(id, atualizacao.id);
-    } else {
-      this.atualizacoesPendentes.update((lista) => lista.filter((item) => item.id !== atualizacao.id));
+    try {
+      if (this.modo() === 'editar' && id) {
+        await this.editionService.removerAtualizacao(id, atualizacao.id);
+      } else {
+        this.atualizacoesPendentes.update((lista) => lista.filter((item) => item.id !== atualizacao.id));
+      }
+      this.toastService.sucesso('Atualização excluída com sucesso.');
+    } catch {
+      this.toastService.erro('Não foi possível excluir a atualização. Tente novamente em instantes.');
     }
-    this.toastService.sucesso('Atualização excluída com sucesso.');
   }
 
-  alternarVisibilidade(atualizacao: Atualizacao): void {
+  async alternarVisibilidade(atualizacao: Atualizacao): Promise<void> {
     const id = this.edicaoId();
-    if (this.modo() === 'editar' && id) {
-      this.editionService.alternarVisibilidadeAtualizacao(id, atualizacao.id);
-    } else {
-      this.atualizacoesPendentes.update((lista) =>
-        lista.map((item) => (item.id === atualizacao.id ? { ...item, visivel: !item.visivel } : item)),
-      );
+    try {
+      if (this.modo() === 'editar' && id) {
+        await this.editionService.alternarVisibilidadeAtualizacao(id, atualizacao.id);
+      } else {
+        this.atualizacoesPendentes.update((lista) =>
+          lista.map((item) => (item.id === atualizacao.id ? { ...item, visivel: !item.visivel } : item)),
+        );
+      }
+    } catch {
+      this.toastService.erro('Não foi possível atualizar a visibilidade. Tente novamente em instantes.');
     }
   }
 
@@ -377,7 +390,7 @@ export class Editor {
   }
 
   // --- Salvar / excluir edição ---
-  salvar(): void {
+  async salvar(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       this.toastService.erro('Não foi possível salvar: revise os campos destacados no formulário.');
@@ -416,13 +429,13 @@ export class Editor {
     try {
       const id = this.edicaoId();
       if (this.modo() === 'editar' && id) {
-        this.editionService.atualizar(id, dados);
+        await this.editionService.atualizar(id, dados);
         this.toastService.sucesso('Edição salva com sucesso.');
       } else {
-        const nova = this.editionService.criar(dados);
+        const nova = await this.editionService.criar(dados);
         for (const atualizacao of this.atualizacoesPendentes()) {
           const { id: _descartado, ...resto } = atualizacao;
-          this.editionService.adicionarAtualizacao(nova.id, resto);
+          await this.editionService.adicionarAtualizacao(nova.id, resto);
         }
         this.toastService.sucesso('Edição criada com sucesso.');
       }
@@ -434,18 +447,20 @@ export class Editor {
     }
   }
 
-  excluirEdicao(): void {
+  async excluirEdicao(): Promise<void> {
     const edicao = this.edicao();
     if (!edicao) return;
 
-    const confirmado = window.confirm(
-      `Tem certeza que deseja excluir a edição "${edicao.titulo}"? Essa ação não pode ser desfeita.`,
-    );
+    const confirmado = await this.confirmDialogService.confirmar(CONFIRMACOES.excluirEdicao(edicao.titulo));
     if (!confirmado) return;
 
-    this.editionService.remover(edicao.id);
-    this.toastService.sucesso('Edição excluída com sucesso.');
-    this.router.navigateByUrl('/admin');
+    try {
+      await this.editionService.remover(edicao.id);
+      this.toastService.sucesso('Edição excluída com sucesso.');
+      this.router.navigateByUrl('/admin');
+    } catch {
+      this.toastService.erro('Não foi possível excluir a edição. Tente novamente em instantes.');
+    }
   }
 
   private montarPeriodo(valores: ValoresFormulario): PeriodoEdicao | null {

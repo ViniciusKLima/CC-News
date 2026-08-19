@@ -1,0 +1,105 @@
+<div class="admin-shell">
+  <app-admin-sidebar />
+
+  <main class="admin-main">
+    <div class="admin-header d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <div>
+        <h1>Usuários Internos</h1>
+        <p>Gerencie quem tem acesso ao painel administrativo do Conecta News.</p>
+      </div>
+      <button type="button" class="btn-primario" (click)="abrirModalNovoUsuario()">
+        <i class="bi bi-person-plus"></i> Adicionar novo usuário
+      </button>
+    </div>
+
+    @if (loading()) {
+      <div class="usuarios-tabela">
+        <div class="usuarios-cabecalho">
+          <span>Nome</span>
+          <span>E-mail</span>
+          <span>Perfil</span>
+          <span>Status</span>
+          <span>Último acesso</span>
+          <span>Ações</span>
+        </div>
+        @for (l of skeletonLinhas; track $index) {
+          <div class="usuario-linha">
+            <div class="skeleton skeleton-line skeleton-line-lg"></div>
+            <div class="skeleton skeleton-line"></div>
+            <div class="skeleton skeleton-pill"></div>
+            <div class="skeleton skeleton-pill"></div>
+            <div class="skeleton skeleton-line"></div>
+            <div class="skeleton skeleton-acoes"></div>
+          </div>
+        }
+      </div>
+    } @else if (usuarios().length === 0) {
+      <div class="empty-state">
+        <i class="bi bi-people"></i>
+        <p>Nenhum usuário cadastrado ainda.</p>
+        <button type="button" class="btn-limpar-vazio" (click)="abrirModalNovoUsuario()">
+          Adicionar primeiro usuário
+        </button>
+      </div>
+    } @else {
+      <div class="usuarios-tabela">
+        <div class="usuarios-cabecalho">
+          <span>Nome</span>
+          <span>E-mail</span>
+          <span>Perfil</span>
+          <span>Status</span>
+          <span>Último acesso</span>
+          <span>Ações</span>
+        </div>
+
+        @for (usuario of usuarios(); track usuario.id) {
+          <div class="usuario-linha">
+            <div class="usuario-nome">{{ usuario.nome }}</div>
+            <div class="usuario-email">{{ usuario.email }}</div>
+            <div>
+              <span class="pill perfil-{{ usuario.perfil }}">{{ labelPerfil(usuario.perfil) }}</span>
+            </div>
+            <div>
+              <span class="pill status-usuario-{{ usuario.status }}">{{ labelStatusUsuario(usuario.status) }}</span>
+            </div>
+            <div class="usuario-acesso">{{ formatarUltimoAcesso(usuario) }}</div>
+
+            <div class="usuario-acoes">
+              <div class="menu-wrapper">
+                <button
+                  type="button"
+                  class="btn-icone"
+                  aria-haspopup="menu"
+                  [attr.aria-expanded]="menuAbertoId() === usuario.id"
+                  aria-label="Mais ações"
+                  (click)="alternarMenu(usuario.id, $event)"
+                >
+                  <i class="bi bi-three-dots"></i>
+                </button>
+
+                @if (menuAbertoId() === usuario.id) {
+                  <div class="menu-dropdown" role="menu" (click)="$event.stopPropagation()">
+                    <button type="button" role="menuitem" (click)="abrirModalEditar(usuario)">
+                      <i class="bi bi-pencil"></i> Editar
+                    </button>
+                    <button type="button" role="menuitem" class="menu-item-perigo" (click)="excluir(usuario)">
+                      <i class="bi bi-trash3"></i> Excluir
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </main>
+</div>
+
+@if (modalAberto(); as modal) {
+  <app-usuario-modal
+    [usuarioEditando]="modal.usuarioEditando"
+    (salvar)="salvarUsuario($event)"
+    (fechar)="fecharModal()"
+  />
+}

@@ -1,9 +1,12 @@
 import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { Edicao, MESES_NOMES, TipoEdicao, formatarPeriodo, labelTipo } from '../../../core/models/edition.model';
 import { EditionService } from '../../../core/services/edition.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
+import { CONFIRMACOES } from '../../../core/services/confirm-dialog.presets';
+import { AdminSidebar } from '../../../shared/components/admin-sidebar/admin-sidebar';
 
 const TIPO_ICONES: Record<TipoEdicao, string> = {
   semanal: 'bi-graph-up-arrow',
@@ -20,13 +23,14 @@ interface GrupoMensal {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [FormsModule, RouterLink, RouterLinkActive],
+  imports: [FormsModule, RouterLink, AdminSidebar],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
 export class Dashboard {
   private readonly editionService = inject(EditionService);
   private readonly toastService = inject(ToastService);
+  private readonly confirmDialogService = inject(ConfirmDialogService);
 
   readonly edicoes = this.editionService.edicoes;
   readonly loading = this.editionService.loading;
@@ -153,23 +157,31 @@ export class Dashboard {
     this.fecharMenu();
   }
 
-  alternarStatus(edicao: Edicao): void {
+  async alternarStatus(edicao: Edicao): Promise<void> {
     const novoStatus = edicao.status === 'publico' ? 'arquivado' : 'publico';
-    this.editionService.atualizarStatus(edicao.id, novoStatus);
     this.fecharMenu();
-    this.toastService.sucesso(
-      novoStatus === 'publico' ? 'Edição publicada com sucesso.' : 'Edição arquivada com sucesso.',
-    );
+    try {
+      await this.editionService.atualizarStatus(edicao.id, novoStatus);
+      this.toastService.sucesso(
+        novoStatus === 'publico' ? 'Edição publicada com sucesso.' : 'Edição arquivada com sucesso.',
+      );
+    } catch {
+      this.toastService.erro('Não foi possível atualizar o status. Tente novamente em instantes.');
+    }
   }
 
-  excluir(edicao: Edicao): void {
+  async excluir(edicao: Edicao): Promise<void> {
     this.fecharMenu();
-    const confirmado = window.confirm(
-      `Tem certeza que deseja excluir a edição "${edicao.titulo}" (${formatarPeriodo(edicao.periodo)})? Essa ação não pode ser desfeita.`,
+    const confirmado = await this.confirmDialogService.confirmar(
+      CONFIRMACOES.excluirEdicao(edicao.titulo, formatarPeriodo(edicao.periodo)),
     );
-    if (confirmado) {
-      this.editionService.remover(edicao.id);
+    if (!confirmado) return;
+
+    try {
+      await this.editionService.remover(edicao.id);
       this.toastService.sucesso('Edição excluída com sucesso.');
+    } catch {
+      this.toastService.erro('Não foi possível excluir a edição. Tente novamente em instantes.');
     }
   }
 

@@ -1,2 +1,157 @@
-<h1>Login ADM</h1>
-<p>Em desenvolvimento...</p>
+<div class="login-shell">
+  @if (modo() === 'login') {
+    <form class="login-card" [formGroup]="form" (ngSubmit)="entrar()">
+      <img src="/LogoConectaNews.svg" alt="Conecta News" class="login-logo" />
+
+      <h1>Acesso administrativo</h1>
+      <p class="login-subtitulo">Entre com sua conta para gerenciar as edições.</p>
+
+      <div class="campo">
+        <label for="email">E-mail</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          autocomplete="username"
+          placeholder="seu-email@conectacidades.com"
+          [class.invalido]="campoInvalido('email')"
+        />
+        @if (campoInvalido('email')) {
+          <span class="erro-campo">Informe um e-mail válido.</span>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="senha">Senha</label>
+        <div class="campo-senha">
+          <input
+            id="senha"
+            [type]="mostrarSenhaLogin() ? 'text' : 'password'"
+            formControlName="senha"
+            autocomplete="current-password"
+            placeholder="••••••••"
+            [class.invalido]="campoInvalido('senha')"
+          />
+          <button
+            type="button"
+            class="botao-olho"
+            [attr.aria-label]="mostrarSenhaLogin() ? 'Ocultar senha' : 'Mostrar senha'"
+            (click)="mostrarSenhaLogin.set(!mostrarSenhaLogin())"
+          >
+            <i class="bi" [class.bi-eye]="!mostrarSenhaLogin()" [class.bi-eye-slash]="mostrarSenhaLogin()"></i>
+          </button>
+        </div>
+        @if (campoInvalido('senha')) {
+          <span class="erro-campo">Informe sua senha.</span>
+        }
+      </div>
+
+      <button type="submit" class="btn-entrar" [disabled]="entrando()">
+        {{ entrando() ? 'Entrando...' : 'Entrar' }}
+      </button>
+
+      <button type="button" class="link-primeiro-acesso" (click)="irParaPrimeiroAcesso()">
+        Primeiro acesso?
+      </button>
+    </form>
+  }
+
+  @if (modo() === 'verificar-email') {
+    <form class="login-card" [formGroup]="emailForm" (ngSubmit)="verificarEmail()">
+      <img src="/LogoConectaNews.svg" alt="Conecta News" class="login-logo" />
+
+      <h1>Primeiro acesso</h1>
+      <p class="login-subtitulo">Informe o e-mail cadastrado pelo administrador para continuar.</p>
+
+      <div class="campo">
+        <label for="email-verificar">E-mail</label>
+        <input
+          id="email-verificar"
+          type="email"
+          formControlName="email"
+          autocomplete="username"
+          placeholder="seu-email@conectacidades.com"
+          [class.invalido]="campoEmailInvalido()"
+        />
+        @if (campoEmailInvalido()) {
+          <span class="erro-campo">Informe um e-mail válido.</span>
+        }
+      </div>
+
+      <button type="submit" class="btn-entrar" [disabled]="verificando()">
+        {{ verificando() ? 'Verificando...' : 'Verificar' }}
+      </button>
+
+      <button type="button" class="link-primeiro-acesso" (click)="voltarParaLogin()">
+        Voltar para o login
+      </button>
+    </form>
+  }
+
+  @if (modo() === 'criar-senha') {
+    <form class="login-card" [formGroup]="senhaForm" (ngSubmit)="criarSenha()">
+      <img src="/LogoConectaNews.svg" alt="Conecta News" class="login-logo" />
+
+      <h1>Criar sua senha</h1>
+      <p class="login-subtitulo">Defina uma senha para acessar o painel administrativo.</p>
+
+      <div class="campo">
+        <label for="nova-senha">Senha</label>
+        <div class="campo-senha">
+          <input
+            id="nova-senha"
+            [type]="mostrarNovaSenha() ? 'text' : 'password'"
+            formControlName="senha"
+            autocomplete="new-password"
+            placeholder="Mínimo de 6 caracteres"
+            [class.invalido]="campoSenhaCriacaoInvalido('senha')"
+          />
+          <button
+            type="button"
+            class="botao-olho"
+            [attr.aria-label]="mostrarNovaSenha() ? 'Ocultar senha' : 'Mostrar senha'"
+            (click)="mostrarNovaSenha.set(!mostrarNovaSenha())"
+          >
+            <i class="bi" [class.bi-eye]="!mostrarNovaSenha()" [class.bi-eye-slash]="mostrarNovaSenha()"></i>
+          </button>
+        </div>
+        @if (campoSenhaCriacaoInvalido('senha')) {
+          <span class="erro-campo">A senha precisa ter pelo menos 6 caracteres.</span>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="confirmar-senha">Confirmar senha</label>
+        <div class="campo-senha">
+          <input
+            id="confirmar-senha"
+            [type]="mostrarConfirmarSenha() ? 'text' : 'password'"
+            formControlName="confirmarSenha"
+            autocomplete="new-password"
+            placeholder="Repita a senha"
+            [class.invalido]="campoSenhaCriacaoInvalido('confirmarSenha') || senhasNaoConferem()"
+          />
+          <button
+            type="button"
+            class="botao-olho"
+            [attr.aria-label]="mostrarConfirmarSenha() ? 'Ocultar senha' : 'Mostrar senha'"
+            (click)="mostrarConfirmarSenha.set(!mostrarConfirmarSenha())"
+          >
+            <i class="bi" [class.bi-eye]="!mostrarConfirmarSenha()" [class.bi-eye-slash]="mostrarConfirmarSenha()"></i>
+          </button>
+        </div>
+        @if (senhasNaoConferem()) {
+          <span class="erro-campo">As senhas não conferem.</span>
+        }
+      </div>
+
+      <button type="submit" class="btn-entrar" [disabled]="criandoConta()">
+        {{ criandoConta() ? 'Criando conta...' : 'Criar senha e entrar' }}
+      </button>
+
+      <button type="button" class="link-primeiro-acesso" (click)="voltarParaLogin()">
+        Voltar para o login
+      </button>
+    </form>
+  }
+</div>

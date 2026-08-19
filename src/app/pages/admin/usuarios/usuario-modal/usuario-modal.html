@@ -1,0 +1,88 @@
+<div class="modal-backdrop" (click)="onBackdropClick($event)">
+  <div class="modal-painel" role="dialog" aria-modal="true" [attr.aria-label]="modoEdicao ? 'Editar usuário' : 'Adicionar usuário'">
+    <header class="modal-cabecalho">
+      <div>
+        <span class="modal-categoria">Usuários internos</span>
+        <h2>{{ modoEdicao ? 'Editar usuário' : 'Adicionar novo usuário' }}</h2>
+      </div>
+      <button type="button" class="modal-fechar" aria-label="Fechar" (click)="onFechar()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </header>
+
+    <form class="modal-corpo" [formGroup]="form" (ngSubmit)="onSalvar()">
+      <div class="campo">
+        <label for="usuario-nome">Nome *</label>
+        <input
+          id="usuario-nome"
+          type="text"
+          formControlName="nome"
+          placeholder="Ex.: Maria Silva"
+          [class.invalido]="campoInvalido('nome')"
+        />
+        @if (campoInvalido('nome')) {
+          <span class="erro-campo">Informe o nome do usuário.</span>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="usuario-email">E-mail *</label>
+        <input
+          id="usuario-email"
+          type="email"
+          formControlName="email"
+          [readOnly]="contaJaAtivada"
+          placeholder="nome@conectacidades.com"
+          [class.invalido]="campoInvalido('email')"
+        />
+        @if (contaJaAtivada) {
+          <span class="dica-campo">O e-mail não pode ser alterado depois que a conta é ativada.</span>
+        } @else if (campoInvalido('email')) {
+          <span class="erro-campo">Informe um e-mail válido.</span>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="usuario-perfil">Perfil de acesso *</label>
+        <div class="select-wrap">
+          <select id="usuario-perfil" formControlName="perfil">
+            @for (perfil of perfisAcesso; track perfil.valor) {
+              <option [value]="perfil.valor">{{ perfil.label }}</option>
+            }
+          </select>
+          <i class="bi bi-chevron-down"></i>
+        </div>
+      </div>
+
+      @if (modoEdicao) {
+        <div class="campo">
+          <label>Status</label>
+          @if (contaJaAtivada) {
+            <div class="select-wrap">
+              <select formControlName="status">
+                <option value="ativo">Ativo</option>
+                <option value="inativo">Inativo</option>
+              </select>
+              <i class="bi bi-chevron-down"></i>
+            </div>
+          } @else {
+            <p class="campo-estatico">Pendente — aguardando o primeiro acesso.</p>
+          }
+        </div>
+
+        @if (contaJaAtivada) {
+          <button type="button" class="btn-secundario btn-senha" (click)="reenviarSenha()">
+            <i class="bi bi-envelope-arrow-up"></i> Enviar e-mail de redefinição de senha
+          </button>
+        }
+      }
+
+      <footer class="modal-rodape">
+        <button type="button" class="btn-secundario" (click)="onFechar()">Cancelar</button>
+        <button type="submit" class="btn-primario">
+          <i class="bi bi-check-lg"></i> Salvar
+        </button>
+      </footer>
+    </form>
+  </div>
+</div>

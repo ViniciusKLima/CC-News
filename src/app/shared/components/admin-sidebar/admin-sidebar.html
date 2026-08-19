@@ -1,0 +1,42 @@
+<aside class="admin-sidebar">
+  <a class="admin-logo" routerLink="/admin">
+    <img src="/LogoConectaNewsADM-White.svg" alt="Conecta News" class="img-logo" />
+  </a>
+
+  <nav class="admin-nav" aria-label="Navegação administrativa">
+    @if (souAdministrador()) {
+      <a class="admin-nav-item" routerLink="/admin/usuarios" routerLinkActive="active">
+        <i class="bi bi-people"></i> <span>Usuários Internos</span>
+      </a>
+    } @else {
+      <span class="admin-nav-item disabled" aria-disabled="true">
+        <i class="bi bi-people"></i> <span>Usuários Internos</span>
+      </span>
+    }
+    <a
+      class="admin-nav-item"
+      routerLink="/admin"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      <i class="bi bi-journal-text"></i> <span>Publicações</span>
+    </a>
+  </nav>
+
+  <div class="admin-user" (click)="alternarMenuUsuario($event)">
+    <span class="admin-user-avatar">{{ iniciaisUsuario() }}</span>
+    <div class="admin-user-info">
+      <strong>{{ usuario()?.email }}</strong>
+      <span>{{ labelMeuPerfil() }}</span>
+    </div>
+    <i class="bi bi-chevron-down"></i>
+
+    @if (menuUsuarioAberto()) {
+      <div class="admin-user-menu" (click)="$event.stopPropagation()">
+        <button type="button" (click)="sair()">
+          <i class="bi bi-box-arrow-right"></i> Sair
+        </button>
+      </div>
+    }
+  </div>
+</aside>

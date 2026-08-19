@@ -1,32 +1,5 @@
 <div class="admin-shell">
-  <aside class="admin-sidebar">
-    <a class="admin-logo" routerLink="/admin">
-      <img src="/LogoConectaNewsADM-White.svg" alt="Conecta News" class="img-logo" />
-    </a>
-
-    <nav class="admin-nav" aria-label="Navegação administrativa">
-      <span class="admin-nav-item disabled" aria-disabled="true">
-        <i class="bi bi-people"></i> <span>Usuários Internos</span>
-      </span>
-      <a
-        class="admin-nav-item"
-        routerLink="/admin"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-      >
-        <i class="bi bi-journal-text"></i> <span>Publicações</span>
-      </a>
-    </nav>
-
-    <div class="admin-user">
-      <span class="admin-user-avatar">VK</span>
-      <div class="admin-user-info">
-        <strong>Vinícius Kauã</strong>
-        <span>Administrador</span>
-      </div>
-      <i class="bi bi-chevron-down"></i>
-    </div>
-  </aside>
+  <app-admin-sidebar />
 
   <main class="admin-main">
     <div class="admin-header d-flex justify-content-between align-items-start flex-wrap gap-3">

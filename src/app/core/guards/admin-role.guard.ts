@@ -5,6 +5,8 @@ import { firstValueFrom } from 'rxjs';
 import { UsuarioService } from '../services/usuario.service';
 import { ToastService } from '../services/toast.service';
 
+// Guard de rota: além de autenticado (ver authGuard), exige perfil de
+// administrador. Usado nas rotas restritas, como a gestão de usuários.
 export const adminRoleGuard: CanActivateFn = async () => {
   const auth = inject(Auth);
   const usuarioService = inject(UsuarioService);

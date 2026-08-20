@@ -1,3 +1,4 @@
+// Hero de abertura
 .hero {
   background-color: var(--color-secondary);
   background-image: url(/banner-hero.png);
@@ -31,6 +32,7 @@
   }
 }
 
+// Card de busca e filtros, sobreposto à hero
 .search {
   padding: 0 0 5vh;
   position: relative;
@@ -224,6 +226,7 @@
   }
 }
 
+// Título de cada grupo de mês, com a linha divisória ao lado
 .header-edicao {
   padding-block: 20px;
   i {
@@ -242,9 +245,10 @@
   }
 }
 
+// Carrossel horizontal de cards de edição, um por grupo de mês
 .materias {
-  // Definida aqui (e não em .slide-wrapper) para que o skeleton — que não
-  // usa o wrapper com as setas de navegação — herde exatamente a mesma
+  // Definida aqui (e não em .slide-wrapper) para que o skeleton, que não
+  // usa o wrapper com as setas de navegação, herde exatamente a mesma
   // largura de card do conteúdo real, evitando layout shift ao carregar.
   --card-w: 330px;
 }
@@ -404,6 +408,7 @@
   }
 }
 
+// Placeholder de carregamento (skeleton), reutilizado no cabeçalho e nos cards
 @keyframes skeleton-shimmer {
   0% {
     background-position: 200% 0;
@@ -434,7 +439,7 @@
 }
 
 .card-edicao-skeleton {
-  // Skeleton neutro em tons de cinza: os cards reais podem ter cores
+  // Skeleton neutro em tons de cinza. Os cards reais podem ter cores
   // diferentes, então o placeholder não deve assumir a cor de nenhum deles.
   background-color: #eef0f3;
   border: 1px solid rgba(160, 162, 174, 0.25);
@@ -471,6 +476,7 @@
   }
 }
 
+// Estado vazio, exibido tanto sem edições publicadas quanto sem resultado de busca
 .empty-state {
   padding: 60px 20px;
   color: var(--color-text-secondary);
@@ -531,6 +537,7 @@
   }
 }
 
+// Botão flutuante de voltar ao topo
 .btn-voltar-topo {
   position: fixed;
   right: 20px;

@@ -3,6 +3,8 @@
     <img src="/LogoConectaNewsADM-White.svg" alt="Conecta News" class="img-logo" />
   </a>
 
+  <!-- Navegação principal. Usuários Internos fica visível mas desabilitado
+       para quem não é administrador. -->
   <nav class="admin-nav" aria-label="Navegação administrativa">
     @if (souAdministrador()) {
       <a class="admin-nav-item" routerLink="/admin/usuarios" routerLinkActive="active">
@@ -23,6 +25,7 @@
     </a>
   </nav>
 
+  <!-- Área do usuário logado: avatar, nome/perfil e o menu de sair -->
   <div class="admin-user" (click)="alternarMenuUsuario($event)">
     <span class="admin-user-avatar">{{ iniciaisUsuario() }}</span>
     <div class="admin-user-info">

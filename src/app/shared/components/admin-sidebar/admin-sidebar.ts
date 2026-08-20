@@ -3,6 +3,8 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { labelPerfil } from '../../../core/models/usuario.model';
 
+// Menu lateral fixo da área administrativa: navegação entre as telas do
+// admin e o menu do usuário logado (perfil e sair).
 @Component({
   selector: 'app-admin-sidebar',
   imports: [RouterLink, RouterLinkActive],

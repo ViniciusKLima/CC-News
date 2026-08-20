@@ -1,5 +1,6 @@
 <app-header></app-header>
 <main class="main-content edition-page">
+  <!-- Cabeçalho da edição: voltar, badges, título e período -->
   <section class="edition-intro container">
     <a class="btn-voltar" routerLink="/">
       <i class="bi bi-arrow-left"></i> Voltar
@@ -28,8 +29,12 @@
     </div>
   </section>
 
+  <!-- Conteúdo principal: destaque, abas de categoria, itens e a lateral
+       com resumo/próximos passos. Três estados: carregando, edição não
+       encontrada (ou arquivada) e conteúdo carregado. -->
   <section class="edition-content container">
     @if (loading()) {
+      <!-- Skeleton de carregamento, com a mesma estrutura do conteúdo real -->
       <div class="edition-grid">
         <div class="edition-main">
           <div class="skeleton skeleton-label"></div>
@@ -102,6 +107,7 @@
     } @else if (edicao(); as ed) {
       <div class="edition-grid">
         <div class="edition-main">
+          <!-- Bloco de serviço em destaque (opcional), configurado na edição -->
           @if (ed.servicoDestaque; as destaque) {
             <span class="destaque-label">Serviço em destaque</span>
             <article
@@ -127,6 +133,7 @@
             </article>
           }
 
+          <!-- Abas de categoria (arrastáveis) e a grade de itens filtrados -->
           <h3 class="categorias-heading">Atualizações por categoria</h3>
 
           <div class="categorias-tabs-wrapper">
@@ -219,6 +226,7 @@
           </div>
         </div>
 
+        <!-- Lateral com o resumo (contagem por categoria) e os próximos passos -->
         <aside class="edition-sidebar">
           <div class="sidebar-card">
             <h3>Resumo da edição</h3>
@@ -274,6 +282,7 @@
 </main>
 <app-footer></app-footer>
 
+<!-- Lightbox de imagem em tela cheia, aberto ao clicar em qualquer imagem da edição -->
 @if (imagemAmpliada(); as url) {
   <div class="lightbox-backdrop" (click)="fecharImagemAmpliada()">
     <button type="button" class="lightbox-fechar" aria-label="Fechar" (click)="fecharImagemAmpliada()">

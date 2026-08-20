@@ -5,6 +5,8 @@ import { firstValueFrom } from 'rxjs';
 import { UsuarioService } from '../services/usuario.service';
 import { ToastService } from '../services/toast.service';
 
+// Guard de rota: exige usuário autenticado no Firebase Auth e com cadastro
+// ativo na coleção de usuários internos antes de liberar o acesso ao admin.
 export const authGuard: CanActivateFn = async () => {
   const auth = inject(Auth);
   const usuarioService = inject(UsuarioService);
@@ -20,7 +22,7 @@ export const authGuard: CanActivateFn = async () => {
 
   // Lista de permissão, não de bloqueio: só passa quem tem registro E está
   // com status "ativo". Cobre tanto conta desativada quanto conta cujo
-  // registro foi apagado (usuario === undefined) — nos dois casos a sessão
+  // registro foi apagado (usuario === undefined). Nos dois casos a sessão
   // do Firebase Auth pode continuar tecnicamente válida no navegador, mas
   // o acesso ao admin tem que ser negado.
   if (usuario?.status !== 'ativo') {

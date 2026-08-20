@@ -6,6 +6,9 @@ import { UsuarioService } from '../../../core/services/usuario.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Usuario } from '../../../core/models/usuario.model';
 
+// Os três passos da tela: login normal, verificação de e-mail e criação
+// de senha no fluxo de Primeiro Acesso (usuário cadastrado pelo admin,
+// mas que ainda não tem conta no Firebase Auth).
 type ModoLogin = 'login' | 'verificar-email' | 'criar-senha';
 
 const MENSAGENS_ERRO: Record<string, string> = {
@@ -24,6 +27,8 @@ function senhasIguaisValidator(grupo: AbstractControl): ValidationErrors | null 
   return senha === confirmarSenha ? null : { senhasDiferentes: true };
 }
 
+// Tela de login administrativo e fluxo de Primeiro Acesso (verificação
+// de e-mail cadastrado + criação de senha).
 @Component({
   selector: 'app-login',
   imports: [ReactiveFormsModule],
@@ -94,6 +99,7 @@ export class Login {
     this.modo.set('login');
   }
 
+  // Ação de cada um dos três passos do formulário
   async entrar(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

@@ -11,6 +11,8 @@ import { UsuariosInternos } from './pages/admin/usuarios/usuarios';
 import { authGuard } from './core/guards/auth.guard';
 import { adminRoleGuard } from './core/guards/admin-role.guard';
 
+// Rotas da aplicação. As rotas administrativas usam authGuard para exigir
+// login e adminRoleGuard para restringir o acesso a usuários com papel admin.
 export const routes: Routes = [
   // Área pública
   {

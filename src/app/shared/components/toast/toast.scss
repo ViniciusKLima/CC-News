@@ -1,3 +1,4 @@
+// Container fixo que empilha os toasts no canto da tela
 .toast-host {
   position: fixed;
   top: 20px;
@@ -9,6 +10,7 @@
   max-width: min(360px, calc(100vw - 32px));
 }
 
+// Cartão de cada toast, com variação de cor para sucesso e erro
 .toast {
   display: flex;
   align-items: flex-start;
@@ -74,6 +76,7 @@
   }
 }
 
+// Em telas pequenas, os toasts saem do canto e ocupam a largura toda
 @media (max-width: 480px) {
   .toast-host {
     top: auto;

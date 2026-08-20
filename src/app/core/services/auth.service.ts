@@ -12,6 +12,10 @@ import { Usuario, normalizarEmail } from '../models/usuario.model';
 import { UsuarioService } from './usuario.service';
 import { ToastService } from './toast.service';
 
+// Camada de autenticação: envolve o Firebase Auth (login, criação de conta
+// e logout) e mantém sincronizado o perfil correspondente na coleção de
+// usuários internos, incluindo o encerramento forçado de sessão quando a
+// conta é desativada ou removida.
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly auth = inject(Auth);
@@ -29,7 +33,7 @@ export class AuthService {
   readonly carregando = this._carregando.asReadonly();
   readonly autenticado = computed(() => !!this._usuario());
 
-  /** Perfil (Firestore) correspondente à conta autenticada — nome, perfil de acesso, status etc. */
+  /** Perfil (Firestore) correspondente à conta autenticada: nome, perfil de acesso, status etc. */
   readonly meuUsuario = this._meuUsuario.asReadonly();
   readonly souAdministrador = computed(() => this._meuUsuario()?.perfil === 'administrador');
 
@@ -45,7 +49,7 @@ export class AuthService {
     // Segurança em tempo real: se a conta for apagada ou desativada
     // enquanto a pessoa já está com uma sessão aberta no app (sem precisar
     // navegar pra outra rota pro guard rodar de novo), derruba a sessão na
-    // hora — não basta bloquear só na próxima navegação.
+    // hora. Não basta bloquear só na próxima navegação.
     effect(() => {
       const usuarioFirebase = this._usuario();
       const perfil = this._meuUsuario();
@@ -74,7 +78,7 @@ export class AuthService {
     // rota protegida (incluindo a que acontece logo após este login).
   }
 
-  /** Cria a conta no Firebase Auth e ativa o registro correspondente — usado no Primeiro Acesso. */
+  /** Cria a conta no Firebase Auth e ativa o registro correspondente. Usado no fluxo de Primeiro Acesso. */
   async criarConta(email: string, senha: string): Promise<void> {
     const emailNormalizado = normalizarEmail(email);
     const credencial = await createUserWithEmailAndPassword(this.auth, emailNormalizado, senha);

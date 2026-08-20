@@ -1,3 +1,7 @@
+// Tipos e interfaces do domínio de edições: uma edição agrupa um conjunto
+// de atualizações (novidades, melhorias, correções etc.) publicadas em um
+// determinado período (semanal, mensal, anual ou especial).
+
 export type TipoEdicao = 'semanal' | 'mensal' | 'anual' | 'especial';
 
 export type StatusEdicao = 'publico' | 'arquivado';
@@ -73,7 +77,8 @@ export interface Edicao {
 }
 
 // ---------------------------------------------------------------------------
-// Constantes e helpers de apresentação — evitam strings soltas pelo código.
+// Constantes e helpers de apresentação, usados para não espalhar strings
+// e formatações soltas pelas telas que consomem esses dados.
 // ---------------------------------------------------------------------------
 
 export const TIPOS_EDICAO: { valor: TipoEdicao; label: string }[] = [

@@ -2,6 +2,7 @@ import { Component, HostListener, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { EditionService } from '../../../core/services/edition.service';
 
+// Cabeçalho fixo da área pública, com o link para a última edição publicada.
 @Component({
   selector: 'app-header',
   imports: [RouterLink],

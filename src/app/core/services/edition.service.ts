@@ -23,7 +23,7 @@ function gerarId(prefixo: string): string {
  * Fonte única dos dados de edições, sincronizada em tempo real com a
  * coleção `edicoes` do Firestore. Os consumidores (Home, Edição pública,
  * área administrativa) só leem os signals `edicoes`/`loading` e chamam os
- * métodos públicos abaixo — nunca acessam o Firestore diretamente.
+ * métodos públicos abaixo, nunca acessam o Firestore diretamente.
  */
 @Injectable({ providedIn: 'root' })
 export class EditionService {
@@ -86,6 +86,10 @@ export class EditionService {
     await deleteDoc(doc(this.colecao, id));
   }
 
+  // A partir daqui: operações sobre as atualizações (itens) dentro de uma
+  // edição específica. Não existe subcoleção no Firestore para isso, o
+  // array `atualizacoes` é sempre reescrito por inteiro via salvar().
+
   async adicionarAtualizacao(edicaoId: string, dados: Omit<Atualizacao, 'id'>): Promise<void> {
     const atual = this.obterPorId(edicaoId);
     if (!atual) return;
@@ -118,7 +122,7 @@ export class EditionService {
     await this.salvar({ ...atual, atualizacoes });
   }
 
-  /** Substitui o documento inteiro no Firestore — evita que campos limpos (ex. undefined) fiquem "presos" com o valor antigo, como aconteceria com um merge parcial. */
+  /** Substitui o documento inteiro no Firestore. Evita que campos limpos (ex. undefined) fiquem "presos" com o valor antigo, como aconteceria com um merge parcial. */
   private async salvar(edicao: Edicao): Promise<void> {
     await setDoc(doc(this.colecao, edicao.id), edicao);
   }

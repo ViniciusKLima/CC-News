@@ -10,6 +10,10 @@ export interface Toast {
 
 const DURACAO_MS = 4500;
 
+// Fila de notificações rápidas (toasts) exibidas no canto da tela. Cada
+// toast some sozinho depois de DURACAO_MS, além de poder ser fechado
+// manualmente. Renderizado pelo componente app-toast-host, montado uma
+// única vez no app.html.
 @Injectable({ providedIn: 'root' })
 export class ToastService {
   private readonly _toasts = signal<Toast[]>([]);

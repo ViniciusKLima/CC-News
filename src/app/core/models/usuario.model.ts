@@ -1,16 +1,20 @@
+// Tipos e interfaces do domínio de usuários internos (equipe que acessa o
+// admin). Perfil controla o nível de acesso e status controla se a conta
+// pode fazer login.
+
 export type PerfilAcesso = 'administrador' | 'editor';
 
 export type StatusUsuario = 'pendente' | 'ativo' | 'inativo';
 
 export interface Usuario {
-  /** === e-mail normalizado (minúsculas) — mesmo ID do documento no Firestore. */
+  /** E-mail normalizado (minúsculas), usado como mesmo ID do documento no Firestore. */
   id: string;
   nome: string;
   email: string;
   perfil: PerfilAcesso;
   status: StatusUsuario;
   criadoEm: string;
-  /** UID do Firebase Auth — só existe depois que a pessoa faz o Primeiro Acesso. */
+  /** UID do Firebase Auth, preenchido só depois que a pessoa faz o Primeiro Acesso. */
   uid?: string;
   ultimoAcesso?: string;
 }

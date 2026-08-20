@@ -1,6 +1,8 @@
 import { Component, HostListener, inject } from '@angular/core';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 
+// Renderiza o modal de confirmação do ConfirmDialogService. Montado uma
+// única vez no app.html, fica disponível em qualquer tela do sistema.
 @Component({
   selector: 'app-confirm-dialog-host',
   imports: [],
@@ -10,6 +12,7 @@ import { ConfirmDialogService } from '../../../core/services/confirm-dialog.serv
 export class ConfirmDialogHost {
   protected readonly confirmDialogService = inject(ConfirmDialogService);
 
+  // Clique fora do painel ou tecla Esc cancelam a confirmação
   onBackdropClick(evento: MouseEvent): void {
     if (evento.target === evento.currentTarget) {
       this.confirmDialogService.responder(false);

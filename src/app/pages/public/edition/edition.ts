@@ -43,6 +43,8 @@ const CORES_CATEGORIA: Record<CategoriaAtualizacao, CorAcento> = {
   'proximos-passos': 'rosa',
 };
 
+// Página pública de uma edição: destaque, atualizações filtráveis por
+// categoria, resumo com estatísticas e a lista de próximos passos.
 @Component({
   selector: 'app-edition',
   imports: [Header, Footer, RouterLink],
@@ -73,7 +75,7 @@ export class Edition implements AfterViewInit {
   protected readonly labelTipo = labelTipo;
   protected readonly labelCategoria = labelCategoria;
 
-  // "Próximos passos" já tem uma section dedicada na lateral — mostrá-la
+  // "Próximos passos" já tem uma section dedicada na lateral, mostrá-la
   // também aqui duplicaria os itens. As demais categorias só viram aba
   // quando têm pelo menos um item visível (nada de aba vazia).
   readonly abas = computed<{ valor: FiltroCategoria; label: string }[]>(() => {
@@ -87,6 +89,8 @@ export class Edition implements AfterViewInit {
     ];
   });
 
+  // Posição/largura do indicador azul embaixo da aba ativa, e estado do
+  // arrasto horizontal da barra de categorias (ver métodos mais abaixo).
   @ViewChild('tabsScroll') private readonly tabsScrollRef?: ElementRef<HTMLDivElement>;
   @ViewChildren('tabBtn') private readonly tabBtns?: QueryList<ElementRef<HTMLButtonElement>>;
 
@@ -104,7 +108,7 @@ export class Edition implements AfterViewInit {
   readonly skeletonPassos = Array.from({ length: 4 });
   readonly skeletonStats = Array.from({ length: 6 });
 
-  // A área pública só enxerga atualizações marcadas como visíveis — as
+  // A área pública só enxerga atualizações marcadas como visíveis. As
   // ocultas continuam existindo na edição, só não aparecem para o usuário.
   readonly atualizacoesVisiveis = computed<Atualizacao[]>(
     () => this.edicao()?.atualizacoes.filter((atualizacao) => atualizacao.visivel) ?? [],
@@ -112,7 +116,7 @@ export class Edition implements AfterViewInit {
 
   readonly itensFiltrados = computed(() => {
     const filtro = this.filtro();
-    // "Todos" nunca inclui próximos passos — eles só aparecem na section
+    // "Todos" nunca inclui próximos passos, eles só aparecem na section
     // dedicada da lateral, pra não duplicar o mesmo item nos dois lugares.
     const todas = this.atualizacoesVisiveis().filter((item) => item.categoria !== 'proximos-passos');
     return filtro === 'todos' ? todas : todas.filter((item) => item.categoria === filtro);
@@ -179,7 +183,7 @@ export class Edition implements AfterViewInit {
     return CORES_CATEGORIA[categoria];
   }
 
-  // --- Imagem em tela cheia ---
+  // Imagem em tela cheia (lightbox)
   ampliarImagem(url: string): void {
     this.imagemAmpliada.set(url);
   }
@@ -193,7 +197,7 @@ export class Edition implements AfterViewInit {
     this.fecharImagemAmpliada();
   }
 
-  // --- Vídeo com botão de play próprio, sem os controles nativos de cara ---
+  // Vídeo com botão de play próprio, sem os controles nativos de cara
   videoIniciado(id: string): boolean {
     return this.videosIniciados().has(id);
   }
@@ -211,9 +215,9 @@ export class Edition implements AfterViewInit {
     this.filtro.set(valor);
   }
 
-  // --- Arrastar a nav de categorias com o mouse (touch já rola nativamente) ---
+  // Arrastar a nav de categorias com o mouse (touch já rola nativamente).
   // A captura do ponteiro só acontece quando um arrasto de verdade é
-  // detectado (>4px) — se ela rodasse já no pointerdown, o clique nativo dos
+  // detectado (>4px). Se ela rodasse já no pointerdown, o clique nativo dos
   // botões (que depende do pointerup "completar" no mesmo elemento) quebra,
   // mesmo num simples clique sem nenhum arrasto.
   private ponteiroAtivoId: number | null = null;

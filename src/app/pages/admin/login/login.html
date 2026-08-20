@@ -1,4 +1,5 @@
 <div class="login-shell">
+  <!-- Login normal, com e-mail e senha -->
   @if (modo() === 'login') {
     <form class="login-card" [formGroup]="form" (ngSubmit)="entrar()">
       <img src="/LogoConectaNews.svg" alt="Conecta News" class="login-logo" />
@@ -56,6 +57,7 @@
     </form>
   }
 
+  <!-- Primeiro Acesso, passo 1: confirmar o e-mail cadastrado pelo admin -->
   @if (modo() === 'verificar-email') {
     <form class="login-card" [formGroup]="emailForm" (ngSubmit)="verificarEmail()">
       <img src="/LogoConectaNews.svg" alt="Conecta News" class="login-logo" />
@@ -88,6 +90,7 @@
     </form>
   }
 
+  <!-- Primeiro Acesso, passo 2: definir a senha e criar a conta no Firebase Auth -->
   @if (modo() === 'criar-senha') {
     <form class="login-card" [formGroup]="senhaForm" (ngSubmit)="criarSenha()">
       <img src="/LogoConectaNews.svg" alt="Conecta News" class="login-logo" />

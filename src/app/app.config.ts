@@ -7,6 +7,8 @@ import { getAuth, provideAuth } from '@angular/fire/auth';
 import { routes } from './app.routes';
 import { environment } from '../environments/environment';
 
+// Configuração raiz da aplicação: registra o roteador e inicializa os
+// serviços do Firebase (App, Firestore e Auth) usados em todo o projeto.
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),

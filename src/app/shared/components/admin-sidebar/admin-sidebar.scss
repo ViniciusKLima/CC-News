@@ -1,5 +1,5 @@
-// Altura travada em 100vh — a sidebar não deve crescer junto com o
-// conteúdo; só a área principal (.admin-main) da página rola.
+// Altura travada em 100vh: a sidebar não deve crescer junto com o
+// conteúdo, só a área principal (.admin-main) da página rola.
 .admin-sidebar {
   width: 240px;
   height: 100vh;
@@ -27,6 +27,7 @@
   }
 }
 
+// Links de navegação do menu
 .admin-nav {
   display: flex;
   flex-direction: column;
@@ -79,6 +80,7 @@
   }
 }
 
+// Bloco do usuário logado, no rodapé da sidebar, com o menu suspenso de sair
 .admin-user {
   position: relative;
   display: flex;
@@ -159,6 +161,7 @@
   }
 }
 
+// Em telas médias, a sidebar vira uma barra horizontal no topo
 @media (max-width: 900px) {
   .admin-sidebar {
     flex-direction: row;

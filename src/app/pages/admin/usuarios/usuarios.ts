@@ -7,6 +7,8 @@ import { CONFIRMACOES } from '../../../core/services/confirm-dialog.presets';
 import { AdminSidebar } from '../../../shared/components/admin-sidebar/admin-sidebar';
 import { DadosFormularioUsuario, UsuarioModal } from './usuario-modal/usuario-modal';
 
+// Tela de gestão dos usuários internos (equipe com acesso ao admin).
+// Acessível só para administradores (ver adminRoleGuard nas rotas).
 @Component({
   selector: 'app-usuarios-internos',
   imports: [AdminSidebar, UsuarioModal],
@@ -66,7 +68,7 @@ export class UsuariosInternos {
       } else if (erro instanceof Error && erro.message === 'email-nao-editavel') {
         this.toastService.erro('O e-mail não pode ser alterado depois que a conta é ativada.');
       } else if (erro instanceof Error && erro.message === 'usuario-nao-encontrado') {
-        this.toastService.erro('Esse usuário não existe mais — provavelmente foi excluído em outra sessão.');
+        this.toastService.erro('Esse usuário não existe mais. Provavelmente foi excluído em outra sessão.');
         this.fecharModal();
       } else {
         this.toastService.erro('Não foi possível salvar o usuário. Tente novamente em instantes.');

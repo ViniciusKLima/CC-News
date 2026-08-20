@@ -24,7 +24,7 @@ interface ConfirmacaoAtiva {
  *   await editionService.remover(edicao.id); // a ação em si continua no componente que chamou
  *
  * Os textos reutilizáveis (título/descrição/rótulo do botão) ficam
- * catalogados em `confirm-dialog.presets.ts` — a função que roda depois
+ * catalogados em `confirm-dialog.presets.ts`. A função que roda depois
  * da confirmação não faz parte do preset, cada chamador decide a sua.
  */
 @Injectable({ providedIn: 'root' })

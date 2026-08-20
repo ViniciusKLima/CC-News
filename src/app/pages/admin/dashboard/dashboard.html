@@ -12,6 +12,7 @@
       </a>
     </div>
 
+    <!-- Busca e filtros por mês/ano -->
     <div class="admin-filters">
       <div class="pesquisa">
         <i class="bi bi-search"></i>
@@ -99,6 +100,7 @@
         <button type="button" class="btn-limpar-vazio" (click)="limparFiltros()">Limpar filtros</button>
       </div>
     } @else {
+      <!-- Lista de edições em accordion, um grupo por mês -->
       <div class="grupos-mensais">
         @for (grupo of gruposMensais(); track grupo.chave) {
           <section class="grupo-mensal" [class.aberto]="grupoEstaAberto(grupo.chave)">
@@ -160,6 +162,8 @@
                       </span>
                     </div>
 
+                    <!-- Editar leva ao editor; o menu de três pontos reúne
+                         publicar/arquivar e excluir -->
                     <div class="edicao-acoes">
                       <a
                         class="btn-icone"

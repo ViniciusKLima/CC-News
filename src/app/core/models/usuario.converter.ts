@@ -2,6 +2,8 @@ import { FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions } from '
 import { Usuario } from './usuario.model';
 import { limparUndefined } from './edition.converter';
 
+// Converte entre o modelo Usuario usado na aplicação e o formato salvo no
+// Firestore, seguindo o mesmo padrão do edicaoConverter.
 export const usuarioConverter: FirestoreDataConverter<Usuario> = {
   toFirestore(usuario: Usuario) {
     const { id, ...resto } = usuario;

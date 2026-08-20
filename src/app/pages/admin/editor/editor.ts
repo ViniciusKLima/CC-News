@@ -47,6 +47,9 @@ interface ValoresFormulario {
   servicoDestaque: { titulo: string; descricao: string; cor: CorAcento; imagemPosicao: PosicaoImagemDestaque };
 }
 
+// Formulário de criação e edição de edições: dados gerais, período (que
+// muda de acordo com o tipo), capa, serviço em destaque e a lista de
+// atualizações (abertas em um modal à parte, ver AtualizacaoModal).
 @Component({
   selector: 'app-editor',
   imports: [ReactiveFormsModule, RouterLink, AtualizacaoModal],
@@ -61,8 +64,8 @@ export class Editor {
   private readonly toastService = inject(ToastService);
   private readonly confirmDialogService = inject(ConfirmDialogService);
 
-  // Enquanto o service ainda está carregando o mock, não dá para saber se o
-  // id existe ou não — evita mostrar "edição não encontrada" precocemente.
+  // Enquanto o service ainda está carregando os dados, não dá para saber se
+  // o id existe ou não. Evita mostrar "edição não encontrada" precocemente.
   readonly carregando = this.editionService.loading;
   readonly edicaoId = signal<string | null>(this.route.snapshot.paramMap.get('id'));
   readonly modo = computed<'criar' | 'editar'>(() => (this.edicaoId() ? 'editar' : 'criar'));
@@ -102,6 +105,9 @@ export class Editor {
     atualizacaoEditando: Atualizacao | null;
   } | null>(null);
 
+  // No modo criar, a edição ainda não existe no Firestore, então as
+  // atualizações ficam em memória até o salvar() final. No modo editar, cada
+  // ação já grava direto no service (ver métodos de atualização abaixo).
   private readonly atualizacoesPendentes = signal<Atualizacao[]>([]);
 
   readonly atualizacoes = computed<Atualizacao[]>(() =>
@@ -246,7 +252,7 @@ export class Editor {
     return controle.invalid && (controle.touched || controle.dirty);
   }
 
-  // --- Capa ---
+  // Capa da edição
   onCapaSelecionada(evento: Event): void {
     const input = evento.target as HTMLInputElement;
     const arquivo = input.files?.[0];
@@ -266,7 +272,7 @@ export class Editor {
     this.capaPreviewUrl.set(null);
   }
 
-  // --- Serviço em destaque ---
+  // Bloco opcional de serviço em destaque, exibido no topo da edição pública
   alternarServicoDestaque(ativo: boolean): void {
     this.servicoDestaqueAtivo.set(ativo);
 
@@ -310,7 +316,7 @@ export class Editor {
     this.imagemDestaquePreviewUrl.set(null);
   }
 
-  // --- Atualizações ---
+  // Atualizações da edição, criadas/editadas pelo AtualizacaoModal
   abrirModalNovaAtualizacao(categoria: CategoriaAtualizacao): void {
     this.modalAberto.set({ categoria, atualizacaoEditando: null });
   }
@@ -389,7 +395,7 @@ export class Editor {
     return this.atualizacoes().filter((item) => item.categoria === categoria);
   }
 
-  // --- Salvar / excluir edição ---
+  // Salvar (criar ou atualizar) e excluir a edição
   async salvar(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

@@ -29,6 +29,9 @@ const TITULO_MAXLENGTH = 70;
 const DESCRICAO_MAXLENGTH = 220;
 const IMPACTO_MAXLENGTH = 140;
 
+// Modal de criação/edição de uma atualização dentro de uma edição. Emite
+// o resultado por output em vez de salvar diretamente, quem decide como
+// persistir (Firestore ou lista em memória) é o Editor que o abre.
 @Component({
   selector: 'app-atualizacao-modal',
   imports: [ReactiveFormsModule],
@@ -60,7 +63,7 @@ export class AtualizacaoModal implements OnInit {
   });
 
   ngOnInit(): void {
-    // Inputs só ficam disponíveis após a construção do componente — o
+    // Inputs só ficam disponíveis após a construção do componente. O
     // pré-preenchimento precisa acontecer aqui, não no constructor.
     const editando = this.atualizacaoEditando();
     if (editando) {

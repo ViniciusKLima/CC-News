@@ -154,7 +154,7 @@
 }
 
 // Cada variante de cor define seu próprio par de tons (início/fim do
-// degradê) via custom properties — o fundo E o degradê de esmaecimento da
+// degradê) via custom properties. O fundo e o degradê de esmaecimento da
 // imagem leem dos mesmos tokens, garantindo que as duas camadas combinem.
 .destaque-card {
   position: relative;
@@ -199,13 +199,13 @@
     --destaque-cor-b: #d6336c;
   }
 
-  // A cor real só é conhecida após o carregamento — o skeleton usa o tom
-  // neutro padrão em vez de "adivinhar" uma das variantes de cor.
+  // A cor real só é conhecida após o carregamento, então o skeleton usa o
+  // tom neutro padrão em vez de "adivinhar" uma das variantes de cor.
   &.destaque-card-skeleton {
     background: #e4e5ea;
   }
 
-  // pointer-events:none no container + auto nos filhos — o texto ocupa só a
+  // pointer-events:none no container + auto nos filhos. O texto ocupa só a
   // metade esquerda visualmente, mas a caixa em si tem width:100% (por causa
   // do padding-right que abre espaço pra imagem); sem isso, a área vazia à
   // direita (sobre a foto) bloquearia o clique nela.
@@ -250,8 +250,8 @@
     }
   }
 
-  // A div/container permanece sempre encostada em cima/direita/embaixo —
-  // só a posição da imagem DENTRO dela muda (controlada por .pos-*).
+  // A div/container permanece sempre encostada em cima/direita/embaixo.
+  // Só a posição da imagem DENTRO dela muda (controlada por .pos-*).
   &.tem-imagem .destaque-texto {
     padding-right: calc(42% + 32px);
 
@@ -282,7 +282,7 @@
     cursor: zoom-in;
 
     // A imagem esmaece em direção ao texto revelando o próprio degradê do
-    // card por baixo (mesma origem de cor) — por isso a "borda" some por
+    // card por baixo (mesma origem de cor). Por isso a "borda" some por
     // completo, em vez de uma camada colorida sobreposta tentando imitar o tom.
     -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.5) 32%, #000 62%);
     mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.5) 32%, #000 62%);
@@ -425,7 +425,7 @@
   border-radius: 12px;
   overflow: hidden;
   // Enquanto a mídia externa carrega, esse shimmer aparece por baixo em vez
-  // de uma caixa preta parada — some sozinho assim que a imagem/vídeo cobre
+  // de uma caixa preta parada. Some sozinho assim que a imagem/vídeo cobre
   // o espaço por completo, sem precisar de nenhum estado de loading em JS.
   background-color: #e4e5ea;
   background-image: linear-gradient(

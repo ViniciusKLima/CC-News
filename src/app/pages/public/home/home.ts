@@ -24,6 +24,8 @@ interface GrupoMensal {
   edicoes: Edicao[];
 }
 
+// Página inicial: hero, busca/filtros e o histórico de edições publicadas
+// agrupado por mês, exibido em carrosséis horizontais.
 @Component({
   selector: 'app-home',
   imports: [Header, Footer, RouterLink, FormsModule],
@@ -37,6 +39,7 @@ export class Home implements AfterViewInit {
   readonly loading = this.editionService.loading;
   mostrarVoltarTopo = signal(false);
 
+  // Estado dos filtros de busca (texto, ano, mês e categoria)
   termoBusca = signal('');
   filtroAno = signal('');
   filtroMes = signal('');
@@ -48,7 +51,7 @@ export class Home implements AfterViewInit {
   protected readonly formatarPeriodo = formatarPeriodo;
   protected readonly labelTipo = labelTipo;
 
-  // A área pública só mostra edições com status "publico" — as arquivadas
+  // A área pública só mostra edições com status "publico". As arquivadas
   // continuam existindo no service, mas não devem aparecer aqui.
   readonly edicoesPublicas = computed(() => this.editionService.edicoes().filter((edicao) => edicao.status === 'publico'));
 
@@ -73,6 +76,8 @@ export class Home implements AfterViewInit {
     () => !!this.termoBusca() || !!this.filtroAno() || !!this.filtroMes() || !!this.filtroCategoria(),
   );
 
+  // Aplica os filtros ativos e agrupa o resultado por mês/ano, na ordem
+  // em que os grupos aparecem na tela (mais recente primeiro).
   readonly edicoesFiltradas = computed<GrupoMensal[]>(() => {
     const termo = this.termoBusca().trim().toLowerCase();
     const ano = this.filtroAno();
@@ -108,6 +113,8 @@ export class Home implements AfterViewInit {
     return Array.from(mapa.values()).sort((a, b) => b.id.localeCompare(a.id));
   });
 
+  // A partir daqui: controle dos carrosséis horizontais de cada mês
+  // (botões de anterior/próximo, estado habilitado/desabilitado das setas).
   @ViewChildren('slide') private slides!: QueryList<ElementRef<HTMLElement>>;
   private resizeRafId?: number;
 
@@ -115,7 +122,7 @@ export class Home implements AfterViewInit {
     this.updateAllNavStates();
 
     // Recalcula o estado dos botões sempre que a lista de edições exibidas mudar
-    // (carregamento inicial, busca ou filtros) — sem isso, o botão pode ficar
+    // (carregamento inicial, busca ou filtros). Sem isso, o botão pode ficar
     // com um estado desatualizado em relação à quantidade real de cards.
     effect(
       () => {
@@ -178,6 +185,9 @@ export class Home implements AfterViewInit {
     this.slides?.forEach((ref) => this.updateNavState(ref.nativeElement));
   }
 
+  // Deduz ano/mês da edição a partir do período, com fallback para a data
+  // de criação quando o tipo de período não define esses campos (semanal
+  // e especial não têm mês/ano próprios).
   private anoDe(edicao: Edicao): number {
     const periodo = edicao.periodo;
     if (periodo.tipo === 'mensal' || periodo.tipo === 'anual') return periodo.ano;

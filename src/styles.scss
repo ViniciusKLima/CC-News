@@ -1,3 +1,5 @@
+// Variáveis globais de design (cores, espaçamentos e tipografia) usadas
+// em toda a aplicação, tanto na área pública quanto na administrativa.
 :root {
   --font-body: 'Manrope', sans-serif;
 
@@ -26,7 +28,7 @@
   --color-warning: #d97706;
   --color-danger: #dc2626;
 
-  // Cores por tipo de edição — fonte única usada em qualquer lugar que
+  // Cores por tipo de edição. Fonte única usada em qualquer lugar que
   // exiba a etiqueta do tipo (Home, edição pública e área administrativa),
   // para manter o mesmo código de cores em toda a aplicação.
   --tipo-semanal-bg: #6d28d9;

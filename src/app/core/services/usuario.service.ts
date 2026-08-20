@@ -16,7 +16,7 @@ import { usuarioConverter } from '../models/usuario.converter';
 
 /**
  * Fonte dos dados da coleção `usuarios`. O ID do documento é o próprio
- * e-mail normalizado (minúsculas) — ver decisão no plano de "Gestão de
+ * e-mail normalizado (minúsculas), conforme decisão no plano de "Gestão de
  * usuários internos". Isso permite `getDoc` direto por e-mail (usado no
  * login e no fluxo de Primeiro Acesso) em vez de uma query.
  */
@@ -39,7 +39,7 @@ export class UsuarioService {
     // muda (login/logout). Necessário porque um erro de permissão (ex.:
     // a assinatura abrindo antes da sessão do Firebase terminar de
     // restaurar, ou um Editor sem acesso à coleção inteira) encerra o
-    // listener do Firestore de forma definitiva — ele não se reconecta
+    // listener do Firestore de forma definitiva. Ele não se reconecta
     // sozinho quando o usuário loga depois.
     onAuthStateChanged(this.auth, () => {
       this.pararListaAtual?.();
@@ -53,7 +53,7 @@ export class UsuarioService {
         },
         () => {
           // Sem permissão de listar a coleção inteira (deslogado, ou
-          // logado como Editor) — não é um erro real de UI.
+          // logado como Editor). Não é um erro real de UI.
           this._usuarios.set([]);
           this._loading.set(false);
         },
@@ -102,7 +102,7 @@ export class UsuarioService {
 
   /**
    * `email` só pode mudar enquanto o usuário está pendente (sem `uid`,
-   * ou seja, sem conta criada no Firebase Auth ainda) — como o ID do
+   * ou seja, sem conta criada no Firebase Auth ainda). Como o ID do
    * documento é o próprio e-mail, mudar o e-mail move o documento pra um
    * novo ID (create + delete em lote) em vez de um update no lugar.
    *
@@ -110,7 +110,7 @@ export class UsuarioService {
    * cache) antes de escrever: se o cache local estiver desatualizado (ex.:
    * o registro acabou de ser apagado em outra aba/sessão e a lista ainda
    * não reagiu), um `setDoc` sobre um doc que não existe mais recriaria o
-   * usuário do zero em vez de simplesmente falhar — evita esse fantasma.
+   * usuário do zero em vez de simplesmente falhar. Evita esse fantasma.
    */
   async atualizar(id: string, dados: Partial<Pick<Usuario, 'nome' | 'perfil' | 'status' | 'email'>>): Promise<void> {
     const atual = await this.buscarPorEmail(id);

@@ -9,6 +9,8 @@ import { ConfirmDialogHost } from './shared/components/confirm-dialog/confirm-di
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
+// Componente raiz: hospeda o router e os hosts globais de toast e
+// confirmação, que ficam disponíveis para qualquer tela da aplicação.
 export class App {
   protected readonly title = signal('cc-news');
 }

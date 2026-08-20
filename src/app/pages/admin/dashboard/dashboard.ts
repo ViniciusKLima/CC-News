@@ -21,6 +21,8 @@ interface GrupoMensal {
   edicoes: Edicao[];
 }
 
+// Tela inicial do admin: lista de edições agrupadas por mês, com busca,
+// filtros e as ações de publicar/arquivar, editar e excluir.
 @Component({
   selector: 'app-dashboard',
   imports: [FormsModule, RouterLink, AdminSidebar],
@@ -83,7 +85,7 @@ export class Dashboard {
     });
   });
 
-  // Os grupos e a contagem por mês são derivados das edições filtradas —
+  // Os grupos e a contagem por mês são derivados das edições filtradas,
   // nunca armazenados manualmente, evitando divergência entre a contagem
   // exibida e a lista real de edições.
   readonly gruposMensais = computed<GrupoMensal[]>(() => {
@@ -157,6 +159,7 @@ export class Dashboard {
     this.fecharMenu();
   }
 
+  // Ações sobre uma edição: publicar/arquivar e excluir (com confirmação)
   async alternarStatus(edicao: Edicao): Promise<void> {
     const novoStatus = edicao.status === 'publico' ? 'arquivado' : 'publico';
     this.fecharMenu();

@@ -172,8 +172,8 @@
   background: #fff;
   border: 1px solid rgba(160, 162, 174, 0.25);
   border-radius: 14px;
-  // Sem overflow: hidden — clipava o menu de ações (3 pontos) quando ele
-  // abria pra fora dos limites da última linha do grupo. O arredondamento
+  // Sem overflow: hidden, pois isso clipava o menu de ações (3 pontos) quando
+  // ele abria pra fora dos limites da última linha do grupo. O arredondamento
   // dos cantos é feito diretamente no header/última linha, abaixo.
 }
 
@@ -586,7 +586,7 @@
 // ---------------------------------------------------------------------------
 
 @media (max-width: 900px) {
-  // No mobile a sidebar vira uma barra horizontal no topo — a página
+  // No mobile a sidebar vira uma barra horizontal no topo. A página
   // inteira volta a rolar normalmente, em vez de ter duas áreas com
   // scroll independente.
   .admin-shell {

@@ -1,3 +1,4 @@
+// Fundo escurecido que cobre a tela toda por trás do modal
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -10,6 +11,7 @@
   animation: modal-backdrop-entrada 0.15s ease;
 }
 
+// Painel branco com o título, descrição e botões de ação
 .modal-painel {
   width: 100%;
   max-width: 400px;
@@ -61,6 +63,8 @@
   margin-top: 20px;
 }
 
+// Botões de cancelar e confirmar. O confirmar assume vermelho (btn-perigo)
+// para ações destrutivas, como exclusão.
 .btn-secundario {
   border: 1px solid var(--color-border);
   border-radius: 10px;
@@ -110,6 +114,7 @@
   }
 }
 
+// Em telas pequenas, o modal vira uma folha que sobe do rodapé
 @media (max-width: 600px) {
   .modal-backdrop {
     padding: 0;

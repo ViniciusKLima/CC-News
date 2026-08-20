@@ -66,9 +66,9 @@ $grid-usuarios: minmax(160px, 1.6fr) minmax(200px, 2fr) 140px 120px 150px 70px;
   background: #fff;
   border: 1px solid rgba(160, 162, 174, 0.25);
   border-radius: 14px;
-  // Sem overflow: hidden — clipava o menu de ações (3 pontos) quando ele
-  // abria pra fora dos limites da linha. Arredondamento feito diretamente
-  // no cabeçalho/última linha, abaixo.
+  // Sem overflow: hidden, pois isso clipava o menu de ações (3 pontos)
+  // quando ele abria pra fora dos limites da linha. Arredondamento feito
+  // diretamente no cabeçalho/última linha, abaixo.
 }
 
 .usuarios-cabecalho {

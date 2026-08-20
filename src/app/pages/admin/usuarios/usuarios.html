@@ -42,6 +42,7 @@
         </button>
       </div>
     } @else {
+      <!-- Tabela de usuários, com o menu de editar/excluir por linha -->
       <div class="usuarios-tabela">
         <div class="usuarios-cabecalho">
           <span>Nome</span>
@@ -96,6 +97,7 @@
   </main>
 </div>
 
+<!-- Modal de criação/edição de um usuário interno -->
 @if (modalAberto(); as modal) {
   <app-usuario-modal
     [usuarioEditando]="modal.usuarioEditando"

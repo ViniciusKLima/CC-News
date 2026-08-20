@@ -1,5 +1,6 @@
 <app-header></app-header>
 <main class="main-content">
+  <!-- Hero de abertura da home -->
   <section class="hero d-flex align-items-center">
     <div class="container">
       <div class="txt-hero">
@@ -15,6 +16,7 @@
     </div>
   </section>
 
+  <!-- Card de busca e filtros (texto, ano, mês e categoria) -->
   <section class="search">
     <div class="container">
       <div class="search-card">
@@ -97,8 +99,12 @@
     </div>
   </section>
 
+  <!-- Histórico de edições agrupado por mês, em carrosséis horizontais.
+       Três estados possíveis: carregando (skeleton), sem edições publicadas,
+       ou sem resultado para os filtros aplicados. -->
   <section class="materias container">
     @if (loading()) {
+      <!-- Skeleton de carregamento, com a mesma estrutura dos cards reais -->
       @for (m of skeletonMeses; track $index) {
         <div class="header-edicao d-flex align-items-center">
           <i class="bi bi-calendar-week"></i>
@@ -138,6 +144,7 @@
         <button type="button" class="btn-limpar-vazio" (click)="limparFiltros()">Limpar filtros</button>
       </div>
     } @else {
+      <!-- Um grupo por mês, cada um com seu próprio carrossel de cards -->
       @for (mes of edicoesFiltradas(); track mes.id) {
         <div class="header-edicao d-flex align-items-center">
           <i class="bi bi-calendar-week"></i>
@@ -197,6 +204,7 @@
   </section>
 </main>
 
+<!-- Botão flutuante de voltar ao topo, aparece depois de rolar a página -->
 @if (mostrarVoltarTopo()) {
   <button type="button" class="btn-voltar-topo" aria-label="Voltar ao topo" (click)="voltarAoTopo()">
     <i class="bi bi-arrow-up"></i>

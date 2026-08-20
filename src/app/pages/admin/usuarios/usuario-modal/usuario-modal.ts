@@ -11,6 +11,9 @@ export interface DadosFormularioUsuario {
   status: StatusUsuario;
 }
 
+// Modal de criação/edição de um usuário interno. O e-mail só fica editável
+// enquanto a conta ainda está pendente (contaJaAtivada), já que o ID do
+// documento no Firestore é o próprio e-mail (ver UsuarioService).
 @Component({
   selector: 'app-usuario-modal',
   imports: [ReactiveFormsModule],

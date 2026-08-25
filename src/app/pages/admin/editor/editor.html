@@ -1,6 +1,8 @@
 <div class="editor-shell">
   <header class="editor-topbar">
-    <a class="btn-voltar" routerLink="/admin"><i class="bi bi-arrow-left"></i> Voltar para publicações</a>
+    <a class="btn-voltar" routerLink="/admin" aria-label="Voltar para publicações">
+      <i class="bi bi-arrow-left"></i> <span class="btn-voltar-texto">Voltar para publicações</span>
+    </a>
 
     @if (!carregando() && !edicaoNaoEncontrada()) {
       <div class="editor-topbar-acoes">
@@ -639,54 +641,71 @@
 
           @for (categoria of categoriasRegulares; track categoria.valor) {
             <div class="subsecao-categoria">
-              <div class="secao-cabecalho">
+              <div class="secao-cabecalho secao-cabecalho-clicavel" (click)="alternarSecao(categoria.valor)">
                 <div class="secao-titulo-bloco">
                   <h3>{{ categoria.label }}</h3>
                   <p>{{ categoria.descricao }}</p>
                 </div>
-                <button type="button" class="btn-primario" (click)="abrirModalNovaAtualizacao(categoria.valor)">
-                  <i class="bi bi-plus-lg"></i> Nova atualização
-                </button>
+                <div class="secao-cabecalho-controles">
+                  <button
+                    type="button"
+                    class="btn-primario"
+                    (click)="$event.stopPropagation(); abrirModalNovaAtualizacao(categoria.valor)"
+                  >
+                    <i class="bi bi-plus-lg"></i> Nova atualização
+                  </button>
+                  <button
+                    type="button"
+                    class="secao-chevron"
+                    [class.aberta]="secaoAberta(categoria.valor)"
+                    [attr.aria-expanded]="secaoAberta(categoria.valor)"
+                    aria-label="Expandir ou recolher"
+                  >
+                    <i class="bi bi-chevron-down"></i>
+                  </button>
+                </div>
               </div>
 
-              @if (atualizacoesPorCategoria(categoria.valor).length === 0) {
-                <div class="secao-vazia">Nenhum item nesta categoria.</div>
-              } @else {
-                <div class="atualizacoes-grid">
-                  @for (atualizacao of atualizacoesPorCategoria(categoria.valor); track atualizacao.id) {
-                    <app-atualizacao-card [atualizacao]="atualizacao" [interativo]="false">
-                      <div cardAcoes class="atualizacao-acoes">
-                        <button
-                          type="button"
-                          class="btn-mini"
-                          [attr.aria-pressed]="atualizacao.visivel"
-                          [attr.aria-label]="
-                            atualizacao.visivel ? 'Ocultar atualização do público' : 'Tornar atualização visível'
-                          "
-                          (click)="alternarVisibilidade(atualizacao)"
-                        >
-                          <i class="bi" [class.bi-eye]="atualizacao.visivel" [class.bi-eye-slash]="!atualizacao.visivel"></i>
-                        </button>
-                        <button
-                          type="button"
-                          class="btn-mini"
-                          aria-label="Editar atualização"
-                          (click)="abrirModalEditarAtualizacao(atualizacao)"
-                        >
-                          <i class="bi bi-pencil"></i>
-                        </button>
-                        <button
-                          type="button"
-                          class="btn-mini btn-mini-perigo"
-                          aria-label="Excluir atualização"
-                          (click)="excluirAtualizacao(atualizacao)"
-                        >
-                          <i class="bi bi-trash3"></i>
-                        </button>
-                      </div>
-                    </app-atualizacao-card>
-                  }
-                </div>
+              @if (secaoAberta(categoria.valor)) {
+                @if (atualizacoesPorCategoria(categoria.valor).length === 0) {
+                  <div class="secao-vazia">Nenhum item nesta categoria.</div>
+                } @else {
+                  <div class="atualizacoes-grid">
+                    @for (atualizacao of atualizacoesPorCategoria(categoria.valor); track atualizacao.id) {
+                      <app-atualizacao-card [atualizacao]="atualizacao" [interativo]="false">
+                        <div cardAcoes class="atualizacao-acoes">
+                          <button
+                            type="button"
+                            class="btn-mini"
+                            [attr.aria-pressed]="atualizacao.visivel"
+                            [attr.aria-label]="
+                              atualizacao.visivel ? 'Ocultar atualização do público' : 'Tornar atualização visível'
+                            "
+                            (click)="alternarVisibilidade(atualizacao)"
+                          >
+                            <i class="bi" [class.bi-eye]="atualizacao.visivel" [class.bi-eye-slash]="!atualizacao.visivel"></i>
+                          </button>
+                          <button
+                            type="button"
+                            class="btn-mini"
+                            aria-label="Editar atualização"
+                            (click)="abrirModalEditarAtualizacao(atualizacao)"
+                          >
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                          <button
+                            type="button"
+                            class="btn-mini btn-mini-perigo"
+                            aria-label="Excluir atualização"
+                            (click)="excluirAtualizacao(atualizacao)"
+                          >
+                            <i class="bi bi-trash3"></i>
+                          </button>
+                        </div>
+                      </app-atualizacao-card>
+                    }
+                  </div>
+                }
               }
             </div>
           }

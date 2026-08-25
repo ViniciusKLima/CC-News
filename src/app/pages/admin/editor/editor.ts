@@ -133,8 +133,12 @@ export class Editor {
   readonly textoLivreAtivo = signal(false);
 
   // Gavetas: cada seção começa fechada, exceto "Dados da edição", pra não
-  // sobrecarregar a tela com tudo aberto de uma vez.
-  readonly secoesAbertas = signal<Set<string>>(new Set(['dados']));
+  // sobrecarregar a tela com tudo aberto de uma vez. As 4 categorias
+  // regulares (dentro de "Atualizações por categoria") começam abertas,
+  // já que só aparecem depois que essa seção é aberta manualmente.
+  readonly secoesAbertas = signal<Set<string>>(
+    new Set(['dados', ...this.categoriasRegulares.map((c) => c.valor)]),
+  );
 
   readonly modalAberto = signal<{
     categoria: CategoriaAtualizacao;

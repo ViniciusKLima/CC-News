@@ -1,8 +1,4 @@
 <article class="atualizacao-card" [class.oculta]="!atualizacao().visivel">
-  <div class="card-acoes-overlay">
-    <ng-content select="[cardAcoes]"></ng-content>
-  </div>
-
   @if (atualizacao().midia; as midia) {
     <div class="atualizacao-midia">
       @if (midia.tipo === 'video') {
@@ -28,6 +24,7 @@
       <i [class]="'bi ' + atualizacao().icone"></i>
     </span>
     <span class="status-pill" [class]="'cor-' + corCategoria()">{{ labelCategoria(atualizacao().categoria) }}</span>
+    <ng-content select="[cardAcoes]"></ng-content>
   </div>
 
   <h3>{{ atualizacao().titulo }}</h3>

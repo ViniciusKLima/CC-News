@@ -34,6 +34,8 @@ const TEMA_MAXLENGTH = 60;
 const SLUG_MAXLENGTH = 60;
 const TEXTO_LIVRE_MAXLENGTH = 1000;
 const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const HEX_PATTERN = /^#[0-9a-fA-F]{6}$/;
+const CAPA_COR_PADRAO = '#1369f5';
 
 function gerarIdLocal(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -48,6 +50,7 @@ interface ValoresFormulario {
   status: StatusEdicao;
   slug: string;
   textoLivre: string;
+  capaCor: string;
   periodoSemanal: { dataInicio: string; dataFim: string };
   periodoMensal: { mes: string; ano: string };
   periodoAnual: { ano: string };
@@ -108,6 +111,7 @@ export class Editor {
 
   readonly indiceSlide = signal(0);
   readonly salvando = signal(false);
+  readonly capaModo = signal<'imagem' | 'cor'>('imagem');
   readonly capaPreviewUrl = signal<string | null>(null);
   readonly capaEnviando = signal(false);
   readonly capaProgresso = signal(0);
@@ -153,6 +157,7 @@ export class Editor {
     status: this.fb.nonNullable.control<StatusEdicao>('arquivado', Validators.required),
     slug: ['', [Validators.maxLength(SLUG_MAXLENGTH), Validators.pattern(SLUG_PATTERN)]],
     textoLivre: ['', Validators.maxLength(TEXTO_LIVRE_MAXLENGTH)],
+    capaCor: [CAPA_COR_PADRAO, Validators.pattern(HEX_PATTERN)],
     periodoSemanal: this.fb.nonNullable.group({
       dataInicio: ['', Validators.required],
       dataFim: ['', Validators.required],
@@ -273,6 +278,12 @@ export class Editor {
         break;
     }
 
+    if (edicao.capaCor) {
+      this.capaModo.set('cor');
+      this.form.controls.capaCor.setValue(edicao.capaCor);
+    } else {
+      this.capaModo.set('imagem');
+    }
     this.capaPreviewUrl.set(edicao.capaUrl ?? null);
     this.atualizacoesPendentes.set(edicao.atualizacoes);
 
@@ -353,6 +364,16 @@ export class Editor {
 
   removerCapa(): void {
     this.capaPreviewUrl.set(null);
+  }
+
+  alternarCapaModo(modo: 'imagem' | 'cor'): void {
+    this.capaModo.set(modo);
+  }
+
+  sanitizarCapaCorCampo(): void {
+    let valor = this.form.controls.capaCor.value.trim();
+    if (valor && !valor.startsWith('#')) valor = `#${valor}`;
+    this.form.controls.capaCor.setValue(valor);
   }
 
   // Bloco opcional de serviço em destaque, exibido no topo da edição pública
@@ -542,6 +563,11 @@ export class Editor {
       }
     }
 
+    if (this.capaModo() === 'cor' && !HEX_PATTERN.test(valores.capaCor)) {
+      this.toastService.erro('Informe uma cor sólida válida para a capa (hexadecimal).');
+      return;
+    }
+
     const servicoDestaque: ServicoDestaque | undefined = this.servicoDestaqueAtivo()
       ? {
           titulo: valores.servicoDestaque.titulo.trim(),
@@ -559,7 +585,8 @@ export class Editor {
       periodo,
       status: valores.status,
       slug,
-      capaUrl: this.capaPreviewUrl() ?? undefined,
+      capaUrl: this.capaModo() === 'imagem' ? this.capaPreviewUrl() ?? undefined : undefined,
+      capaCor: this.capaModo() === 'cor' ? valores.capaCor : undefined,
       servicoDestaque,
       textoLivre: this.textoLivreAtivo() ? valores.textoLivre.trim() : undefined,
       atualizacoes: this.atualizacoesPendentes(),

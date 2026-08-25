@@ -164,7 +164,12 @@
 
           <div class="slide-edicoes d-flex gap-4" #slide (scroll)="updateNavState(slide)">
             @for (edicao of mes.edicoes; track edicao.id) {
-              <div class="card-edicao d-flex flex-column justify-content-between align-items-start">
+              <div
+                class="card-edicao d-flex flex-column justify-content-between align-items-start"
+                [class.tem-imagem]="!!edicao.capaUrl"
+                [style.background-color]="edicao.capaCor || null"
+                [style.background-image]="edicao.capaUrl ? 'url(' + urlImagemOtimizada(edicao.capaUrl, 'capa') + ')' : null"
+              >
                 <div class="data-edicao d-flex align-items-center">
                   <i class="bi bi-calendar-week"></i>
                   <h4 class="data m-0">{{ formatarPeriodo(edicao.periodo) }}</h4>

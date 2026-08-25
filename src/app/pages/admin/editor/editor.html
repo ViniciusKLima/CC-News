@@ -56,40 +56,88 @@
           <form class="dados-grid" [formGroup]="form">
             <div class="campo campo-capa">
               <label>Capa da edição</label>
-              <div class="capa-upload">
-                @if (capaPreviewUrl()) {
-                  <img [src]="urlImagemOtimizada(capaPreviewUrl()!, 'detalhe')" alt="Pré-visualização da capa" />
-                  <button
-                    type="button"
-                    class="capa-remover"
-                    aria-label="Remover capa"
-                    [disabled]="capaEnviando()"
-                    (click)="removerCapa()"
-                  >
-                    <i class="bi bi-x-lg"></i>
-                  </button>
-                } @else {
-                  <label class="capa-vazia" for="capa-input">
-                    <i class="bi bi-image"></i>
-                    <span>Adicionar capa</span>
-                    <small>PNG, JPG ou WEBP<br />Recomendado: 720x1080px (retrato)</small>
-                  </label>
-                }
-                @if (capaEnviando()) {
-                  <div class="upload-overlay">
-                    <div class="upload-spinner"></div>
-                    <span>Enviando... {{ capaProgresso() }}%</span>
-                  </div>
-                }
-                <input
-                  id="capa-input"
-                  type="file"
-                  accept="image/*"
-                  class="visually-hidden"
-                  [disabled]="capaEnviando()"
-                  (change)="onCapaSelecionada($event)"
-                />
+              <div class="capa-modo-opcoes" role="radiogroup" aria-label="Tipo de capa">
+                <button
+                  type="button"
+                  class="capa-modo-opcao"
+                  role="radio"
+                  [attr.aria-checked]="capaModo() === 'imagem'"
+                  [class.selecionado]="capaModo() === 'imagem'"
+                  (click)="alternarCapaModo('imagem')"
+                >
+                  <i class="bi bi-image"></i> Imagem
+                </button>
+                <button
+                  type="button"
+                  class="capa-modo-opcao"
+                  role="radio"
+                  [attr.aria-checked]="capaModo() === 'cor'"
+                  [class.selecionado]="capaModo() === 'cor'"
+                  (click)="alternarCapaModo('cor')"
+                >
+                  <i class="bi bi-palette"></i> Cor sólida
+                </button>
               </div>
+
+              @if (capaModo() === 'imagem') {
+                <div class="capa-upload">
+                  @if (capaPreviewUrl()) {
+                    <img [src]="urlImagemOtimizada(capaPreviewUrl()!, 'capa')" alt="Pré-visualização da capa" />
+                    <button
+                      type="button"
+                      class="capa-remover"
+                      aria-label="Remover capa"
+                      [disabled]="capaEnviando()"
+                      (click)="removerCapa()"
+                    >
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  } @else {
+                    <label class="capa-vazia" for="capa-input">
+                      <i class="bi bi-image"></i>
+                      <span>Adicionar capa</span>
+                      <small>PNG, JPG ou WEBP<br />Recomendado: 720x1080px (retrato)</small>
+                    </label>
+                  }
+                  @if (capaEnviando()) {
+                    <div class="upload-overlay">
+                      <div class="upload-spinner"></div>
+                      <span>Enviando... {{ capaProgresso() }}%</span>
+                    </div>
+                  }
+                  <input
+                    id="capa-input"
+                    type="file"
+                    accept="image/*"
+                    class="visually-hidden"
+                    [disabled]="capaEnviando()"
+                    (change)="onCapaSelecionada($event)"
+                  />
+                </div>
+              } @else {
+                <div class="capa-cor-escolha">
+                  <div class="capa-cor-preview" [style.background-color]="form.controls.capaCor.value"></div>
+                  <div class="capa-cor-campos">
+                    <input
+                      type="color"
+                      class="capa-cor-input"
+                      formControlName="capaCor"
+                      aria-label="Selecionar cor da capa"
+                    />
+                    <input
+                      type="text"
+                      formControlName="capaCor"
+                      maxlength="7"
+                      placeholder="#1369f5"
+                      [class.invalido]="form.controls.capaCor.invalid && form.controls.capaCor.dirty"
+                      (blur)="sanitizarCapaCorCampo()"
+                    />
+                  </div>
+                  @if (form.controls.capaCor.invalid && form.controls.capaCor.dirty) {
+                    <span class="erro-campo">Use um hexadecimal válido, ex.: #1369f5.</span>
+                  }
+                </div>
+              }
             </div>
 
             <div class="campo-principal">

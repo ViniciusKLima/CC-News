@@ -67,7 +67,9 @@ export interface Edicao {
   id: string;
   /** URL personalizada opcional (ex.: "atualizacoes-agosto"), usada no lugar do id na rota pública /edicao/:id. */
   slug?: string;
+  /** Capa da edição: imagem (capaUrl) ou cor sólida (capaCor, hexadecimal), nunca as duas ao mesmo tempo. */
   capaUrl?: string;
+  capaCor?: string;
   titulo: string;
   resumo: string;
   tipo: TipoEdicao;

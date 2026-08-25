@@ -155,6 +155,86 @@
   align-items: start;
 }
 
+.capa-modo-opcoes {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.capa-modo-opcao {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 7px 8px;
+  background: #fff;
+  color: var(--color-text-secondary);
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: var(--color-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  &.selecionado {
+    background: var(--bgc-azul-opacity);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+}
+
+.capa-cor-escolha {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.capa-cor-preview {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+}
+
+.capa-cor-campos {
+  display: flex;
+  gap: 8px;
+
+  input[type='text'] {
+    flex: 1;
+  }
+}
+
+.capa-cor-input {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  padding: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  &::-webkit-color-swatch {
+    border: none;
+    border-radius: 5px;
+  }
+}
+
 .capa-upload {
   position: relative;
   width: 100%;

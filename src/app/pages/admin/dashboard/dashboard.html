@@ -132,10 +132,14 @@
                 @for (edicao of grupo.edicoes; track edicao.id) {
                   <div class="edicao-linha">
                     <div class="edicao-info">
-                      <div class="edicao-capa" [class]="'capa-' + edicao.tipo">
+                      <div
+                        class="edicao-capa"
+                        [class]="'capa-' + edicao.tipo"
+                        [style.background-color]="edicao.capaCor || null"
+                      >
                         @if (edicao.capaUrl) {
-                          <img [src]="urlImagemOtimizada(edicao.capaUrl, 'mobile')" [alt]="edicao.titulo" />
-                        } @else {
+                          <img [src]="urlImagemOtimizada(edicao.capaUrl, 'capa')" [alt]="edicao.titulo" />
+                        } @else if (!edicao.capaCor) {
                           <i [class]="'bi ' + iconeTipo(edicao.tipo)"></i>
                         }
                       </div>

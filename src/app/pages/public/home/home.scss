@@ -323,7 +323,11 @@
 }
 
 .card-edicao {
+  position: relative;
+  overflow: hidden;
   background-color: var(--color-secondary);
+  background-size: cover;
+  background-position: center;
   width: var(--card-w);
   height: 400px;
   flex: 0 0 var(--card-w);
@@ -331,6 +335,21 @@
   border-radius: 15px;
   color: white;
   padding: 25px 20px;
+
+  // Com foto de capa, um degradê escuro por baixo garante que o texto
+  // branco continue legível em qualquer imagem. Sem foto (cor sólida ou
+  // nem isso), o fundo já tem contraste suficiente e o degradê nem aparece.
+  &.tem-imagem::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.25) 0%, rgba(15, 23, 42, 0.55) 55%, rgba(15, 23, 42, 0.9) 100%);
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
 
   .data-edicao {
     i {

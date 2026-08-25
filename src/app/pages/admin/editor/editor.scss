@@ -1067,22 +1067,26 @@ textarea {
     margin-inline: auto;
   }
 
-  // Data inicial/final e mês/ano empilham em vez de tentar caber lado a
-  // lado, evitando que o conteúdo do período estoure a caixa do slider.
-  // O min-width:160px de .campo-linha > .campo (pensado pro par lado a
-  // lado) some aqui, senão o campo de data continua largo demais e
-  // estoura a caixa mesmo empilhado.
-  .periodo-painel .campo-linha {
-    flex-direction: column;
-
-    > .campo {
-      min-width: 0;
-      width: 100%;
-    }
+  // A trilha deslizante de 400% (4 painéis a 25% cada) depende de largura
+  // disponível sobrando pros campos lado a lado. Num viewport estreito
+  // isso nunca fecha a conta direito (principalmente com <input type=date>,
+  // que tem uma largura mínima própria maior que a de um select), e o
+  // conteúdo acaba estourando a caixa. No mobile a gente abandona o
+  // slide: só o painel do tipo selecionado é exibido, em largura normal
+  // de 100%, sem nenhuma matemática de porcentagem de trilha envolvida.
+  .periodo-slider-track {
+    display: block;
+    width: 100%;
+    transform: none !important;
   }
 
-  input[type='date'] {
-    min-width: 0;
+  .periodo-painel {
+    display: none;
+    width: 100%;
+  }
+
+  .periodo-painel.painel-ativo {
+    display: block;
   }
 }
 

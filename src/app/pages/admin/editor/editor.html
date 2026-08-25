@@ -202,7 +202,11 @@
 
                 <div class="periodo-slider" [class.desabilitado]="!form.controls.tipo.value">
                   <div class="periodo-slider-track" [style.transform]="'translateX(-' + indiceSlide() * 25 + '%)'">
-                    <div class="periodo-painel" [formGroup]="form.controls.periodoSemanal">
+                    <div
+                      class="periodo-painel"
+                      [class.painel-ativo]="form.controls.tipo.value === 'semanal'"
+                      [formGroup]="form.controls.periodoSemanal"
+                    >
                       <div class="campo-linha">
                         <div class="campo">
                           <label for="data-inicio">Data inicial</label>
@@ -225,7 +229,11 @@
                       </div>
                     </div>
 
-                    <div class="periodo-painel" [formGroup]="form.controls.periodoMensal">
+                    <div
+                      class="periodo-painel"
+                      [class.painel-ativo]="form.controls.tipo.value === 'mensal'"
+                      [formGroup]="form.controls.periodoMensal"
+                    >
                       <div class="campo-linha">
                         <div class="campo">
                           <label for="periodo-mes">Mês</label>
@@ -254,7 +262,11 @@
                       </div>
                     </div>
 
-                    <div class="periodo-painel" [formGroup]="form.controls.periodoAnual">
+                    <div
+                      class="periodo-painel"
+                      [class.painel-ativo]="form.controls.tipo.value === 'anual'"
+                      [formGroup]="form.controls.periodoAnual"
+                    >
                       <div class="campo campo-metade">
                         <label for="periodo-ano-anual">Ano</label>
                         <div class="select-wrap">
@@ -269,7 +281,11 @@
                       </div>
                     </div>
 
-                    <div class="periodo-painel" [formGroup]="form.controls.periodoEspecial">
+                    <div
+                      class="periodo-painel"
+                      [class.painel-ativo]="form.controls.tipo.value === 'especial'"
+                      [formGroup]="form.controls.periodoEspecial"
+                    >
                       <div class="campo">
                         <div class="campo-cabecalho">
                           <label for="periodo-tema">Tema da edição</label>

@@ -226,9 +226,16 @@
   // menu abrindo pra cima (como no desktop) fica escondido atrás do
   // conteúdo. Aqui ele abre pra baixo, e mostra nome/perfil dentro do
   // próprio menu já que essa informação some da barra nesse breakpoint.
+  // "left:0;right:0" (do desktop) travava a largura do menu na largura do
+  // próprio .admin-user, que aqui é só o avatar/seta (bem estreito) — com
+  // overflow:hidden isso cortava "Sair" quase por inteiro. Agora o menu
+  // tem largura própria, ancorado pela direita.
   .admin-user-menu {
     bottom: auto;
     top: calc(100% + 8px);
+    left: auto;
+    right: 0;
+    width: 200px;
   }
 
   .admin-user-menu-info {

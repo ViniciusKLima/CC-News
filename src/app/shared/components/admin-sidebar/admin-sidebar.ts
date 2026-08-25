@@ -21,14 +21,14 @@ export class AdminSidebar {
 
   readonly nomeUsuario = computed(() => this.meuUsuario()?.nome || this.usuario()?.email || '');
 
+  // Primeira letra do nome + primeira letra logo depois do espaço (ex.:
+  // "Maria Silva" -> MS). Sem espaço no nome, cai pras duas primeiras letras.
   readonly iniciaisUsuario = computed(() => {
-    const nome = this.meuUsuario()?.nome?.trim();
-    if (nome) {
-      const partes = nome.split(/\s+/);
-      const iniciais = partes.length > 1 ? partes[0][0] + partes[partes.length - 1][0] : partes[0].slice(0, 2);
-      return iniciais.toUpperCase();
-    }
-    return (this.usuario()?.email ?? '?').slice(0, 2).toUpperCase();
+    const nome = (this.meuUsuario()?.nome || this.usuario()?.email || '').trim();
+    if (!nome) return '?';
+    const indiceEspaco = nome.indexOf(' ');
+    const segunda = indiceEspaco !== -1 ? nome[indiceEspaco + 1] : nome[1];
+    return `${nome[0]}${segunda ?? ''}`.toUpperCase();
   });
 
   readonly labelMeuPerfil = computed(() => {

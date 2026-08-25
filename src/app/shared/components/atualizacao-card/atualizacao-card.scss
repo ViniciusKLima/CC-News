@@ -1,0 +1,208 @@
+// Deixa o :host "transparente" no layout, pra o <article> virar o item
+// direto do grid (repeat(auto-fill, ...)) do componente que usa este card.
+:host {
+  display: contents;
+}
+
+.atualizacao-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid rgba(160, 162, 174, 0.25);
+  border-radius: 14px;
+  padding: 16px;
+  background: #fff;
+  transition:
+    opacity 0.15s ease,
+    background-color 0.15s ease;
+
+  &.oculta {
+    opacity: 0.6;
+    background: var(--background-body);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--color-text);
+  }
+}
+
+.card-acoes-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+}
+
+.atualizacao-midia {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-secondary);
+
+  img,
+  .video-wrap {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  img.interativo {
+    cursor: zoom-in;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+}
+
+.video-wrap {
+  position: relative;
+
+  &.interativo {
+    cursor: pointer;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.18);
+  }
+}
+
+.video-play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.6);
+  color: #fff;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  backdrop-filter: blur(2px);
+
+  i {
+    margin-left: 2px;
+  }
+}
+
+.atualizacao-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.atualizacao-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  font-size: 0.95rem;
+
+  &.cor-azul {
+    background: var(--bgc-azul-opacity);
+    color: var(--color-primary);
+  }
+
+  &.cor-roxo {
+    background: var(--bgc-purple-opacity);
+    color: var(--bgc-purple);
+  }
+
+  &.cor-verde {
+    background: var(--bgc-verde-opacity);
+    color: var(--color-success);
+  }
+
+  &.cor-laranja {
+    background: var(--bgc-yellow-opacity);
+    color: var(--color-warning);
+  }
+
+  &.cor-rosa {
+    background: #ffe4f0;
+    color: #d6336c;
+  }
+}
+
+.status-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 30px;
+  white-space: nowrap;
+
+  &.cor-azul {
+    background: var(--bgc-azul-opacity);
+    color: var(--color-primary);
+  }
+
+  &.cor-roxo {
+    background: var(--bgc-purple-opacity);
+    color: var(--bgc-purple);
+  }
+
+  &.cor-verde {
+    background: var(--bgc-verde-opacity);
+    color: var(--color-success);
+  }
+
+  &.cor-laranja {
+    background: var(--bgc-yellow-opacity);
+    color: var(--color-warning);
+  }
+
+  &.cor-rosa {
+    background: #ffe4f0;
+    color: #d6336c;
+  }
+}
+
+.atualizacao-descricao {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.atualizacao-impacto {
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--bgc-azul-opacity);
+  color: var(--color-primary);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.badge-oculta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: var(--bgc-yellow-opacity);
+  color: var(--color-warning);
+  font-size: 0.68rem;
+  font-weight: 700;
+}

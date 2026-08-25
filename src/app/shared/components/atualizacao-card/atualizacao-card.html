@@ -1,0 +1,40 @@
+<article class="atualizacao-card" [class.oculta]="!atualizacao().visivel">
+  <div class="card-acoes-overlay">
+    <ng-content select="[cardAcoes]"></ng-content>
+  </div>
+
+  @if (atualizacao().midia; as midia) {
+    <div class="atualizacao-midia">
+      @if (midia.tipo === 'video') {
+        @if (extrairIdYoutube(midia.url); as videoId) {
+          <div class="video-wrap" [class.interativo]="interativo()" (click)="onVideoClick(videoId)">
+            <img [src]="urlThumbnailYoutube(videoId)" alt="" />
+            <span class="video-play-btn"><i class="bi bi-play-fill"></i></span>
+          </div>
+        }
+      } @else {
+        <img
+          [src]="urlImagemOtimizada(midia.url, 'card')"
+          [alt]="atualizacao().titulo"
+          [class.interativo]="interativo()"
+          (click)="onImagemClick(midia.url)"
+        />
+      }
+    </div>
+  }
+
+  <div class="atualizacao-topo">
+    <span class="atualizacao-icone" [class]="'cor-' + corCategoria()">
+      <i [class]="'bi ' + atualizacao().icone"></i>
+    </span>
+    <span class="status-pill" [class]="'cor-' + corCategoria()">{{ labelCategoria(atualizacao().categoria) }}</span>
+  </div>
+
+  <h3>{{ atualizacao().titulo }}</h3>
+  <p class="atualizacao-descricao">{{ atualizacao().descricao }}</p>
+  <p class="atualizacao-impacto">{{ atualizacao().impacto }}</p>
+
+  @if (!atualizacao().visivel) {
+    <span class="badge-oculta"><i class="bi bi-eye-slash"></i> Oculta para o público</span>
+  }
+</article>

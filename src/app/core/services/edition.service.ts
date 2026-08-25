@@ -53,6 +53,11 @@ export class EditionService {
     return this._edicoes().find((edicao) => edicao.id === id);
   }
 
+  /** Usado pela rota pública /edicao/:id, que aceita tanto o id real quanto a URL personalizada (slug) da edição. */
+  obterPorIdOuSlug(valor: string): Edicao | undefined {
+    return this._edicoes().find((edicao) => edicao.id === valor || edicao.slug === valor);
+  }
+
   // O formulário do Editor mantém a lista de atualizações em memória e só
   // manda tudo pro Firestore quando o admin clica em Salvar (criar ou
   // atualizar abaixo), nunca a cada ação isolada. Assim nada aparece pro

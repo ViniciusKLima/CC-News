@@ -123,7 +123,6 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
 
   .secao-icone {
     display: flex;
@@ -434,6 +433,25 @@ textarea {
   color: var(--color-text-secondary);
 }
 
+.campo-url {
+  gap: 10px;
+}
+
+.url-personalizada {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--background-body);
+
+  .dica-campo {
+    font-family: monospace;
+    word-break: break-all;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Slider de período
 // ---------------------------------------------------------------------------
@@ -578,6 +596,16 @@ textarea {
   }
 }
 
+.toggle-switch-secundario {
+  margin-bottom: 20px;
+
+  .toggle-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+}
+
 .destaque-imagem-upload {
   aspect-ratio: 1 / 1;
 
@@ -697,8 +725,54 @@ textarea {
   margin-bottom: 18px;
 }
 
+// A gaveta inteira (título, descrição e controles) fica clicável; os
+// controles dentro dela usam (click)="$event.stopPropagation()" pra não
+// abrir/fechar a seção sem querer ao interagir com eles.
+.secao-cabecalho-clicavel {
+  cursor: pointer;
+  user-select: none;
+}
+
+.secao-cabecalho-controles {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.secao-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    background: var(--background-body);
+    color: var(--color-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  &.aberta {
+    transform: rotate(180deg);
+  }
+}
+
 .secao-titulo-bloco {
-  h2 {
+  h2,
+  h3 {
     margin: 0 0 2px;
     font-size: 1rem;
     font-weight: 800;
@@ -710,6 +784,20 @@ textarea {
     font-size: 0.78rem;
     color: var(--color-text-secondary);
   }
+}
+
+// Cada categoria de "Atualizações por categoria" vira uma subseção dentro
+// do mesmo painel, separada apenas por uma linha, sem virar um card à parte.
+.subsecao-categoria + .subsecao-categoria {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(160, 162, 174, 0.2);
+}
+
+.subsecao-acoes {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
 }
 
 .btn-primario {
@@ -754,79 +842,6 @@ textarea {
   gap: 16px;
 }
 
-.atualizacao-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  border: 1px solid rgba(160, 162, 174, 0.25);
-  border-radius: 14px;
-  padding: 16px;
-  background: #fff;
-  transition:
-    opacity 0.15s ease,
-    background-color 0.15s ease;
-
-  &.oculta {
-    opacity: 0.6;
-    background: var(--background-body);
-  }
-
-  h3 {
-    margin: 0;
-    font-size: 0.92rem;
-    font-weight: 800;
-    color: var(--color-text);
-  }
-}
-
-.atualizacao-midia {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: 10px;
-  overflow: hidden;
-  background: var(--color-secondary);
-  margin-bottom: 2px;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .midia-play {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 1.6rem;
-    background: rgba(15, 23, 42, 0.35);
-  }
-}
-
-.atualizacao-topo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.atualizacao-icone {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
-  border-radius: 9px;
-  background: var(--bgc-azul-opacity);
-  color: var(--color-primary);
-  font-size: 0.95rem;
-}
-
 .atualizacao-acoes {
   display: flex;
   gap: 4px;
@@ -862,36 +877,6 @@ textarea {
     color: var(--color-danger);
     background: #fde8e8;
   }
-}
-
-.atualizacao-descricao {
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--color-text-secondary);
-  line-height: 1.4;
-}
-
-.atualizacao-impacto {
-  margin: 0;
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: var(--bgc-azul-opacity);
-  color: var(--color-primary);
-  font-size: 0.74rem;
-  font-weight: 600;
-}
-
-.badge-oculta {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  width: fit-content;
-  padding: 3px 8px;
-  border-radius: 20px;
-  background: var(--bgc-yellow-opacity);
-  color: var(--color-warning);
-  font-size: 0.68rem;
-  font-weight: 700;
 }
 
 // ---------------------------------------------------------------------------

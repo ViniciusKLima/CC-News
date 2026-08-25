@@ -19,6 +19,7 @@ import {
   Atualizacao,
   CATEGORIAS_ATUALIZACAO,
   CategoriaAtualizacao,
+  corCategoriaAtualizacao,
   CorAcento,
   Edicao,
   formatarPeriodo,
@@ -27,7 +28,8 @@ import {
 } from '../../../core/models/edition.model';
 import { EditionService } from '../../../core/services/edition.service';
 import { urlImagemOtimizada } from '../../../core/services/cloudinary.service';
-import { extrairIdYoutube, urlEmbedYoutube, urlThumbnailYoutube } from '../../../core/utils/youtube.util';
+import { urlEmbedYoutube } from '../../../core/utils/youtube.util';
+import { AtualizacaoCard } from '../../../shared/components/atualizacao-card/atualizacao-card';
 
 export type FiltroCategoria = 'todos' | CategoriaAtualizacao;
 
@@ -38,19 +40,11 @@ export interface ResumoStat {
   cor: CorAcento;
 }
 
-const CORES_CATEGORIA: Record<CategoriaAtualizacao, CorAcento> = {
-  novidades: 'roxo',
-  melhorias: 'verde',
-  correcoes: 'laranja',
-  testes: 'azul',
-  'proximos-passos': 'rosa',
-};
-
 // Página pública de uma edição: destaque, atualizações filtráveis por
 // categoria, resumo com estatísticas e a lista de próximos passos.
 @Component({
   selector: 'app-edition',
-  imports: [Header, Footer, RouterLink],
+  imports: [Header, Footer, RouterLink, AtualizacaoCard],
   templateUrl: './edition.html',
   styleUrl: './edition.scss',
 })
@@ -62,12 +56,10 @@ export class Edition implements AfterViewInit {
   readonly loading = this.editionService.loading;
 
   protected readonly urlImagemOtimizada = urlImagemOtimizada;
-  protected readonly extrairIdYoutube = extrairIdYoutube;
-  protected readonly urlThumbnailYoutube = urlThumbnailYoutube;
 
   readonly edicao = computed<Edicao | undefined>(() => {
     const id = this.route.snapshot.paramMap.get('id');
-    return id ? this.editionService.obterPorId(id) : undefined;
+    return id ? this.editionService.obterPorIdOuSlug(id) : undefined;
   });
 
   // Edições arquivadas não devem ficar acessíveis na área pública, mesmo por link direto.
@@ -76,6 +68,22 @@ export class Edition implements AfterViewInit {
     const edicao = this.edicao();
     return !edicao || edicao.status !== 'publico';
   });
+
+  // Seções opcionais da edição: o Resumo (contagem por categoria) só faz
+  // sentido quando as Atualizações por categoria também estão ligadas.
+  readonly mostrarAtualizacoes = computed(() => this.edicao()?.mostrarAtualizacoes !== false);
+  readonly mostrarResumo = computed(() => this.mostrarAtualizacoes() && this.edicao()?.mostrarResumo !== false);
+  readonly mostrarProximosPassos = computed(() => this.edicao()?.mostrarProximosPassos !== false);
+  readonly mostrarTextoLivre = computed(() => !!this.edicao()?.textoLivre);
+
+  // Quando não há Atualizações por categoria, o texto livre migra pra
+  // coluna principal (no lugar da grade de itens). Quando há, ele convive
+  // na lateral junto com o Resumo e os Próximos passos.
+  readonly textoLivreNaPrincipal = computed(() => this.mostrarTextoLivre() && !this.mostrarAtualizacoes());
+  readonly textoLivreNaLateral = computed(() => this.mostrarTextoLivre() && this.mostrarAtualizacoes());
+  readonly temSidebar = computed(
+    () => this.mostrarResumo() || this.mostrarProximosPassos() || this.textoLivreNaLateral(),
+  );
 
   filtro = signal<FiltroCategoria>('todos');
 
@@ -145,7 +153,7 @@ export class Edition implements AfterViewInit {
         label: categoria.label,
         valor: todas.filter((item) => item.categoria === categoria.valor).length,
         icone: categoria.icone,
-        cor: CORES_CATEGORIA[categoria.valor],
+        cor: corCategoriaAtualizacao(categoria.valor),
       });
     }
 
@@ -188,7 +196,7 @@ export class Edition implements AfterViewInit {
   }
 
   corCategoria(categoria: CategoriaAtualizacao): CorAcento {
-    return CORES_CATEGORIA[categoria];
+    return corCategoriaAtualizacao(categoria);
   }
 
   // Imagem em tela cheia (lightbox)

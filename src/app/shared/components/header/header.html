@@ -7,7 +7,7 @@
       <nav class="d-flex align-items-center justify-content-between gap-3">
         <a
           class="btn-header"
-          [routerLink]="ultimaEdicao() ? ['/edicao', ultimaEdicao()!.id] : '/'"
+          [routerLink]="ultimaEdicao() ? ['/edicao', ultimaEdicao()!.slug || ultimaEdicao()!.id] : '/'"
         >Última edição</a>
       </nav>
   </div>

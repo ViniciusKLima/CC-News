@@ -65,6 +65,8 @@ export interface ServicoDestaque {
 
 export interface Edicao {
   id: string;
+  /** URL personalizada opcional (ex.: "atualizacoes-agosto"), usada no lugar do id na rota pública /edicao/:id. */
+  slug?: string;
   capaUrl?: string;
   titulo: string;
   resumo: string;
@@ -75,6 +77,13 @@ export interface Edicao {
   criadoEm: string;
   atualizacoes: Atualizacao[];
   servicoDestaque?: ServicoDestaque;
+  /** Texto livre opcional exibido na edição pública, para publicações mais simples que não precisam de atualizações categorizadas. */
+  textoLivre?: string;
+  // As três seções abaixo são opcionais e, por padrão (campo ausente), ficam
+  // ligadas, para não afetar edições já publicadas antes desse campo existir.
+  mostrarAtualizacoes?: boolean;
+  mostrarResumo?: boolean;
+  mostrarProximosPassos?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -128,6 +137,34 @@ export const MESES_NOMES = [
 
 export function labelCategoria(categoria: CategoriaAtualizacao): string {
   return CATEGORIAS_ATUALIZACAO.find((item) => item.valor === categoria)?.label ?? categoria;
+}
+
+// Cor de acento de cada categoria, usada no ícone e no selo colorido do
+// card de atualização (tanto no admin quanto na edição pública).
+const CORES_CATEGORIA: Record<CategoriaAtualizacao, CorAcento> = {
+  novidades: 'roxo',
+  melhorias: 'verde',
+  correcoes: 'laranja',
+  testes: 'azul',
+  'proximos-passos': 'rosa',
+};
+
+export function corCategoriaAtualizacao(categoria: CategoriaAtualizacao): CorAcento {
+  return CORES_CATEGORIA[categoria];
+}
+
+/** Normaliza um texto livre em slug de URL (minusculas, sem acento, hifens no lugar de espacos). */
+export function sanitizarSlug(valor: string): string {
+  const semAcentos = Array.from(valor.normalize('NFKD'))
+    .filter((caractere) => caractere.codePointAt(0)! < 128)
+    .join('');
+
+  return semAcentos
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 export function labelTipo(tipo: TipoEdicao): string {

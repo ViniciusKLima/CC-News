@@ -36,147 +36,175 @@
     <div class="editor-conteudo">
       <!-- DADOS DA EDIÇÃO -->
       <section class="painel-secao">
-        <div class="secao-titulo">
-          <span class="secao-icone"><i class="bi bi-file-earmark-text"></i></span>
-          <h2>Dados da edição</h2>
+        <div class="secao-cabecalho secao-cabecalho-clicavel" (click)="alternarSecao('dados')">
+          <div class="secao-titulo">
+            <span class="secao-icone"><i class="bi bi-file-earmark-text"></i></span>
+            <h2>Dados da edição</h2>
+          </div>
+          <button
+            type="button"
+            class="secao-chevron"
+            [class.aberta]="secaoAberta('dados')"
+            [attr.aria-expanded]="secaoAberta('dados')"
+            aria-label="Expandir ou recolher"
+          >
+            <i class="bi bi-chevron-down"></i>
+          </button>
         </div>
 
-        <form class="dados-grid" [formGroup]="form">
-          <div class="campo campo-capa">
-            <label>Capa da edição</label>
-            <div class="capa-upload">
-              @if (capaPreviewUrl()) {
-                <img [src]="urlImagemOtimizada(capaPreviewUrl()!, 'detalhe')" alt="Pré-visualização da capa" />
-                <button
-                  type="button"
-                  class="capa-remover"
-                  aria-label="Remover capa"
-                  [disabled]="capaEnviando()"
-                  (click)="removerCapa()"
-                >
-                  <i class="bi bi-x-lg"></i>
-                </button>
-              } @else {
-                <label class="capa-vazia" for="capa-input">
-                  <i class="bi bi-image"></i>
-                  <span>Adicionar capa</span>
-                  <small>PNG, JPG ou WEBP<br />Recomendado: 720x1080px (retrato)</small>
-                </label>
-              }
-              @if (capaEnviando()) {
-                <div class="upload-overlay">
-                  <div class="upload-spinner"></div>
-                  <span>Enviando... {{ capaProgresso() }}%</span>
-                </div>
-              }
-              <input
-                id="capa-input"
-                type="file"
-                accept="image/*"
-                class="visually-hidden"
-                [disabled]="capaEnviando()"
-                (change)="onCapaSelecionada($event)"
-              />
-            </div>
-          </div>
-
-          <div class="campo-principal">
-            <div class="campo-linha">
-              <div class="campo campo-flex-2">
-                <div class="campo-cabecalho">
-                  <label for="titulo">Título da edição *</label>
-                  <span class="contador">{{ form.controls.titulo.value.length }}/{{ tituloMaxlength }}</span>
-                </div>
-                <input
-                  id="titulo"
-                  type="text"
-                  formControlName="titulo"
-                  [maxlength]="tituloMaxlength"
-                  placeholder="Ex.: Atualizações da Semana"
-                  [class.invalido]="campoInvalido('titulo')"
-                />
-                @if (campoInvalido('titulo')) {
-                  <span class="erro-campo">Informe um título para a edição.</span>
+        @if (secaoAberta('dados')) {
+          <form class="dados-grid" [formGroup]="form">
+            <div class="campo campo-capa">
+              <label>Capa da edição</label>
+              <div class="capa-upload">
+                @if (capaPreviewUrl()) {
+                  <img [src]="urlImagemOtimizada(capaPreviewUrl()!, 'detalhe')" alt="Pré-visualização da capa" />
+                  <button
+                    type="button"
+                    class="capa-remover"
+                    aria-label="Remover capa"
+                    [disabled]="capaEnviando()"
+                    (click)="removerCapa()"
+                  >
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                } @else {
+                  <label class="capa-vazia" for="capa-input">
+                    <i class="bi bi-image"></i>
+                    <span>Adicionar capa</span>
+                    <small>PNG, JPG ou WEBP<br />Recomendado: 720x1080px (retrato)</small>
+                  </label>
                 }
+                @if (capaEnviando()) {
+                  <div class="upload-overlay">
+                    <div class="upload-spinner"></div>
+                    <span>Enviando... {{ capaProgresso() }}%</span>
+                  </div>
+                }
+                <input
+                  id="capa-input"
+                  type="file"
+                  accept="image/*"
+                  class="visually-hidden"
+                  [disabled]="capaEnviando()"
+                  (change)="onCapaSelecionada($event)"
+                />
+              </div>
+            </div>
+
+            <div class="campo-principal">
+              <div class="campo-linha">
+                <div class="campo campo-flex-2">
+                  <div class="campo-cabecalho">
+                    <label for="titulo">Título da edição *</label>
+                    <span class="contador">{{ form.controls.titulo.value.length }}/{{ tituloMaxlength }}</span>
+                  </div>
+                  <input
+                    id="titulo"
+                    type="text"
+                    formControlName="titulo"
+                    [maxlength]="tituloMaxlength"
+                    placeholder="Ex.: Atualizações da Semana"
+                    [class.invalido]="campoInvalido('titulo')"
+                  />
+                  @if (campoInvalido('titulo')) {
+                    <span class="erro-campo">Informe um título para a edição.</span>
+                  }
+                </div>
+
+                <div class="campo">
+                  <label for="tipo">Tipo de edição *</label>
+                  <div class="select-wrap">
+                    <select id="tipo" formControlName="tipo" [class.invalido]="campoInvalido('tipo')">
+                      <option value="" disabled>Selecione o tipo</option>
+                      @for (t of tiposEdicao; track t.valor) {
+                        <option [value]="t.valor">{{ t.label }}</option>
+                      }
+                    </select>
+                    <i class="bi bi-chevron-down"></i>
+                  </div>
+                  @if (campoInvalido('tipo')) {
+                    <span class="erro-campo">Selecione o tipo da edição.</span>
+                  }
+                </div>
               </div>
 
               <div class="campo">
-                <label for="tipo">Tipo de edição *</label>
-                <div class="select-wrap">
-                  <select id="tipo" formControlName="tipo" [class.invalido]="campoInvalido('tipo')">
-                    <option value="" disabled>Selecione o tipo</option>
-                    @for (t of tiposEdicao; track t.valor) {
-                      <option [value]="t.valor">{{ t.label }}</option>
-                    }
-                  </select>
-                  <i class="bi bi-chevron-down"></i>
+                <div class="campo-cabecalho">
+                  <label for="resumo">Resumo da edição</label>
+                  <span class="contador">{{ form.controls.resumo.value.length }}/{{ resumoMaxlength }}</span>
                 </div>
-                @if (campoInvalido('tipo')) {
-                  <span class="erro-campo">Selecione o tipo da edição.</span>
-                }
+                <textarea
+                  id="resumo"
+                  formControlName="resumo"
+                  [maxlength]="resumoMaxlength"
+                  rows="3"
+                  placeholder="Descreva os principais destaques desta edição..."
+                ></textarea>
               </div>
-            </div>
 
-            <div class="campo">
-              <div class="campo-cabecalho">
-                <label for="resumo">Resumo da edição</label>
-                <span class="contador">{{ form.controls.resumo.value.length }}/{{ resumoMaxlength }}</span>
-              </div>
-              <textarea
-                id="resumo"
-                formControlName="resumo"
-                [maxlength]="resumoMaxlength"
-                rows="3"
-                placeholder="Descreva os principais destaques desta edição..."
-              ></textarea>
-            </div>
+              <div class="campo">
+                <label id="label-periodo">Período *</label>
 
-            <div class="campo">
-              <label id="label-periodo">Período *</label>
-
-              <div class="periodo-slider" [class.desabilitado]="!form.controls.tipo.value">
-                <div class="periodo-slider-track" [style.transform]="'translateX(-' + indiceSlide() * 25 + '%)'">
-                  <div class="periodo-painel" [formGroup]="form.controls.periodoSemanal">
-                    <div class="campo-linha">
-                      <div class="campo">
-                        <label for="data-inicio">Data inicial</label>
-                        <input
-                          id="data-inicio"
-                          type="date"
-                          formControlName="dataInicio"
-                          [class.invalido]="periodoCampoInvalido('periodoSemanal', 'dataInicio')"
-                        />
-                      </div>
-                      <div class="campo">
-                        <label for="data-fim">Data final</label>
-                        <input
-                          id="data-fim"
-                          type="date"
-                          formControlName="dataFim"
-                          [class.invalido]="periodoCampoInvalido('periodoSemanal', 'dataFim')"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="periodo-painel" [formGroup]="form.controls.periodoMensal">
-                    <div class="campo-linha">
-                      <div class="campo">
-                        <label for="periodo-mes">Mês</label>
-                        <div class="select-wrap">
-                          <select id="periodo-mes" formControlName="mes">
-                            <option value="" disabled>Selecione o mês</option>
-                            @for (m of meses; track m.valor) {
-                              <option [value]="m.valor">{{ m.nome }}</option>
-                            }
-                          </select>
-                          <i class="bi bi-chevron-down"></i>
+                <div class="periodo-slider" [class.desabilitado]="!form.controls.tipo.value">
+                  <div class="periodo-slider-track" [style.transform]="'translateX(-' + indiceSlide() * 25 + '%)'">
+                    <div class="periodo-painel" [formGroup]="form.controls.periodoSemanal">
+                      <div class="campo-linha">
+                        <div class="campo">
+                          <label for="data-inicio">Data inicial</label>
+                          <input
+                            id="data-inicio"
+                            type="date"
+                            formControlName="dataInicio"
+                            [class.invalido]="periodoCampoInvalido('periodoSemanal', 'dataInicio')"
+                          />
+                        </div>
+                        <div class="campo">
+                          <label for="data-fim">Data final</label>
+                          <input
+                            id="data-fim"
+                            type="date"
+                            formControlName="dataFim"
+                            [class.invalido]="periodoCampoInvalido('periodoSemanal', 'dataFim')"
+                          />
                         </div>
                       </div>
-                      <div class="campo">
-                        <label for="periodo-ano-mensal">Ano</label>
+                    </div>
+
+                    <div class="periodo-painel" [formGroup]="form.controls.periodoMensal">
+                      <div class="campo-linha">
+                        <div class="campo">
+                          <label for="periodo-mes">Mês</label>
+                          <div class="select-wrap">
+                            <select id="periodo-mes" formControlName="mes">
+                              <option value="" disabled>Selecione o mês</option>
+                              @for (m of meses; track m.valor) {
+                                <option [value]="m.valor">{{ m.nome }}</option>
+                              }
+                            </select>
+                            <i class="bi bi-chevron-down"></i>
+                          </div>
+                        </div>
+                        <div class="campo">
+                          <label for="periodo-ano-mensal">Ano</label>
+                          <div class="select-wrap">
+                            <select id="periodo-ano-mensal" formControlName="ano">
+                              <option value="" disabled>Selecione o ano</option>
+                              @for (a of anos; track a) {
+                                <option [value]="a">{{ a }}</option>
+                              }
+                            </select>
+                            <i class="bi bi-chevron-down"></i>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="periodo-painel" [formGroup]="form.controls.periodoAnual">
+                      <div class="campo campo-metade">
+                        <label for="periodo-ano-anual">Ano</label>
                         <div class="select-wrap">
-                          <select id="periodo-ano-mensal" formControlName="ano">
+                          <select id="periodo-ano-anual" formControlName="ano">
                             <option value="" disabled>Selecione o ano</option>
                             @for (a of anos; track a) {
                               <option [value]="a">{{ a }}</option>
@@ -186,103 +214,136 @@
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div class="periodo-painel" [formGroup]="form.controls.periodoAnual">
-                    <div class="campo campo-metade">
-                      <label for="periodo-ano-anual">Ano</label>
-                      <div class="select-wrap">
-                        <select id="periodo-ano-anual" formControlName="ano">
-                          <option value="" disabled>Selecione o ano</option>
-                          @for (a of anos; track a) {
-                            <option [value]="a">{{ a }}</option>
-                          }
-                        </select>
-                        <i class="bi bi-chevron-down"></i>
+                    <div class="periodo-painel" [formGroup]="form.controls.periodoEspecial">
+                      <div class="campo">
+                        <div class="campo-cabecalho">
+                          <label for="periodo-tema">Tema da edição</label>
+                          <span class="contador"
+                            >{{ form.controls.periodoEspecial.controls.tema.value.length }}/{{ temaMaxlength }}</span
+                          >
+                        </div>
+                        <input
+                          id="periodo-tema"
+                          type="text"
+                          formControlName="tema"
+                          [maxlength]="temaMaxlength"
+                          placeholder='Ex.: "Dia dos Pais"'
+                        />
                       </div>
-                    </div>
-                  </div>
-
-                  <div class="periodo-painel" [formGroup]="form.controls.periodoEspecial">
-                    <div class="campo">
-                      <div class="campo-cabecalho">
-                        <label for="periodo-tema">Tema da edição</label>
-                        <span class="contador"
-                          >{{ form.controls.periodoEspecial.controls.tema.value.length }}/{{ temaMaxlength }}</span
-                        >
-                      </div>
-                      <input
-                        id="periodo-tema"
-                        type="text"
-                        formControlName="tema"
-                        [maxlength]="temaMaxlength"
-                        placeholder='Ex.: "Dia dos Pais"'
-                      />
                     </div>
                   </div>
                 </div>
+
+                @if (!form.controls.tipo.value) {
+                  <span class="dica-campo">Selecione o tipo da edição para informar o período.</span>
+                }
               </div>
 
-              @if (!form.controls.tipo.value) {
-                <span class="dica-campo">Selecione o tipo da edição para informar o período.</span>
-              }
-            </div>
-          </div>
+              <!-- URL personalizada (opcional): por padrão a edição usa o id automático do Firestore -->
+              <div class="campo campo-url">
+                <label class="toggle-switch">
+                  <input
+                    type="checkbox"
+                    [checked]="slugAtivo()"
+                    (change)="alternarSlug($any($event.target).checked)"
+                  />
+                  <span class="toggle-slider"></span>
+                  <span class="toggle-label">Personalizar URL</span>
+                </label>
 
-          <div class="campo campo-status">
-            <label id="label-status">Status *</label>
-            <div class="status-opcoes" role="radiogroup" aria-labelledby="label-status">
-              <button
-                type="button"
-                class="status-opcao status-opcao-publico"
-                role="radio"
-                [attr.aria-checked]="form.controls.status.value === 'publico'"
-                [class.selecionado]="form.controls.status.value === 'publico'"
-                (click)="form.controls.status.setValue('publico')"
-              >
-                <i class="bi bi-globe"></i> Público
-              </button>
-              <button
-                type="button"
-                class="status-opcao status-opcao-arquivado"
-                role="radio"
-                [attr.aria-checked]="form.controls.status.value === 'arquivado'"
-                [class.selecionado]="form.controls.status.value === 'arquivado'"
-                (click)="form.controls.status.setValue('arquivado')"
-              >
-                <i class="bi bi-archive"></i> Arquivado
-              </button>
+                @if (slugAtivo()) {
+                  <div class="url-personalizada">
+                    <div class="campo-cabecalho">
+                      <label for="slug">URL da edição</label>
+                      <span class="contador">{{ form.controls.slug.value.length }}/{{ slugMaxlength }}</span>
+                    </div>
+                    <input
+                      id="slug"
+                      type="text"
+                      formControlName="slug"
+                      [maxlength]="slugMaxlength"
+                      placeholder="ex-atualizacoes-de-agosto"
+                      [class.invalido]="form.controls.slug.invalid && form.controls.slug.dirty"
+                      (blur)="sanitizarSlugCampo()"
+                    />
+                    <p class="dica-campo">{{ origemAtual }}/edicao/{{ form.controls.slug.value || 'sua-url-personalizada' }}</p>
+                    @if (form.controls.slug.invalid && form.controls.slug.dirty) {
+                      <span class="erro-campo">Use apenas letras minúsculas, números e hifens.</span>
+                    }
+                  </div>
+                } @else {
+                  <p class="dica-campo">Sem isso, a edição usa um endereço automático gerado pelo sistema.</p>
+                }
+              </div>
             </div>
-            <p class="dica-campo">
-              @if (form.controls.status.value === 'publico') {
-                Visível para todos os usuários no site público.
-              } @else {
-                Fica salva, mas não aparece para o público.
-              }
-            </p>
-          </div>
-        </form>
+
+            <div class="campo campo-status">
+              <label id="label-status">Status *</label>
+              <div class="status-opcoes" role="radiogroup" aria-labelledby="label-status">
+                <button
+                  type="button"
+                  class="status-opcao status-opcao-publico"
+                  role="radio"
+                  [attr.aria-checked]="form.controls.status.value === 'publico'"
+                  [class.selecionado]="form.controls.status.value === 'publico'"
+                  (click)="form.controls.status.setValue('publico')"
+                >
+                  <i class="bi bi-globe"></i> Público
+                </button>
+                <button
+                  type="button"
+                  class="status-opcao status-opcao-arquivado"
+                  role="radio"
+                  [attr.aria-checked]="form.controls.status.value === 'arquivado'"
+                  [class.selecionado]="form.controls.status.value === 'arquivado'"
+                  (click)="form.controls.status.setValue('arquivado')"
+                >
+                  <i class="bi bi-archive"></i> Arquivado
+                </button>
+              </div>
+              <p class="dica-campo">
+                @if (form.controls.status.value === 'publico') {
+                  Visível para todos os usuários no site público.
+                } @else {
+                  Fica salva, mas não aparece para o público.
+                }
+              </p>
+            </div>
+          </form>
+        }
       </section>
 
       <!-- SERVIÇO EM DESTAQUE -->
       <section class="painel-secao">
-        <div class="secao-cabecalho">
+        <div class="secao-cabecalho secao-cabecalho-clicavel" (click)="alternarSecao('destaque')">
           <div class="secao-titulo-bloco">
             <h2>Serviço em destaque</h2>
             <p>Destaca um serviço ou funcionalidade no topo da edição pública. Totalmente opcional.</p>
           </div>
-          <label class="toggle-switch">
-            <input
-              type="checkbox"
-              [checked]="servicoDestaqueAtivo()"
-              (change)="alternarServicoDestaque($any($event.target).checked)"
-            />
-            <span class="toggle-slider"></span>
-            <span class="toggle-label">Adicionar serviço em destaque</span>
-          </label>
+          <div class="secao-cabecalho-controles">
+            <label class="toggle-switch" (click)="$event.stopPropagation()">
+              <input
+                type="checkbox"
+                [checked]="servicoDestaqueAtivo()"
+                (change)="alternarServicoDestaque($any($event.target).checked)"
+              />
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Adicionar serviço em destaque</span>
+            </label>
+            <button
+              type="button"
+              class="secao-chevron"
+              [class.aberta]="secaoAberta('destaque')"
+              [attr.aria-expanded]="secaoAberta('destaque')"
+              aria-label="Expandir ou recolher"
+            >
+              <i class="bi bi-chevron-down"></i>
+            </button>
+          </div>
         </div>
 
-        @if (servicoDestaqueAtivo()) {
+        @if (secaoAberta('destaque') && servicoDestaqueAtivo()) {
           <form class="dados-grid" [formGroup]="form.controls.servicoDestaque">
             <div class="campo campo-capa">
               <label>Foto do destaque</label>
@@ -410,85 +471,232 @@
         }
       </section>
 
-      <!-- ATUALIZAÇÕES -->
-      @for (categoria of categorias; track categoria.valor) {
-        <section class="painel-secao">
-          <div class="secao-cabecalho">
-            <div class="secao-titulo-bloco">
-              <h2>{{ categoria.label }}</h2>
-              <p>{{ categoria.descricao }}</p>
+      <!-- TEXTO LIVRE -->
+      <section class="painel-secao">
+        <div class="secao-cabecalho secao-cabecalho-clicavel" (click)="alternarSecao('texto-livre')">
+          <div class="secao-titulo-bloco">
+            <h2>Texto livre</h2>
+            <p>Um texto simples, para publicações que não precisam de atualizações categorizadas. Totalmente opcional.</p>
+          </div>
+          <div class="secao-cabecalho-controles">
+            <label class="toggle-switch" (click)="$event.stopPropagation()">
+              <input
+                type="checkbox"
+                [checked]="textoLivreAtivo()"
+                (change)="alternarTextoLivre($any($event.target).checked)"
+              />
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Adicionar texto livre</span>
+            </label>
+            <button
+              type="button"
+              class="secao-chevron"
+              [class.aberta]="secaoAberta('texto-livre')"
+              [attr.aria-expanded]="secaoAberta('texto-livre')"
+              aria-label="Expandir ou recolher"
+            >
+              <i class="bi bi-chevron-down"></i>
+            </button>
+          </div>
+        </div>
+
+        @if (secaoAberta('texto-livre') && textoLivreAtivo()) {
+          <div class="campo" [formGroup]="form">
+            <div class="campo-cabecalho">
+              <label for="texto-livre">Texto</label>
+              <span class="contador">{{ form.controls.textoLivre.value.length }}/{{ textoLivreMaxlength }}</span>
             </div>
-            <button type="button" class="btn-primario" (click)="abrirModalNovaAtualizacao(categoria.valor)">
+            <textarea
+              id="texto-livre"
+              formControlName="textoLivre"
+              [maxlength]="textoLivreMaxlength"
+              rows="6"
+              placeholder="Escreva um resumo em texto corrido para esta edição..."
+            ></textarea>
+            <p class="dica-campo">
+              @if (atualizacoesAtivas()) {
+                Vai aparecer na lateral da edição pública, ao lado do Resumo e dos Próximos passos.
+              } @else {
+                Vai aparecer no lugar das atualizações por categoria, logo abaixo do serviço em destaque.
+              }
+            </p>
+          </div>
+        }
+      </section>
+
+      <!-- ATUALIZAÇÕES POR CATEGORIA -->
+      <section class="painel-secao">
+        <div class="secao-cabecalho secao-cabecalho-clicavel" (click)="alternarSecao('atualizacoes')">
+          <div class="secao-titulo-bloco">
+            <h2>Atualizações por categoria</h2>
+            <p>Novidades, melhorias, correções e itens em teste, organizados em abas na edição pública.</p>
+          </div>
+          <div class="secao-cabecalho-controles">
+            <label class="toggle-switch" (click)="$event.stopPropagation()">
+              <input
+                type="checkbox"
+                [checked]="atualizacoesAtivas()"
+                (change)="alternarAtualizacoes($any($event.target).checked)"
+              />
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Mostrar atualizações por categoria</span>
+            </label>
+            <button
+              type="button"
+              class="secao-chevron"
+              [class.aberta]="secaoAberta('atualizacoes')"
+              [attr.aria-expanded]="secaoAberta('atualizacoes')"
+              aria-label="Expandir ou recolher"
+            >
+              <i class="bi bi-chevron-down"></i>
+            </button>
+          </div>
+        </div>
+
+        @if (secaoAberta('atualizacoes') && atualizacoesAtivas()) {
+          <label class="toggle-switch toggle-switch-secundario" (click)="$event.stopPropagation()">
+            <input
+              type="checkbox"
+              [checked]="resumoAtivo()"
+              (change)="alternarResumo($any($event.target).checked)"
+            />
+            <span class="toggle-slider"></span>
+            <span class="toggle-label">Mostrar resumo com a contagem por categoria na lateral</span>
+          </label>
+
+          @for (categoria of categoriasRegulares; track categoria.valor) {
+            <div class="subsecao-categoria">
+              <div class="secao-cabecalho">
+                <div class="secao-titulo-bloco">
+                  <h3>{{ categoria.label }}</h3>
+                  <p>{{ categoria.descricao }}</p>
+                </div>
+                <button type="button" class="btn-primario" (click)="abrirModalNovaAtualizacao(categoria.valor)">
+                  <i class="bi bi-plus-lg"></i> Nova atualização
+                </button>
+              </div>
+
+              @if (atualizacoesPorCategoria(categoria.valor).length === 0) {
+                <div class="secao-vazia">Nenhum item nesta categoria.</div>
+              } @else {
+                <div class="atualizacoes-grid">
+                  @for (atualizacao of atualizacoesPorCategoria(categoria.valor); track atualizacao.id) {
+                    <app-atualizacao-card [atualizacao]="atualizacao" [interativo]="false">
+                      <div cardAcoes class="atualizacao-acoes">
+                        <button
+                          type="button"
+                          class="btn-mini"
+                          [attr.aria-pressed]="atualizacao.visivel"
+                          [attr.aria-label]="
+                            atualizacao.visivel ? 'Ocultar atualização do público' : 'Tornar atualização visível'
+                          "
+                          (click)="alternarVisibilidade(atualizacao)"
+                        >
+                          <i class="bi" [class.bi-eye]="atualizacao.visivel" [class.bi-eye-slash]="!atualizacao.visivel"></i>
+                        </button>
+                        <button
+                          type="button"
+                          class="btn-mini"
+                          aria-label="Editar atualização"
+                          (click)="abrirModalEditarAtualizacao(atualizacao)"
+                        >
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <button
+                          type="button"
+                          class="btn-mini btn-mini-perigo"
+                          aria-label="Excluir atualização"
+                          (click)="excluirAtualizacao(atualizacao)"
+                        >
+                          <i class="bi bi-trash3"></i>
+                        </button>
+                      </div>
+                    </app-atualizacao-card>
+                  }
+                </div>
+              }
+            </div>
+          }
+        }
+      </section>
+
+      <!-- PRÓXIMOS PASSOS -->
+      <section class="painel-secao">
+        <div class="secao-cabecalho secao-cabecalho-clicavel" (click)="alternarSecao('proximos-passos')">
+          <div class="secao-titulo-bloco">
+            <h2>{{ categoriaProximosPassos.label }}</h2>
+            <p>{{ categoriaProximosPassos.descricao }}</p>
+          </div>
+          <div class="secao-cabecalho-controles">
+            <label class="toggle-switch" (click)="$event.stopPropagation()">
+              <input
+                type="checkbox"
+                [checked]="proximosPassosAtivo()"
+                (change)="alternarProximosPassos($any($event.target).checked)"
+              />
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Mostrar próximos passos</span>
+            </label>
+            <button
+              type="button"
+              class="secao-chevron"
+              [class.aberta]="secaoAberta('proximos-passos')"
+              [attr.aria-expanded]="secaoAberta('proximos-passos')"
+              aria-label="Expandir ou recolher"
+            >
+              <i class="bi bi-chevron-down"></i>
+            </button>
+          </div>
+        </div>
+
+        @if (secaoAberta('proximos-passos') && proximosPassosAtivo()) {
+          <div class="subsecao-acoes">
+            <button type="button" class="btn-primario" (click)="abrirModalNovaAtualizacao(categoriaProximosPassos.valor)">
               <i class="bi bi-plus-lg"></i> Nova atualização
             </button>
           </div>
 
-          @if (atualizacoesPorCategoria(categoria.valor).length === 0) {
+          @if (atualizacoesPorCategoria(categoriaProximosPassos.valor).length === 0) {
             <div class="secao-vazia">Nenhum item nesta categoria.</div>
           } @else {
             <div class="atualizacoes-grid">
-              @for (atualizacao of atualizacoesPorCategoria(categoria.valor); track atualizacao.id) {
-                <article class="atualizacao-card" [class.oculta]="!atualizacao.visivel">
-                  @if (atualizacao.midia) {
-                    <div class="atualizacao-midia">
-                      @if (atualizacao.midia.tipo === 'video') {
-                        @if (extrairIdYoutube(atualizacao.midia.url); as videoId) {
-                          <img [src]="urlThumbnailYoutube(videoId)" alt="" />
-                        }
-                        <span class="midia-play"><i class="bi bi-play-fill"></i></span>
-                      } @else {
-                        <img [src]="urlImagemOtimizada(atualizacao.midia.url, 'card')" alt="" />
-                      }
-                    </div>
-                  }
-
-                  <div class="atualizacao-topo">
-                    <span class="atualizacao-icone"><i [class]="'bi ' + atualizacao.icone"></i></span>
-
-                    <div class="atualizacao-acoes">
-                      <button
-                        type="button"
-                        class="btn-mini"
-                        [attr.aria-pressed]="atualizacao.visivel"
-                        [attr.aria-label]="
-                          atualizacao.visivel ? 'Ocultar atualização do público' : 'Tornar atualização visível'
-                        "
-                        (click)="alternarVisibilidade(atualizacao)"
-                      >
-                        <i class="bi" [class.bi-eye]="atualizacao.visivel" [class.bi-eye-slash]="!atualizacao.visivel"></i>
-                      </button>
-                      <button
-                        type="button"
-                        class="btn-mini"
-                        aria-label="Editar atualização"
-                        (click)="abrirModalEditarAtualizacao(atualizacao)"
-                      >
-                        <i class="bi bi-pencil"></i>
-                      </button>
-                      <button
-                        type="button"
-                        class="btn-mini btn-mini-perigo"
-                        aria-label="Excluir atualização"
-                        (click)="excluirAtualizacao(atualizacao)"
-                      >
-                        <i class="bi bi-trash3"></i>
-                      </button>
-                    </div>
+              @for (atualizacao of atualizacoesPorCategoria(categoriaProximosPassos.valor); track atualizacao.id) {
+                <app-atualizacao-card [atualizacao]="atualizacao" [interativo]="false">
+                  <div cardAcoes class="atualizacao-acoes">
+                    <button
+                      type="button"
+                      class="btn-mini"
+                      [attr.aria-pressed]="atualizacao.visivel"
+                      [attr.aria-label]="
+                        atualizacao.visivel ? 'Ocultar atualização do público' : 'Tornar atualização visível'
+                      "
+                      (click)="alternarVisibilidade(atualizacao)"
+                    >
+                      <i class="bi" [class.bi-eye]="atualizacao.visivel" [class.bi-eye-slash]="!atualizacao.visivel"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-mini"
+                      aria-label="Editar atualização"
+                      (click)="abrirModalEditarAtualizacao(atualizacao)"
+                    >
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-mini btn-mini-perigo"
+                      aria-label="Excluir atualização"
+                      (click)="excluirAtualizacao(atualizacao)"
+                    >
+                      <i class="bi bi-trash3"></i>
+                    </button>
                   </div>
-
-                  <h3>{{ atualizacao.titulo }}</h3>
-                  <p class="atualizacao-descricao">{{ atualizacao.descricao }}</p>
-                  <p class="atualizacao-impacto">{{ atualizacao.impacto }}</p>
-
-                  @if (!atualizacao.visivel) {
-                    <span class="badge-oculta"><i class="bi bi-eye-slash"></i> Oculta para o público</span>
-                  }
-                </article>
+                </app-atualizacao-card>
               }
             </div>
           }
-        </section>
-      }
+        }
+      </section>
     </div>
   }
 </div>

@@ -182,7 +182,7 @@
                   <div class="total-novo m-0 d-flex align-items-center">
                     {{ contarNovidades(edicao) }} novidades
                   </div>
-                  <a class="ver-edicao" [routerLink]="['/edicao', edicao.id]">
+                  <a class="ver-edicao" [routerLink]="['/edicao', edicao.slug || edicao.id]">
                     Ver edição <i class="bi bi-arrow-right m-0"></i>
                   </a>
                 </div>

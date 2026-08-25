@@ -12,6 +12,7 @@ import {
   PeriodoEdicao,
   PosicaoImagemDestaque,
   POSICOES_IMAGEM_DESTAQUE,
+  sanitizarSlug,
   ServicoDestaque,
   StatusEdicao,
   TIPOS_EDICAO,
@@ -22,14 +23,17 @@ import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { CONFIRMACOES } from '../../../core/services/confirm-dialog.presets';
 import { CloudinaryService, urlImagemOtimizada } from '../../../core/services/cloudinary.service';
-import { extrairIdYoutube, urlThumbnailYoutube } from '../../../core/utils/youtube.util';
 import { AtualizacaoModal } from './atualizacao-modal/atualizacao-modal';
+import { AtualizacaoCard } from '../../../shared/components/atualizacao-card/atualizacao-card';
 
 const ORDEM_TIPOS: TipoEdicao[] = ['semanal', 'mensal', 'anual', 'especial'];
 
 const TITULO_MAXLENGTH = 70;
 const RESUMO_MAXLENGTH = 200;
 const TEMA_MAXLENGTH = 60;
+const SLUG_MAXLENGTH = 60;
+const TEXTO_LIVRE_MAXLENGTH = 1000;
+const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 function gerarIdLocal(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -42,6 +46,8 @@ interface ValoresFormulario {
   resumo: string;
   tipo: TipoEdicao | '';
   status: StatusEdicao;
+  slug: string;
+  textoLivre: string;
   periodoSemanal: { dataInicio: string; dataFim: string };
   periodoMensal: { mes: string; ano: string };
   periodoAnual: { ano: string };
@@ -54,7 +60,7 @@ interface ValoresFormulario {
 // atualizações (abertas em um modal à parte, ver AtualizacaoModal).
 @Component({
   selector: 'app-editor',
-  imports: [ReactiveFormsModule, RouterLink, AtualizacaoModal],
+  imports: [ReactiveFormsModule, RouterLink, AtualizacaoModal, AtualizacaoCard],
   templateUrl: './editor.html',
   styleUrl: './editor.scss',
 })
@@ -68,8 +74,6 @@ export class Editor {
   private readonly cloudinaryService = inject(CloudinaryService);
 
   protected readonly urlImagemOtimizada = urlImagemOtimizada;
-  protected readonly extrairIdYoutube = extrairIdYoutube;
-  protected readonly urlThumbnailYoutube = urlThumbnailYoutube;
 
   // Enquanto o service ainda está carregando os dados, não dá para saber se
   // o id existe ou não. Evita mostrar "edição não encontrada" precocemente.
@@ -89,9 +93,13 @@ export class Editor {
   readonly tituloMaxlength = TITULO_MAXLENGTH;
   readonly resumoMaxlength = RESUMO_MAXLENGTH;
   readonly temaMaxlength = TEMA_MAXLENGTH;
+  readonly slugMaxlength = SLUG_MAXLENGTH;
+  readonly textoLivreMaxlength = TEXTO_LIVRE_MAXLENGTH;
   readonly tiposEdicao = TIPOS_EDICAO;
-  readonly categorias = CATEGORIAS_ATUALIZACAO;
+  readonly categoriasRegulares = CATEGORIAS_ATUALIZACAO.filter((c) => c.valor !== 'proximos-passos');
+  readonly categoriaProximosPassos = CATEGORIAS_ATUALIZACAO.find((c) => c.valor === 'proximos-passos')!;
   readonly ordemTipos = ORDEM_TIPOS;
+  readonly origemAtual = window.location.origin;
   readonly meses = MESES_NOMES.map((nome, indice) => ({ valor: indice + 1, nome }));
   readonly anos = (() => {
     const anoAtual = new Date().getFullYear();
@@ -111,6 +119,21 @@ export class Editor {
   readonly destaqueEnviando = signal(false);
   readonly destaqueProgresso = signal(0);
 
+  readonly slugAtivo = signal(false);
+
+  // As quatro seções abaixo são opcionais, cada uma com seu próprio
+  // interruptor (mesmo estilo do Serviço em destaque). Por padrão todas
+  // ficam ligadas, exceto o texto livre. O Resumo depende das Atualizações
+  // por categoria estarem ligadas, já que ele é a contagem de itens delas.
+  readonly atualizacoesAtivas = signal(true);
+  readonly resumoAtivo = signal(true);
+  readonly proximosPassosAtivo = signal(true);
+  readonly textoLivreAtivo = signal(false);
+
+  // Gavetas: cada seção começa fechada, exceto "Dados da edição", pra não
+  // sobrecarregar a tela com tudo aberto de uma vez.
+  readonly secoesAbertas = signal<Set<string>>(new Set(['dados']));
+
   readonly modalAberto = signal<{
     categoria: CategoriaAtualizacao;
     atualizacaoEditando: Atualizacao | null;
@@ -128,6 +151,8 @@ export class Editor {
     resumo: ['', [Validators.maxLength(RESUMO_MAXLENGTH)]],
     tipo: this.fb.nonNullable.control<TipoEdicao | ''>('', Validators.required),
     status: this.fb.nonNullable.control<StatusEdicao>('arquivado', Validators.required),
+    slug: ['', [Validators.maxLength(SLUG_MAXLENGTH), Validators.pattern(SLUG_PATTERN)]],
+    textoLivre: ['', Validators.maxLength(TEXTO_LIVRE_MAXLENGTH)],
     periodoSemanal: this.fb.nonNullable.group({
       dataInicio: ['', Validators.required],
       dataFim: ['', Validators.required],
@@ -155,6 +180,8 @@ export class Editor {
   constructor() {
     this.desabilitarTodosPeriodos();
     this.form.controls.servicoDestaque.disable({ emitEvent: false });
+    this.form.controls.slug.disable({ emitEvent: false });
+    this.form.controls.textoLivre.disable({ emitEvent: false });
 
     this.form.controls.tipo.valueChanges.subscribe((tipo) => this.aplicarTipo(tipo));
 
@@ -166,6 +193,26 @@ export class Editor {
         this.preencherFormulario(edicao);
       }
     });
+  }
+
+  secaoAberta(chave: string): boolean {
+    return this.secoesAbertas().has(chave);
+  }
+
+  alternarSecao(chave: string): void {
+    this.secoesAbertas.update((atual) => {
+      const novo = new Set(atual);
+      if (novo.has(chave)) {
+        novo.delete(chave);
+      } else {
+        novo.add(chave);
+      }
+      return novo;
+    });
+  }
+
+  private abrirSecao(chave: string): void {
+    this.secoesAbertas.update((atual) => new Set(atual).add(chave));
   }
 
   private desabilitarTodosPeriodos(): void {
@@ -240,6 +287,22 @@ export class Editor {
       });
       this.imagemDestaquePreviewUrl.set(edicao.servicoDestaque.imagemUrl ?? null);
     }
+
+    if (edicao.slug) {
+      this.slugAtivo.set(true);
+      this.form.controls.slug.enable({ emitEvent: false });
+      this.form.controls.slug.setValue(edicao.slug);
+    }
+
+    if (edicao.textoLivre) {
+      this.textoLivreAtivo.set(true);
+      this.form.controls.textoLivre.enable({ emitEvent: false });
+      this.form.controls.textoLivre.setValue(edicao.textoLivre);
+    }
+
+    this.atualizacoesAtivas.set(edicao.mostrarAtualizacoes !== false);
+    this.resumoAtivo.set(edicao.mostrarAtualizacoes !== false && edicao.mostrarResumo !== false);
+    this.proximosPassosAtivo.set(edicao.mostrarProximosPassos !== false);
   }
 
   campoInvalido(campo: 'titulo' | 'resumo' | 'tipo'): boolean {
@@ -298,6 +361,7 @@ export class Editor {
 
     if (ativo) {
       this.form.controls.servicoDestaque.enable({ emitEvent: false });
+      this.abrirSecao('destaque');
     } else {
       this.form.controls.servicoDestaque.reset(
         { titulo: '', descricao: '', cor: 'azul', imagemPosicao: 'centro' },
@@ -344,6 +408,55 @@ export class Editor {
 
   removerImagemDestaque(): void {
     this.imagemDestaquePreviewUrl.set(null);
+  }
+
+  // URL personalizada (opcional). Quando desligada, a edição usa o id
+  // gerado pelo Firestore normalmente, como sempre funcionou.
+  alternarSlug(ativo: boolean): void {
+    this.slugAtivo.set(ativo);
+    if (ativo) {
+      this.form.controls.slug.enable({ emitEvent: false });
+    } else {
+      this.form.controls.slug.reset('', { emitEvent: false });
+      this.form.controls.slug.disable({ emitEvent: false });
+    }
+  }
+
+  sanitizarSlugCampo(): void {
+    this.form.controls.slug.setValue(sanitizarSlug(this.form.controls.slug.value));
+  }
+
+  // Seções opcionais da edição pública: cada uma pode ser ligada ou
+  // desligada independentemente, exceto o Resumo, que depende das
+  // Atualizações por categoria (ver alternarAtualizacoes/alternarResumo).
+  alternarAtualizacoes(ativo: boolean): void {
+    this.atualizacoesAtivas.set(ativo);
+    if (!ativo) {
+      this.resumoAtivo.set(false);
+    } else {
+      this.abrirSecao('atualizacoes');
+    }
+  }
+
+  alternarResumo(ativo: boolean): void {
+    if (ativo && !this.atualizacoesAtivas()) return;
+    this.resumoAtivo.set(ativo);
+  }
+
+  alternarProximosPassos(ativo: boolean): void {
+    this.proximosPassosAtivo.set(ativo);
+    if (ativo) this.abrirSecao('proximos-passos');
+  }
+
+  alternarTextoLivre(ativo: boolean): void {
+    this.textoLivreAtivo.set(ativo);
+    if (ativo) {
+      this.form.controls.textoLivre.enable({ emitEvent: false });
+      this.abrirSecao('texto-livre');
+    } else {
+      this.form.controls.textoLivre.reset('', { emitEvent: false });
+      this.form.controls.textoLivre.disable({ emitEvent: false });
+    }
   }
 
   // Atualizações da edição, criadas/editadas pelo AtualizacaoModal
@@ -413,6 +526,22 @@ export class Editor {
       return;
     }
 
+    let slug: string | undefined;
+    if (this.slugAtivo()) {
+      slug = sanitizarSlug(valores.slug);
+      if (!slug) {
+        this.toastService.erro('Informe uma URL personalizada válida.');
+        return;
+      }
+      const emUsoPorOutraEdicao = this.editionService
+        .edicoes()
+        .some((outra) => outra.slug === slug && outra.id !== this.edicaoId());
+      if (emUsoPorOutraEdicao) {
+        this.toastService.erro('Essa URL personalizada já está em uso por outra edição.');
+        return;
+      }
+    }
+
     const servicoDestaque: ServicoDestaque | undefined = this.servicoDestaqueAtivo()
       ? {
           titulo: valores.servicoDestaque.titulo.trim(),
@@ -429,9 +558,14 @@ export class Editor {
       tipo: valores.tipo as TipoEdicao,
       periodo,
       status: valores.status,
+      slug,
       capaUrl: this.capaPreviewUrl() ?? undefined,
       servicoDestaque,
+      textoLivre: this.textoLivreAtivo() ? valores.textoLivre.trim() : undefined,
       atualizacoes: this.atualizacoesPendentes(),
+      mostrarAtualizacoes: this.atualizacoesAtivas(),
+      mostrarResumo: this.resumoAtivo(),
+      mostrarProximosPassos: this.proximosPassosAtivo(),
     };
 
     this.salvando.set(true);

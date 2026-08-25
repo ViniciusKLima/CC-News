@@ -105,7 +105,7 @@
         <a class="btn-voltar" routerLink="/"><i class="bi bi-arrow-left"></i> Voltar para a Home</a>
       </div>
     } @else if (edicao(); as ed) {
-      <div class="edition-grid">
+      <div class="edition-grid" [class.sem-sidebar]="!temSidebar()">
         <div class="edition-main">
           <!-- Bloco de serviço em destaque (opcional), configurado na edição -->
           @if (ed.servicoDestaque; as destaque) {
@@ -133,129 +133,118 @@
             </article>
           }
 
-          <!-- Abas de categoria (arrastáveis) e a grade de itens filtrados -->
-          <h3 class="categorias-heading">Atualizações por categoria</h3>
+          <!-- Texto livre, só aparece aqui na coluna principal quando não há atualizações por categoria -->
+          @if (textoLivreNaPrincipal()) {
+            <article class="texto-livre-bloco">
+              <h3>Sobre esta edição</h3>
+              <p>{{ ed.textoLivre }}</p>
+            </article>
+          }
 
-          <div class="categorias-tabs-wrapper">
-            <div
-              class="categorias-tabs"
-              #tabsScroll
-              role="tablist"
-              aria-label="Filtrar atualizações por categoria"
-              [class.arrastando]="arrastando()"
-              (pointerdown)="iniciarArrasto($event)"
-              (pointermove)="moverArrasto($event)"
-              (pointerup)="finalizarArrasto()"
-              (pointercancel)="finalizarArrasto()"
-              (pointerleave)="finalizarArrasto()"
-            >
-              @for (aba of abas(); track aba.valor) {
-                <button
-                  #tabBtn
-                  type="button"
-                  role="tab"
-                  class="tab-btn"
-                  [class.active]="filtro() === aba.valor"
-                  [attr.aria-selected]="filtro() === aba.valor"
-                  (click)="selecionarFiltro(aba.valor)"
-                >
-                  {{ aba.label }}
-                </button>
-              }
-              <span
-                class="tab-indicator"
-                [style.width.px]="indicador().largura"
-                [style.transform]="'translateX(' + indicador().posicao + 'px)'"
-              ></span>
+          @if (mostrarAtualizacoes()) {
+            <!-- Abas de categoria (arrastáveis) e a grade de itens filtrados -->
+            <h3 class="categorias-heading">Atualizações por categoria</h3>
+
+            <div class="categorias-tabs-wrapper">
+              <div
+                class="categorias-tabs"
+                #tabsScroll
+                role="tablist"
+                aria-label="Filtrar atualizações por categoria"
+                [class.arrastando]="arrastando()"
+                (pointerdown)="iniciarArrasto($event)"
+                (pointermove)="moverArrasto($event)"
+                (pointerup)="finalizarArrasto()"
+                (pointercancel)="finalizarArrasto()"
+                (pointerleave)="finalizarArrasto()"
+              >
+                @for (aba of abas(); track aba.valor) {
+                  <button
+                    #tabBtn
+                    type="button"
+                    role="tab"
+                    class="tab-btn"
+                    [class.active]="filtro() === aba.valor"
+                    [attr.aria-selected]="filtro() === aba.valor"
+                    (click)="selecionarFiltro(aba.valor)"
+                  >
+                    {{ aba.label }}
+                  </button>
+                }
+                <span
+                  class="tab-indicator"
+                  [style.width.px]="indicador().largura"
+                  [style.transform]="'translateX(' + indicador().posicao + 'px)'"
+                ></span>
+              </div>
             </div>
-          </div>
 
-          <div class="itens-grid">
-            @if (itensFiltrados().length === 0) {
-              <p class="itens-vazio">Nenhuma atualização encontrada nesta categoria.</p>
-            } @else {
-              @for (item of itensFiltrados(); track item.id) {
-                <article class="item-card">
-                  <div class="item-topo d-flex justify-content-between align-items-start">
-                    <span class="item-icone" [class]="'cor-' + corCategoria(item.categoria)">
-                      <i [class]="'bi ' + item.icone"></i>
-                    </span>
-                    <span class="status-pill" [class]="'cor-' + corCategoria(item.categoria)">{{
-                      labelCategoria(item.categoria)
-                    }}</span>
-                  </div>
-
-                  @if (item.midia) {
-                    <div class="item-midia">
-                      @if (item.midia.tipo === 'video') {
-                        @if (extrairIdYoutube(item.midia.url); as videoId) {
-                          <div class="video-wrap" (click)="ampliarVideo(videoId)">
-                            <img [src]="urlThumbnailYoutube(videoId)" alt="" />
-                            <button
-                              type="button"
-                              class="video-play-btn"
-                              aria-label="Reproduzir vídeo"
-                              (click)="ampliarVideo(videoId)"
-                            >
-                              <i class="bi bi-play-fill"></i>
-                            </button>
-                          </div>
-                        }
-                      } @else {
-                        <img
-                          [src]="urlImagemOtimizada(item.midia.url, 'detalhe')"
-                          [alt]="item.titulo"
-                          (click)="ampliarImagem(item.midia.url)"
-                        />
-                      }
-                    </div>
-                  }
-
-                  <h4>{{ item.titulo }}</h4>
-                  <p class="item-descricao">{{ item.descricao }}</p>
-                  <p class="item-observacao">{{ item.impacto }}</p>
-                </article>
+            <div class="itens-grid">
+              @if (itensFiltrados().length === 0) {
+                <p class="itens-vazio">Nenhuma atualização encontrada nesta categoria.</p>
+              } @else {
+                @for (item of itensFiltrados(); track item.id) {
+                  <app-atualizacao-card
+                    [atualizacao]="item"
+                    (ampliarImagem)="ampliarImagem($event)"
+                    (ampliarVideo)="ampliarVideo($event)"
+                  />
+                }
               }
-            }
-          </div>
+            </div>
+          }
         </div>
 
-        <!-- Lateral com o resumo (contagem por categoria) e os próximos passos -->
-        <aside class="edition-sidebar">
-          <div class="sidebar-card">
-            <h3>Resumo da edição</h3>
-            <ul class="stats-lista">
-              @for (stat of resumoStats(); track stat.label) {
-                <li>
-                  <span class="stat-icone-sm" [class]="'cor-' + stat.cor">
-                    <i [class]="'bi ' + stat.icone"></i>
-                  </span>
-                  <span class="stat-label">{{ stat.label }}</span>
-                  <span class="stat-valor">{{ stat.valor }}</span>
-                </li>
-              }
-            </ul>
-          </div>
-
-          <div class="sidebar-card">
-            <h3>Próximos passos</h3>
-            @if (proximosPassos().length === 0) {
-              <p class="sidebar-vazio">Nenhum item nesta categoria por enquanto.</p>
-            } @else {
-              <ul class="passos-lista">
-                @for (passo of proximosPassos(); track passo.id) {
-                  <li>
-                    <span class="passo-dot" [class]="'dot-' + corCategoria(passo.categoria)"></span>
-                    <div class="passo-conteudo">
-                      <span class="passo-titulo">{{ passo.titulo }}</span>
-                      <p class="passo-descricao">{{ passo.descricao }}</p>
-                    </div>
-                  </li>
-                }
-              </ul>
+        <!-- Lateral com o texto livre (quando convive com as atualizações), o
+             resumo (contagem por categoria) e os próximos passos -->
+        @if (temSidebar()) {
+          <aside class="edition-sidebar">
+            @if (textoLivreNaLateral()) {
+              <div class="sidebar-card">
+                <h3>Sobre esta edição</h3>
+                <p class="texto-livre-lateral">{{ ed.textoLivre }}</p>
+              </div>
             }
-          </div>
-        </aside>
+
+            @if (mostrarResumo()) {
+              <div class="sidebar-card">
+                <h3>Resumo da edição</h3>
+                <ul class="stats-lista">
+                  @for (stat of resumoStats(); track stat.label) {
+                    <li>
+                      <span class="stat-icone-sm" [class]="'cor-' + stat.cor">
+                        <i [class]="'bi ' + stat.icone"></i>
+                      </span>
+                      <span class="stat-label">{{ stat.label }}</span>
+                      <span class="stat-valor">{{ stat.valor }}</span>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+
+            @if (mostrarProximosPassos()) {
+              <div class="sidebar-card">
+                <h3>Próximos passos</h3>
+                @if (proximosPassos().length === 0) {
+                  <p class="sidebar-vazio">Nenhum item nesta categoria por enquanto.</p>
+                } @else {
+                  <ul class="passos-lista">
+                    @for (passo of proximosPassos(); track passo.id) {
+                      <li>
+                        <span class="passo-dot" [class]="'dot-' + corCategoria(passo.categoria)"></span>
+                        <div class="passo-conteudo">
+                          <span class="passo-titulo">{{ passo.titulo }}</span>
+                          <p class="passo-descricao">{{ passo.descricao }}</p>
+                        </div>
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+            }
+          </aside>
+        }
       </div>
 
       <div class="transparencia-banner">

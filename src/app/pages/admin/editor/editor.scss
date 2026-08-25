@@ -852,6 +852,23 @@ textarea {
     font-size: 0.78rem;
     color: var(--color-text-secondary);
   }
+
+  // Contagem de itens da categoria, visível mesmo com a gaveta fechada.
+  .contagem-categoria {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    margin-left: 4px;
+    border-radius: 30px;
+    background: var(--bgc-azul-opacity);
+    color: var(--color-primary);
+    font-size: 0.68rem;
+    font-weight: 700;
+    vertical-align: middle;
+  }
 }
 
 // Cada categoria de "Atualizações por categoria" vira uma subseção dentro
@@ -1052,8 +1069,20 @@ textarea {
 
   // Data inicial/final e mês/ano empilham em vez de tentar caber lado a
   // lado, evitando que o conteúdo do período estoure a caixa do slider.
+  // O min-width:160px de .campo-linha > .campo (pensado pro par lado a
+  // lado) some aqui, senão o campo de data continua largo demais e
+  // estoura a caixa mesmo empilhado.
   .periodo-painel .campo-linha {
     flex-direction: column;
+
+    > .campo {
+      min-width: 0;
+      width: 100%;
+    }
+  }
+
+  input[type='date'] {
+    min-width: 0;
   }
 }
 

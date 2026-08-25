@@ -19,7 +19,18 @@ export class AdminSidebar {
   readonly meuUsuario = this.authService.meuUsuario;
   readonly souAdministrador = this.authService.souAdministrador;
 
-  readonly iniciaisUsuario = computed(() => (this.usuario()?.email ?? '?').slice(0, 2).toUpperCase());
+  readonly nomeUsuario = computed(() => this.meuUsuario()?.nome || this.usuario()?.email || '');
+
+  readonly iniciaisUsuario = computed(() => {
+    const nome = this.meuUsuario()?.nome?.trim();
+    if (nome) {
+      const partes = nome.split(/\s+/);
+      const iniciais = partes.length > 1 ? partes[0][0] + partes[partes.length - 1][0] : partes[0].slice(0, 2);
+      return iniciais.toUpperCase();
+    }
+    return (this.usuario()?.email ?? '?').slice(0, 2).toUpperCase();
+  });
+
   readonly labelMeuPerfil = computed(() => {
     const perfil = this.meuUsuario()?.perfil;
     return perfil ? labelPerfil(perfil) : '';

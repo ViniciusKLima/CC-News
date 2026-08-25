@@ -29,13 +29,17 @@
   <div class="admin-user" (click)="alternarMenuUsuario($event)">
     <span class="admin-user-avatar">{{ iniciaisUsuario() }}</span>
     <div class="admin-user-info">
-      <strong>{{ usuario()?.email }}</strong>
+      <strong>{{ nomeUsuario() }}</strong>
       <span>{{ labelMeuPerfil() }}</span>
     </div>
     <i class="bi bi-chevron-down"></i>
 
     @if (menuUsuarioAberto()) {
       <div class="admin-user-menu" (click)="$event.stopPropagation()">
+        <div class="admin-user-menu-info">
+          <strong>{{ nomeUsuario() }}</strong>
+          <span>{{ labelMeuPerfil() }}</span>
+        </div>
         <button type="button" (click)="sair()">
           <i class="bi bi-box-arrow-right"></i> Sair
         </button>

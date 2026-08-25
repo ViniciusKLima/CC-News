@@ -102,6 +102,25 @@
     overflow: hidden;
     z-index: 10;
 
+    .admin-user-menu-info {
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(160, 162, 174, 0.2);
+
+      strong {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--color-text);
+      }
+
+      span {
+        font-size: 0.7rem;
+        color: var(--color-text-secondary);
+      }
+    }
+
     button {
       display: flex;
       align-items: center;
@@ -201,6 +220,19 @@
 
   .admin-user .admin-user-info {
     display: none;
+  }
+
+  // Na barra horizontal do mobile o usuário fica no topo da tela, então o
+  // menu abrindo pra cima (como no desktop) fica escondido atrás do
+  // conteúdo. Aqui ele abre pra baixo, e mostra nome/perfil dentro do
+  // próprio menu já que essa informação some da barra nesse breakpoint.
+  .admin-user-menu {
+    bottom: auto;
+    top: calc(100% + 8px);
+  }
+
+  .admin-user-menu-info {
+    display: flex;
   }
 }
 

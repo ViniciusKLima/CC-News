@@ -643,7 +643,10 @@
             <div class="subsecao-categoria">
               <div class="secao-cabecalho secao-cabecalho-clicavel" (click)="alternarSecao(categoria.valor)">
                 <div class="secao-titulo-bloco">
-                  <h3>{{ categoria.label }}</h3>
+                  <h3>
+                    {{ categoria.label }}
+                    <span class="contagem-categoria">{{ atualizacoesPorCategoria(categoria.valor).length }}</span>
+                  </h3>
                   <p>{{ categoria.descricao }}</p>
                 </div>
                 <div class="secao-cabecalho-controles">
@@ -716,7 +719,10 @@
       <section class="painel-secao">
         <div class="secao-cabecalho secao-cabecalho-clicavel" (click)="alternarSecao('proximos-passos')">
           <div class="secao-titulo-bloco">
-            <h2>{{ categoriaProximosPassos.label }}</h2>
+            <h2>
+              {{ categoriaProximosPassos.label }}
+              <span class="contagem-categoria">{{ atualizacoesPorCategoria(categoriaProximosPassos.valor).length }}</span>
+            </h2>
             <p>{{ categoriaProximosPassos.descricao }}</p>
           </div>
           <div class="secao-cabecalho-controles">

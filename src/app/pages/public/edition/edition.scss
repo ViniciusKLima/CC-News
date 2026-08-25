@@ -189,9 +189,10 @@
   margin-bottom: 10px;
 }
 
-// Cada variante de cor define seu próprio par de tons (início/fim do
-// degradê) via custom properties. O fundo e o degradê de esmaecimento da
-// imagem leem dos mesmos tokens, garantindo que as duas camadas combinem.
+// A cor do card vem direto do hexadecimal escolhido no admin (mesmo
+// mecanismo da cor sólida da capa), via a variável --destaque-cor definida
+// inline no template. O esmaecimento da imagem lê do mesmo tom, garantindo
+// que as duas camadas combinem.
 .destaque-card {
   position: relative;
   display: flex;
@@ -201,42 +202,14 @@
   color: #fff;
   margin-bottom: 32px;
   aspect-ratio: 2.4 / 1;
-
-  --destaque-cor-a: #0c3f9c;
-  --destaque-cor-b: var(--color-primary);
-  background: linear-gradient(120deg, var(--destaque-cor-a), var(--destaque-cor-b));
+  background: var(--destaque-cor, var(--color-primary));
 
   @media (max-width: 640px) {
     aspect-ratio: 4 / 3;
   }
 
-  &.cor-fundo-azul {
-    --destaque-cor-a: #0c3f9c;
-    --destaque-cor-b: var(--color-primary);
-  }
-
-  &.cor-fundo-roxo {
-    --destaque-cor-a: #34399e;
-    --destaque-cor-b: var(--bgc-purple);
-  }
-
-  &.cor-fundo-verde {
-    --destaque-cor-a: #0d6b32;
-    --destaque-cor-b: var(--color-success);
-  }
-
-  &.cor-fundo-laranja {
-    --destaque-cor-a: #9a4e04;
-    --destaque-cor-b: var(--color-warning);
-  }
-
-  &.cor-fundo-rosa {
-    --destaque-cor-a: #9c1049;
-    --destaque-cor-b: #d6336c;
-  }
-
   // A cor real só é conhecida após o carregamento, então o skeleton usa o
-  // tom neutro padrão em vez de "adivinhar" uma das variantes de cor.
+  // tom neutro padrão em vez de "adivinhar" a cor escolhida.
   &.destaque-card-skeleton {
     background: #e4e5ea;
   }

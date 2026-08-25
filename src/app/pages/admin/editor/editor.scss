@@ -150,9 +150,24 @@
 
 .dados-grid {
   display: grid;
-  grid-template-columns: 200px 1fr 220px;
+  grid-template-columns: 200px 1fr 240px;
   gap: 28px;
   align-items: start;
+}
+
+// Serviço em destaque só tem capa + conteúdo, sem a terceira coluna (Status
+// e URL) de "Dados da edição". Sem esse ajuste, a grade reservava a largura
+// da 3ª coluna vazia e o conteúdo ficava desencostado da borda direita.
+.destaque-grid {
+  grid-template-columns: 200px 1fr;
+}
+
+// Status e URL personalizada, empilhados na coluna da direita: as duas são
+// configurações sobre "como a edição é publicada", separadas do conteúdo.
+.campo-lateral {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .capa-modo-opcoes {
@@ -193,20 +208,27 @@
   }
 }
 
-.capa-cor-escolha {
+// Seletor de cor hexadecimal, reaproveitado na capa da edição e no
+// serviço em destaque: mesmo mecanismo, mesma aparência nos dois lugares.
+.cor-hex-escolha {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.capa-cor-preview {
+.cor-hex-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   aspect-ratio: 2 / 3;
   border-radius: 14px;
   border: 1px solid var(--color-border);
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 1.8rem;
 }
 
-.capa-cor-campos {
+.cor-hex-campos {
   display: flex;
   gap: 8px;
 
@@ -215,7 +237,7 @@
   }
 }
 
-.capa-cor-input {
+.cor-hex-input {
   width: 42px;
   height: 42px;
   flex-shrink: 0;
@@ -515,6 +537,8 @@ textarea {
 
 .campo-url {
   gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(160, 162, 174, 0.2);
 }
 
 .url-personalizada {
@@ -687,7 +711,11 @@ textarea {
 }
 
 .destaque-imagem-upload {
-  aspect-ratio: 1 / 1;
+  // Mesma proporção paisagem da área onde a foto aparece no card de
+  // destaque público (ver preset "destaque" no CloudinaryService). Com o
+  // preview quadrado antigo a imagem cabia inteira na caixa e o seletor de
+  // posição não tinha efeito visível nenhum.
+  aspect-ratio: 1.4 / 1;
 
   img {
     object-fit: cover;
@@ -741,54 +769,10 @@ textarea {
     border-color: var(--color-primary);
     color: var(--color-primary);
   }
-}
 
-.cor-opcoes {
-  display: flex;
-  gap: 10px;
-}
-
-.cor-opcao {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  box-shadow: 0 0 0 1px var(--color-border);
-  cursor: pointer;
-  padding: 0;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-  &.cor-azul {
-    background: var(--color-primary);
-  }
-
-  &.cor-roxo {
-    background: var(--bgc-purple);
-  }
-
-  &.cor-verde {
-    background: var(--color-success);
-  }
-
-  &.cor-laranja {
-    background: var(--color-warning);
-  }
-
-  &.cor-rosa {
-    background: #d6336c;
-  }
-
-  &:hover {
-    transform: scale(1.08);
-  }
-
-  &.selecionada {
-    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--color-text);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-text);
-    outline-offset: 3px;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 
@@ -1031,7 +1015,7 @@ textarea {
     grid-template-columns: 160px 1fr;
   }
 
-  .campo-status {
+  .campo-lateral {
     grid-column: 1 / -1;
   }
 }

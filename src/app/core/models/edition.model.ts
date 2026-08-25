@@ -60,8 +60,12 @@ export interface ServicoDestaque {
   descricao: string;
   imagemUrl?: string;
   imagemPosicao?: PosicaoImagemDestaque;
-  cor: CorAcento;
+  /** Cor de fundo do card, em hexadecimal, escolhida livremente pelo admin (mesmo mecanismo da cor sólida da capa). */
+  cor: string;
 }
+
+/** Azul marinho padrão da plataforma, sugerido em todo campo de cor sólida (capa da edição, serviço em destaque). */
+export const COR_PADRAO_PLATAFORMA = '#102f55';
 
 export interface Edicao {
   id: string;
@@ -106,14 +110,6 @@ export const CATEGORIAS_ATUALIZACAO: { valor: CategoriaAtualizacao; label: strin
   { valor: 'correcoes', label: 'Correções', icone: 'bi-tools', descricao: 'Problemas resolvidos nesta edição.' },
   { valor: 'testes', label: 'Em fase de testes', icone: 'bi-flask', descricao: 'Funcionalidades sendo validadas antes de produção.' },
   { valor: 'proximos-passos', label: 'Próximos passos', icone: 'bi-signpost-2', descricao: 'O que vem a seguir na plataforma.' },
-];
-
-export const CORES_DESTAQUE: { valor: CorAcento; label: string }[] = [
-  { valor: 'azul', label: 'Azul' },
-  { valor: 'roxo', label: 'Roxo' },
-  { valor: 'verde', label: 'Verde' },
-  { valor: 'laranja', label: 'Laranja' },
-  { valor: 'rosa', label: 'Rosa' },
 ];
 
 export const POSICOES_IMAGEM_DESTAQUE: { valor: PosicaoImagemDestaque; label: string }[] = [
@@ -188,6 +184,28 @@ export function formatarPeriodo(periodo: PeriodoEdicao): string {
     case 'especial':
       return periodo.tema || 'Tema não definido';
   }
+}
+
+// Mês/ano usados para agrupar a edição no histórico (dashboard do admin e
+// home pública). Semanal usa o início do período informado; mensal usa o
+// próprio mês/ano escolhido; anual e especial não têm um mês próprio, então
+// usam a data de criação da edição.
+export function anoAgrupamento(edicao: Edicao): number {
+  const periodo = edicao.periodo;
+  if (periodo.tipo === 'mensal') return periodo.ano;
+  if (periodo.tipo === 'semanal') {
+    return Number(periodo.dataInicio.slice(0, 4)) || Number(edicao.criadoEm.slice(0, 4));
+  }
+  return Number(edicao.criadoEm.slice(0, 4));
+}
+
+export function mesAgrupamento(edicao: Edicao): number {
+  const periodo = edicao.periodo;
+  if (periodo.tipo === 'mensal') return periodo.mes;
+  if (periodo.tipo === 'semanal') {
+    return Number(periodo.dataInicio.slice(5, 7)) || Number(edicao.criadoEm.slice(5, 7));
+  }
+  return Number(edicao.criadoEm.slice(5, 7));
 }
 
 function formatarDataCurta(iso: string): string {

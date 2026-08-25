@@ -112,13 +112,13 @@
             <span class="destaque-label">Serviço em destaque</span>
             <article
               class="destaque-card"
-              [class]="'cor-fundo-' + destaque.cor"
+              [style.--destaque-cor]="destaque.cor"
               [class.tem-imagem]="!!destaque.imagemUrl"
             >
               @if (destaque.imagemUrl) {
                 <div class="destaque-imagem-wrap">
                   <img
-                    [src]="urlImagemOtimizada(destaque.imagemUrl, 'card')"
+                    [src]="urlImagemOtimizada(destaque.imagemUrl, 'destaque')"
                     [alt]="destaque.titulo"
                     [class]="'pos-' + (destaque.imagemPosicao || 'centro')"
                     (click)="ampliarImagem(destaque.imagemUrl)"

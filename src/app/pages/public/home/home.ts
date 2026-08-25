@@ -15,7 +15,14 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Header } from '../../../shared/components/header/header';
 import { Footer } from '../../../shared/components/footer/footer';
-import { Edicao, MESES_NOMES, formatarPeriodo, labelTipo } from '../../../core/models/edition.model';
+import {
+  anoAgrupamento,
+  Edicao,
+  mesAgrupamento,
+  MESES_NOMES,
+  formatarPeriodo,
+  labelTipo,
+} from '../../../core/models/edition.model';
 import { EditionService } from '../../../core/services/edition.service';
 import { urlImagemOtimizada } from '../../../core/services/cloudinary.service';
 
@@ -58,12 +65,12 @@ export class Home implements AfterViewInit {
   readonly edicoesPublicas = computed(() => this.editionService.edicoes().filter((edicao) => edicao.status === 'publico'));
 
   readonly anosDisponiveis = computed(() => {
-    const anos = new Set(this.edicoesPublicas().map((edicao) => this.anoDe(edicao)));
+    const anos = new Set(this.edicoesPublicas().map((edicao) => anoAgrupamento(edicao)));
     return Array.from(anos).sort((a, b) => b - a);
   });
 
   readonly mesesDisponiveis = computed(() => {
-    const indices = new Set(this.edicoesPublicas().map((edicao) => this.mesDe(edicao)));
+    const indices = new Set(this.edicoesPublicas().map((edicao) => mesAgrupamento(edicao)));
     return Array.from(indices)
       .sort((a, b) => a - b)
       .map((mes) => ({ valor: String(mes).padStart(2, '0'), nome: MESES_NOMES[mes - 1] }));
@@ -87,8 +94,8 @@ export class Home implements AfterViewInit {
     const categoria = this.filtroCategoria();
 
     const filtradas = this.edicoesPublicas().filter((edicao) => {
-      if (ano && String(this.anoDe(edicao)) !== ano) return false;
-      if (mesFiltro && String(this.mesDe(edicao)).padStart(2, '0') !== mesFiltro) return false;
+      if (ano && String(anoAgrupamento(edicao)) !== ano) return false;
+      if (mesFiltro && String(mesAgrupamento(edicao)).padStart(2, '0') !== mesFiltro) return false;
       if (categoria && edicao.tipo !== categoria) return false;
       if (!termo) return true;
 
@@ -101,8 +108,8 @@ export class Home implements AfterViewInit {
 
     const mapa = new Map<string, GrupoMensal>();
     for (const edicao of filtradas) {
-      const ano2 = this.anoDe(edicao);
-      const mes2 = this.mesDe(edicao);
+      const ano2 = anoAgrupamento(edicao);
+      const mes2 = mesAgrupamento(edicao);
       const id = `${ano2}-${String(mes2).padStart(2, '0')}`;
       let grupo = mapa.get(id);
       if (!grupo) {
@@ -187,18 +194,4 @@ export class Home implements AfterViewInit {
     this.slides?.forEach((ref) => this.updateNavState(ref.nativeElement));
   }
 
-  // Deduz ano/mês da edição a partir do período, com fallback para a data
-  // de criação quando o tipo de período não define esses campos (semanal
-  // e especial não têm mês/ano próprios).
-  private anoDe(edicao: Edicao): number {
-    const periodo = edicao.periodo;
-    if (periodo.tipo === 'mensal' || periodo.tipo === 'anual') return periodo.ano;
-    return Number(edicao.criadoEm.slice(0, 4));
-  }
-
-  private mesDe(edicao: Edicao): number {
-    const periodo = edicao.periodo;
-    if (periodo.tipo === 'mensal') return periodo.mes;
-    return Number(edicao.criadoEm.slice(5, 7));
-  }
 }

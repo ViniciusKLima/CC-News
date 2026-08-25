@@ -5,8 +5,7 @@ import {
   Atualizacao,
   CATEGORIAS_ATUALIZACAO,
   CategoriaAtualizacao,
-  CorAcento,
-  CORES_DESTAQUE,
+  COR_PADRAO_PLATAFORMA,
   Edicao,
   MESES_NOMES,
   PeriodoEdicao,
@@ -35,7 +34,6 @@ const SLUG_MAXLENGTH = 60;
 const TEXTO_LIVRE_MAXLENGTH = 1000;
 const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const HEX_PATTERN = /^#[0-9a-fA-F]{6}$/;
-const CAPA_COR_PADRAO = '#1369f5';
 
 function gerarIdLocal(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -55,7 +53,7 @@ interface ValoresFormulario {
   periodoMensal: { mes: string; ano: string };
   periodoAnual: { ano: string };
   periodoEspecial: { tema: string };
-  servicoDestaque: { titulo: string; descricao: string; cor: CorAcento; imagemPosicao: PosicaoImagemDestaque };
+  servicoDestaque: { titulo: string; descricao: string; cor: string; imagemPosicao: PosicaoImagemDestaque };
 }
 
 // Formulário de criação e edição de edições: dados gerais, período (que
@@ -111,12 +109,12 @@ export class Editor {
 
   readonly indiceSlide = signal(0);
   readonly salvando = signal(false);
-  readonly capaModo = signal<'imagem' | 'cor'>('imagem');
+  readonly capaModo = signal<'imagem' | 'cor'>('cor');
   readonly capaPreviewUrl = signal<string | null>(null);
   readonly capaEnviando = signal(false);
   readonly capaProgresso = signal(0);
 
-  readonly coresDestaque = CORES_DESTAQUE;
+  readonly corPadrao = COR_PADRAO_PLATAFORMA;
   readonly posicoesImagemDestaque = POSICOES_IMAGEM_DESTAQUE;
   readonly servicoDestaqueAtivo = signal(false);
   readonly imagemDestaquePreviewUrl = signal<string | null>(null);
@@ -157,7 +155,7 @@ export class Editor {
     status: this.fb.nonNullable.control<StatusEdicao>('arquivado', Validators.required),
     slug: ['', [Validators.maxLength(SLUG_MAXLENGTH), Validators.pattern(SLUG_PATTERN)]],
     textoLivre: ['', Validators.maxLength(TEXTO_LIVRE_MAXLENGTH)],
-    capaCor: [CAPA_COR_PADRAO, Validators.pattern(HEX_PATTERN)],
+    capaCor: [COR_PADRAO_PLATAFORMA, Validators.pattern(HEX_PATTERN)],
     periodoSemanal: this.fb.nonNullable.group({
       dataInicio: ['', Validators.required],
       dataFim: ['', Validators.required],
@@ -175,7 +173,7 @@ export class Editor {
     servicoDestaque: this.fb.nonNullable.group({
       titulo: ['', [Validators.required, Validators.maxLength(TITULO_MAXLENGTH)]],
       descricao: ['', [Validators.required, Validators.maxLength(RESUMO_MAXLENGTH)]],
-      cor: this.fb.nonNullable.control<CorAcento>('azul'),
+      cor: [COR_PADRAO_PLATAFORMA, Validators.pattern(HEX_PATTERN)],
       imagemPosicao: this.fb.nonNullable.control<PosicaoImagemDestaque>('centro'),
     }),
   });
@@ -385,7 +383,7 @@ export class Editor {
       this.abrirSecao('destaque');
     } else {
       this.form.controls.servicoDestaque.reset(
-        { titulo: '', descricao: '', cor: 'azul', imagemPosicao: 'centro' },
+        { titulo: '', descricao: '', cor: COR_PADRAO_PLATAFORMA, imagemPosicao: 'centro' },
         { emitEvent: false },
       );
       this.form.controls.servicoDestaque.disable({ emitEvent: false });
@@ -393,8 +391,11 @@ export class Editor {
     }
   }
 
-  selecionarCorDestaque(cor: CorAcento): void {
-    this.form.controls.servicoDestaque.controls.cor.setValue(cor);
+  sanitizarDestaqueCorCampo(): void {
+    const controle = this.form.controls.servicoDestaque.controls.cor;
+    let valor = controle.value.trim();
+    if (valor && !valor.startsWith('#')) valor = `#${valor}`;
+    controle.setValue(valor);
   }
 
   selecionarPosicaoImagemDestaque(posicao: PosicaoImagemDestaque): void {
@@ -565,6 +566,11 @@ export class Editor {
 
     if (this.capaModo() === 'cor' && !HEX_PATTERN.test(valores.capaCor)) {
       this.toastService.erro('Informe uma cor sólida válida para a capa (hexadecimal).');
+      return;
+    }
+
+    if (this.capaModo() === 'imagem' && !this.capaPreviewUrl()) {
+      this.toastService.erro('Envie uma foto para a capa, ou troque para cor sólida.');
       return;
     }
 

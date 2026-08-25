@@ -8,7 +8,7 @@ export type PastaCloudinary = 'cc-news/edicoes/capas' | 'cc-news/destaques' | 'c
 // Tamanhos padrão usados nas telas da aplicação. Cada um vira uma
 // transformação diferente em cima da mesma imagem original, sem precisar
 // subir o arquivo mais de uma vez.
-export type PresetImagem = 'hero' | 'card' | 'detalhe' | 'mobile' | 'capa';
+export type PresetImagem = 'hero' | 'card' | 'detalhe' | 'mobile' | 'capa' | 'destaque';
 
 const TRANSFORMACOES_PRESET: Record<PresetImagem, string> = {
   hero: 'w_1600,c_fill,g_auto',
@@ -19,6 +19,10 @@ const TRANSFORMACOES_PRESET: Record<PresetImagem, string> = {
   // aparece (editor, lista do admin e card da home), só variando o
   // tamanho final da caixa via CSS.
   capa: 'w_720,h_1080,c_fill,g_auto',
+  // Serviço em destaque: recorte 1.4:1 (paisagem), o mesmo formato da área
+  // onde a foto aparece no card de destaque público, tanto no preview do
+  // editor quanto na edição pública.
+  destaque: 'w_980,h_700,c_fill,g_auto',
 };
 
 /**

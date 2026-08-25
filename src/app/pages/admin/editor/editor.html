@@ -115,12 +115,14 @@
                   />
                 </div>
               } @else {
-                <div class="capa-cor-escolha">
-                  <div class="capa-cor-preview" [style.background-color]="form.controls.capaCor.value"></div>
-                  <div class="capa-cor-campos">
+                <div class="cor-hex-escolha">
+                  <div class="cor-hex-preview" [style.background-color]="form.controls.capaCor.value">
+                    <i class="bi bi-newspaper"></i>
+                  </div>
+                  <div class="cor-hex-campos">
                     <input
                       type="color"
-                      class="capa-cor-input"
+                      class="cor-hex-input"
                       formControlName="capaCor"
                       aria-label="Selecionar cor da capa"
                     />
@@ -128,13 +130,15 @@
                       type="text"
                       formControlName="capaCor"
                       maxlength="7"
-                      placeholder="#1369f5"
+                      [placeholder]="corPadrao"
                       [class.invalido]="form.controls.capaCor.invalid && form.controls.capaCor.dirty"
                       (blur)="sanitizarCapaCorCampo()"
                     />
                   </div>
                   @if (form.controls.capaCor.invalid && form.controls.capaCor.dirty) {
-                    <span class="erro-campo">Use um hexadecimal válido, ex.: #1369f5.</span>
+                    <span class="erro-campo">Use um hexadecimal válido, ex.: {{ corPadrao }}.</span>
+                  } @else {
+                    <p class="dica-campo">Recomendamos o azul padrão da plataforma: {{ corPadrao }}.</p>
                   }
                 </div>
               }
@@ -287,6 +291,41 @@
                   <span class="dica-campo">Selecione o tipo da edição para informar o período.</span>
                 }
               </div>
+            </div>
+
+            <div class="campo-lateral">
+              <div class="campo campo-status">
+                <label id="label-status">Status *</label>
+                <div class="status-opcoes" role="radiogroup" aria-labelledby="label-status">
+                  <button
+                    type="button"
+                    class="status-opcao status-opcao-publico"
+                    role="radio"
+                    [attr.aria-checked]="form.controls.status.value === 'publico'"
+                    [class.selecionado]="form.controls.status.value === 'publico'"
+                    (click)="form.controls.status.setValue('publico')"
+                  >
+                    <i class="bi bi-globe"></i> Público
+                  </button>
+                  <button
+                    type="button"
+                    class="status-opcao status-opcao-arquivado"
+                    role="radio"
+                    [attr.aria-checked]="form.controls.status.value === 'arquivado'"
+                    [class.selecionado]="form.controls.status.value === 'arquivado'"
+                    (click)="form.controls.status.setValue('arquivado')"
+                  >
+                    <i class="bi bi-archive"></i> Arquivado
+                  </button>
+                </div>
+                <p class="dica-campo">
+                  @if (form.controls.status.value === 'publico') {
+                    Visível para todos os usuários no site público.
+                  } @else {
+                    Fica salva, mas não aparece para o público.
+                  }
+                </p>
+              </div>
 
               <!-- URL personalizada (opcional): por padrão a edição usa o id automático do Firestore -->
               <div class="campo campo-url">
@@ -325,39 +364,6 @@
                 }
               </div>
             </div>
-
-            <div class="campo campo-status">
-              <label id="label-status">Status *</label>
-              <div class="status-opcoes" role="radiogroup" aria-labelledby="label-status">
-                <button
-                  type="button"
-                  class="status-opcao status-opcao-publico"
-                  role="radio"
-                  [attr.aria-checked]="form.controls.status.value === 'publico'"
-                  [class.selecionado]="form.controls.status.value === 'publico'"
-                  (click)="form.controls.status.setValue('publico')"
-                >
-                  <i class="bi bi-globe"></i> Público
-                </button>
-                <button
-                  type="button"
-                  class="status-opcao status-opcao-arquivado"
-                  role="radio"
-                  [attr.aria-checked]="form.controls.status.value === 'arquivado'"
-                  [class.selecionado]="form.controls.status.value === 'arquivado'"
-                  (click)="form.controls.status.setValue('arquivado')"
-                >
-                  <i class="bi bi-archive"></i> Arquivado
-                </button>
-              </div>
-              <p class="dica-campo">
-                @if (form.controls.status.value === 'publico') {
-                  Visível para todos os usuários no site público.
-                } @else {
-                  Fica salva, mas não aparece para o público.
-                }
-              </p>
-            </div>
           </form>
         }
       </section>
@@ -375,9 +381,9 @@
                 type="checkbox"
                 [checked]="servicoDestaqueAtivo()"
                 (change)="alternarServicoDestaque($any($event.target).checked)"
+                aria-label="Adicionar serviço em destaque"
               />
               <span class="toggle-slider"></span>
-              <span class="toggle-label">Adicionar serviço em destaque</span>
             </label>
             <button
               type="button"
@@ -392,13 +398,13 @@
         </div>
 
         @if (secaoAberta('destaque') && servicoDestaqueAtivo()) {
-          <form class="dados-grid" [formGroup]="form.controls.servicoDestaque">
+          <form class="dados-grid destaque-grid" [formGroup]="form.controls.servicoDestaque">
             <div class="campo campo-capa">
               <label>Foto do destaque</label>
               <div class="capa-upload destaque-imagem-upload">
                 @if (imagemDestaquePreviewUrl()) {
                   <img
-                    [src]="urlImagemOtimizada(imagemDestaquePreviewUrl()!, 'card')"
+                    [src]="urlImagemOtimizada(imagemDestaquePreviewUrl()!, 'destaque')"
                     alt="Pré-visualização do serviço em destaque"
                     [class]="'pos-' + form.controls.servicoDestaque.controls.imagemPosicao.value"
                   />
@@ -415,7 +421,7 @@
                   <label class="capa-vazia" for="destaque-imagem-input">
                     <i class="bi bi-image"></i>
                     <span>Adicionar foto</span>
-                    <small>PNG, JPG ou WEBP<br />Recomendado: proporção quadrada</small>
+                    <small>PNG, JPG ou WEBP<br />Recomendado: paisagem, proporção 1.4:1</small>
                   </label>
                 }
                 @if (destaqueEnviando()) {
@@ -434,26 +440,31 @@
                 />
               </div>
 
-              @if (imagemDestaquePreviewUrl()) {
-                <div class="posicao-imagem">
-                  <label id="label-posicao-imagem">Posição da imagem</label>
-                  <div class="posicao-opcoes" role="radiogroup" aria-labelledby="label-posicao-imagem">
-                    @for (posicao of posicoesImagemDestaque; track posicao.valor) {
-                      <button
-                        type="button"
-                        class="posicao-opcao"
-                        role="radio"
-                        [attr.aria-checked]="form.controls.servicoDestaque.controls.imagemPosicao.value === posicao.valor"
-                        [class.selecionada]="form.controls.servicoDestaque.controls.imagemPosicao.value === posicao.valor"
-                        (click)="selecionarPosicaoImagemDestaque(posicao.valor)"
-                      >
-                        {{ posicao.label }}
-                      </button>
-                    }
-                  </div>
-                  <p class="dica-campo">Escolha qual parte da foto fica visível no card.</p>
+              <div class="posicao-imagem">
+                <label id="label-posicao-imagem">Posição da imagem</label>
+                <div class="posicao-opcoes" role="radiogroup" aria-labelledby="label-posicao-imagem">
+                  @for (posicao of posicoesImagemDestaque; track posicao.valor) {
+                    <button
+                      type="button"
+                      class="posicao-opcao"
+                      role="radio"
+                      [disabled]="!imagemDestaquePreviewUrl()"
+                      [attr.aria-checked]="form.controls.servicoDestaque.controls.imagemPosicao.value === posicao.valor"
+                      [class.selecionada]="form.controls.servicoDestaque.controls.imagemPosicao.value === posicao.valor"
+                      (click)="selecionarPosicaoImagemDestaque(posicao.valor)"
+                    >
+                      {{ posicao.label }}
+                    </button>
+                  }
                 </div>
-              }
+                <p class="dica-campo">
+                  @if (imagemDestaquePreviewUrl()) {
+                    Escolha qual parte da foto fica visível no card.
+                  } @else {
+                    Envie uma foto para poder escolher a posição.
+                  }
+                </p>
+              </div>
             </div>
 
             <div class="campo-principal">
@@ -498,21 +509,35 @@
               </div>
 
               <div class="campo">
-                <label id="label-cor-destaque">Cor de fundo do card</label>
-                <div class="cor-opcoes" role="radiogroup" aria-labelledby="label-cor-destaque">
-                  @for (cor of coresDestaque; track cor.valor) {
-                    <button
-                      type="button"
-                      class="cor-opcao"
-                      [class]="'cor-' + cor.valor"
-                      role="radio"
-                      [attr.aria-checked]="form.controls.servicoDestaque.controls.cor.value === cor.valor"
-                      [class.selecionada]="form.controls.servicoDestaque.controls.cor.value === cor.valor"
-                      [attr.aria-label]="cor.label"
-                      (click)="selecionarCorDestaque(cor.valor)"
-                    ></button>
-                  }
+                <label for="destaque-cor">Cor de fundo do card</label>
+                <div class="cor-hex-campos">
+                  <input
+                    type="color"
+                    id="destaque-cor"
+                    class="cor-hex-input"
+                    formControlName="cor"
+                    aria-label="Selecionar cor do serviço em destaque"
+                  />
+                  <input
+                    type="text"
+                    formControlName="cor"
+                    maxlength="7"
+                    [placeholder]="corPadrao"
+                    [class.invalido]="
+                      form.controls.servicoDestaque.controls.cor.invalid &&
+                      form.controls.servicoDestaque.controls.cor.dirty
+                    "
+                    (blur)="sanitizarDestaqueCorCampo()"
+                  />
                 </div>
+                @if (
+                  form.controls.servicoDestaque.controls.cor.invalid &&
+                  form.controls.servicoDestaque.controls.cor.dirty
+                ) {
+                  <span class="erro-campo">Use um hexadecimal válido, ex.: {{ corPadrao }}.</span>
+                } @else {
+                  <p class="dica-campo">Recomendamos o azul padrão da plataforma: {{ corPadrao }}.</p>
+                }
               </div>
             </div>
           </form>
@@ -532,9 +557,9 @@
                 type="checkbox"
                 [checked]="textoLivreAtivo()"
                 (change)="alternarTextoLivre($any($event.target).checked)"
+                aria-label="Adicionar texto livre"
               />
               <span class="toggle-slider"></span>
-              <span class="toggle-label">Adicionar texto livre</span>
             </label>
             <button
               type="button"
@@ -585,9 +610,9 @@
                 type="checkbox"
                 [checked]="atualizacoesAtivas()"
                 (change)="alternarAtualizacoes($any($event.target).checked)"
+                aria-label="Mostrar atualizações por categoria"
               />
               <span class="toggle-slider"></span>
-              <span class="toggle-label">Mostrar atualizações por categoria</span>
             </label>
             <button
               type="button"
@@ -609,7 +634,7 @@
               (change)="alternarResumo($any($event.target).checked)"
             />
             <span class="toggle-slider"></span>
-            <span class="toggle-label">Mostrar resumo com a contagem por categoria na lateral</span>
+            <span class="toggle-label">Mostrar resumo na lateral</span>
           </label>
 
           @for (categoria of categoriasRegulares; track categoria.valor) {
@@ -681,9 +706,9 @@
                 type="checkbox"
                 [checked]="proximosPassosAtivo()"
                 (change)="alternarProximosPassos($any($event.target).checked)"
+                aria-label="Mostrar próximos passos"
               />
               <span class="toggle-slider"></span>
-              <span class="toggle-label">Mostrar próximos passos</span>
             </label>
             <button
               type="button"

@@ -1,20 +1,21 @@
 import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Edicao, MESES_NOMES, TipoEdicao, formatarPeriodo, labelTipo } from '../../../core/models/edition.model';
+import {
+  anoAgrupamento,
+  COR_PADRAO_PLATAFORMA,
+  Edicao,
+  mesAgrupamento,
+  MESES_NOMES,
+  formatarPeriodo,
+  labelTipo,
+} from '../../../core/models/edition.model';
 import { EditionService } from '../../../core/services/edition.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { CONFIRMACOES } from '../../../core/services/confirm-dialog.presets';
 import { urlImagemOtimizada } from '../../../core/services/cloudinary.service';
 import { AdminSidebar } from '../../../shared/components/admin-sidebar/admin-sidebar';
-
-const TIPO_ICONES: Record<TipoEdicao, string> = {
-  semanal: 'bi-graph-up-arrow',
-  mensal: 'bi-calendar3',
-  anual: 'bi-calendar-range',
-  especial: 'bi-stars',
-};
 
 interface GrupoMensal {
   chave: string;
@@ -44,6 +45,7 @@ export class Dashboard {
   protected readonly formatarPeriodo = formatarPeriodo;
   protected readonly labelTipo = labelTipo;
   protected readonly urlImagemOtimizada = urlImagemOtimizada;
+  protected readonly corPadrao = COR_PADRAO_PLATAFORMA;
 
   termoBusca = signal('');
   filtroMes = signal('');
@@ -54,12 +56,12 @@ export class Dashboard {
   private primeiroGrupoJaAberto = false;
 
   readonly anosDisponiveis = computed(() => {
-    const anos = new Set(this.edicoes().map((edicao) => this.anoDe(edicao)));
+    const anos = new Set(this.edicoes().map((edicao) => anoAgrupamento(edicao)));
     return Array.from(anos).sort((a, b) => b - a);
   });
 
   readonly mesesDisponiveis = computed(() => {
-    const indices = new Set(this.edicoes().map((edicao) => this.mesDe(edicao)));
+    const indices = new Set(this.edicoes().map((edicao) => mesAgrupamento(edicao)));
     return Array.from(indices)
       .sort((a, b) => a - b)
       .map((mes) => ({ valor: mes, nome: MESES_NOMES[mes - 1] }));
@@ -75,8 +77,8 @@ export class Dashboard {
     const ano = this.filtroAno();
 
     return this.edicoes().filter((edicao) => {
-      if (mes && this.mesDe(edicao) !== Number(mes)) return false;
-      if (ano && this.anoDe(edicao) !== Number(ano)) return false;
+      if (mes && mesAgrupamento(edicao) !== Number(mes)) return false;
+      if (ano && anoAgrupamento(edicao) !== Number(ano)) return false;
       if (!termo) return true;
 
       return (
@@ -94,8 +96,8 @@ export class Dashboard {
     const mapa = new Map<string, GrupoMensal>();
 
     for (const edicao of this.edicoesFiltradas()) {
-      const ano = this.anoDe(edicao);
-      const mes = this.mesDe(edicao);
+      const ano = anoAgrupamento(edicao);
+      const mes = mesAgrupamento(edicao);
       const chave = `${ano}-${String(mes).padStart(2, '0')}`;
       let grupo = mapa.get(chave);
       if (!grupo) {
@@ -190,19 +192,4 @@ export class Dashboard {
     }
   }
 
-  iconeTipo(tipo: TipoEdicao): string {
-    return TIPO_ICONES[tipo];
-  }
-
-  private anoDe(edicao: Edicao): number {
-    const periodo = edicao.periodo;
-    if (periodo.tipo === 'mensal' || periodo.tipo === 'anual') return periodo.ano;
-    return Number(edicao.criadoEm.slice(0, 4));
-  }
-
-  private mesDe(edicao: Edicao): number {
-    const periodo = edicao.periodo;
-    if (periodo.tipo === 'mensal') return periodo.mes;
-    return Number(edicao.criadoEm.slice(5, 7));
-  }
 }

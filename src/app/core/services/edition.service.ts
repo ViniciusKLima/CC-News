@@ -8,16 +8,8 @@ import {
   onSnapshot,
   setDoc,
 } from '@angular/fire/firestore';
-import { Atualizacao, Edicao, StatusEdicao } from '../models/edition.model';
+import { Edicao, StatusEdicao } from '../models/edition.model';
 import { edicaoConverter } from '../models/edition.converter';
-
-function gerarId(prefixo: string): string {
-  const sufixo =
-    typeof crypto !== 'undefined' && 'randomUUID' in crypto
-      ? crypto.randomUUID().slice(0, 8)
-      : Math.random().toString(36).slice(2, 10);
-  return `${prefixo}-${sufixo}`;
-}
 
 /**
  * Fonte única dos dados de edições, sincronizada em tempo real com a
@@ -61,18 +53,22 @@ export class EditionService {
     return this._edicoes().find((edicao) => edicao.id === id);
   }
 
-  async criar(dados: Omit<Edicao, 'id' | 'criadoEm' | 'atualizacoes'>): Promise<Edicao> {
+  // O formulário do Editor mantém a lista de atualizações em memória e só
+  // manda tudo pro Firestore quando o admin clica em Salvar (criar ou
+  // atualizar abaixo), nunca a cada ação isolada. Assim nada aparece pro
+  // público no meio de uma edição em andamento.
+
+  async criar(dados: Omit<Edicao, 'id' | 'criadoEm'>): Promise<Edicao> {
     const novaEdicao: Edicao = {
       ...dados,
       id: '',
       criadoEm: new Date().toISOString().slice(0, 10),
-      atualizacoes: [],
     };
     const referencia = await addDoc(this.colecao, novaEdicao);
     return { ...novaEdicao, id: referencia.id };
   }
 
-  async atualizar(id: string, dados: Partial<Omit<Edicao, 'id' | 'atualizacoes'>>): Promise<void> {
+  async atualizar(id: string, dados: Partial<Omit<Edicao, 'id'>>): Promise<void> {
     const atual = this.obterPorId(id);
     if (!atual) return;
     await this.salvar({ ...atual, ...dados });
@@ -84,42 +80,6 @@ export class EditionService {
 
   async remover(id: string): Promise<void> {
     await deleteDoc(doc(this.colecao, id));
-  }
-
-  // A partir daqui: operações sobre as atualizações (itens) dentro de uma
-  // edição específica. Não existe subcoleção no Firestore para isso, o
-  // array `atualizacoes` é sempre reescrito por inteiro via salvar().
-
-  async adicionarAtualizacao(edicaoId: string, dados: Omit<Atualizacao, 'id'>): Promise<void> {
-    const atual = this.obterPorId(edicaoId);
-    if (!atual) return;
-    const nova: Atualizacao = { ...dados, id: gerarId('atualizacao') };
-    await this.salvar({ ...atual, atualizacoes: [...atual.atualizacoes, nova] });
-  }
-
-  async atualizarAtualizacao(edicaoId: string, atualizacaoId: string, dados: Omit<Atualizacao, 'id'>): Promise<void> {
-    const atual = this.obterPorId(edicaoId);
-    if (!atual) return;
-    const atualizacoes = atual.atualizacoes.map((item) =>
-      item.id === atualizacaoId ? { ...dados, id: atualizacaoId } : item,
-    );
-    await this.salvar({ ...atual, atualizacoes });
-  }
-
-  async removerAtualizacao(edicaoId: string, atualizacaoId: string): Promise<void> {
-    const atual = this.obterPorId(edicaoId);
-    if (!atual) return;
-    const atualizacoes = atual.atualizacoes.filter((item) => item.id !== atualizacaoId);
-    await this.salvar({ ...atual, atualizacoes });
-  }
-
-  async alternarVisibilidadeAtualizacao(edicaoId: string, atualizacaoId: string): Promise<void> {
-    const atual = this.obterPorId(edicaoId);
-    if (!atual) return;
-    const atualizacoes = atual.atualizacoes.map((item) =>
-      item.id === atualizacaoId ? { ...item, visivel: !item.visivel } : item,
-    );
-    await this.salvar({ ...atual, atualizacoes });
   }
 
   /** Substitui o documento inteiro no Firestore. Evita que campos limpos (ex. undefined) fiquem "presos" com o valor antigo, como aconteceria com um merge parcial. */

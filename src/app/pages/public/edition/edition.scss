@@ -412,10 +412,13 @@
   }
 
   .item-observacao {
-    font-size: 0.72rem;
-    color: var(--color-text-secondary);
-    opacity: 0.8;
     margin: 0;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: var(--bgc-azul-opacity);
+    color: var(--color-primary);
+    font-size: 0.74rem;
+    font-weight: 600;
   }
 }
 
@@ -438,7 +441,6 @@
   animation: skeleton-shimmer 1.6s ease-in-out infinite;
 
   img,
-  video,
   .video-wrap {
     display: block;
     width: 100%;
@@ -458,16 +460,17 @@
 
 .video-wrap {
   position: relative;
+  cursor: pointer;
 
-  &.nao-iniciado {
+  img {
     cursor: pointer;
+  }
 
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.18);
-    }
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.18);
   }
 }
 
@@ -946,6 +949,22 @@
   border-radius: 16px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
   cursor: default;
+}
+
+.lightbox-video {
+  width: min(90vw, 960px);
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  cursor: default;
+
+  iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
 }
 
 .lightbox-fechar {

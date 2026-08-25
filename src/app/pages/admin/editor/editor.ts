@@ -21,6 +21,8 @@ import { EditionService } from '../../../core/services/edition.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { CONFIRMACOES } from '../../../core/services/confirm-dialog.presets';
+import { CloudinaryService, urlImagemOtimizada } from '../../../core/services/cloudinary.service';
+import { extrairIdYoutube, urlThumbnailYoutube } from '../../../core/utils/youtube.util';
 import { AtualizacaoModal } from './atualizacao-modal/atualizacao-modal';
 
 const ORDEM_TIPOS: TipoEdicao[] = ['semanal', 'mensal', 'anual', 'especial'];
@@ -63,6 +65,11 @@ export class Editor {
   private readonly editionService = inject(EditionService);
   private readonly toastService = inject(ToastService);
   private readonly confirmDialogService = inject(ConfirmDialogService);
+  private readonly cloudinaryService = inject(CloudinaryService);
+
+  protected readonly urlImagemOtimizada = urlImagemOtimizada;
+  protected readonly extrairIdYoutube = extrairIdYoutube;
+  protected readonly urlThumbnailYoutube = urlThumbnailYoutube;
 
   // Enquanto o service ainda está carregando os dados, não dá para saber se
   // o id existe ou não. Evita mostrar "edição não encontrada" precocemente.
@@ -94,25 +101,27 @@ export class Editor {
   readonly indiceSlide = signal(0);
   readonly salvando = signal(false);
   readonly capaPreviewUrl = signal<string | null>(null);
+  readonly capaEnviando = signal(false);
+  readonly capaProgresso = signal(0);
 
   readonly coresDestaque = CORES_DESTAQUE;
   readonly posicoesImagemDestaque = POSICOES_IMAGEM_DESTAQUE;
   readonly servicoDestaqueAtivo = signal(false);
   readonly imagemDestaquePreviewUrl = signal<string | null>(null);
+  readonly destaqueEnviando = signal(false);
+  readonly destaqueProgresso = signal(0);
 
   readonly modalAberto = signal<{
     categoria: CategoriaAtualizacao;
     atualizacaoEditando: Atualizacao | null;
   } | null>(null);
 
-  // No modo criar, a edição ainda não existe no Firestore, então as
-  // atualizações ficam em memória até o salvar() final. No modo editar, cada
-  // ação já grava direto no service (ver métodos de atualização abaixo).
+  // Atualizações ficam só em memória até o salvar() final da edição, tanto
+  // criando quanto editando. Assim nada é publicado no meio da edição, só
+  // quando o botão Salvar é clicado.
   private readonly atualizacoesPendentes = signal<Atualizacao[]>([]);
 
-  readonly atualizacoes = computed<Atualizacao[]>(() =>
-    this.modo() === 'editar' ? (this.edicao()?.atualizacoes ?? []) : this.atualizacoesPendentes(),
-  );
+  readonly atualizacoes = this.atualizacoesPendentes.asReadonly();
 
   readonly form = this.fb.nonNullable.group({
     titulo: ['', [Validators.required, Validators.maxLength(TITULO_MAXLENGTH)]],
@@ -141,8 +150,6 @@ export class Editor {
     }),
   });
 
-  private capaArquivo: File | null = null;
-  private imagemDestaqueArquivo: File | null = null;
   private jaPreenchido = false;
 
   constructor() {
@@ -220,6 +227,7 @@ export class Editor {
     }
 
     this.capaPreviewUrl.set(edicao.capaUrl ?? null);
+    this.atualizacoesPendentes.set(edicao.atualizacoes);
 
     if (edicao.servicoDestaque) {
       this.servicoDestaqueAtivo.set(true);
@@ -252,10 +260,12 @@ export class Editor {
     return controle.invalid && (controle.touched || controle.dirty);
   }
 
-  // Capa da edição
-  onCapaSelecionada(evento: Event): void {
+  // Capa da edição: o upload para o Cloudinary acontece assim que o arquivo é
+  // selecionado, então ao salvar a edição a URL já está pronta.
+  async onCapaSelecionada(evento: Event): Promise<void> {
     const input = evento.target as HTMLInputElement;
     const arquivo = input.files?.[0];
+    input.value = '';
     if (!arquivo) return;
 
     if (!arquivo.type.startsWith('image/')) {
@@ -263,12 +273,22 @@ export class Editor {
       return;
     }
 
-    this.capaArquivo = arquivo;
-    this.capaPreviewUrl.set(URL.createObjectURL(arquivo));
+    this.capaEnviando.set(true);
+    this.capaProgresso.set(0);
+    try {
+      const url = await this.cloudinaryService.enviarImagem(arquivo, 'cc-news/edicoes/capas', (percentual) =>
+        this.capaProgresso.set(percentual),
+      );
+      this.capaPreviewUrl.set(url);
+      this.toastService.sucesso('Capa enviada com sucesso.');
+    } catch {
+      this.toastService.erro('Não foi possível enviar a capa. Tente novamente.');
+    } finally {
+      this.capaEnviando.set(false);
+    }
   }
 
   removerCapa(): void {
-    this.capaArquivo = null;
     this.capaPreviewUrl.set(null);
   }
 
@@ -284,7 +304,6 @@ export class Editor {
         { emitEvent: false },
       );
       this.form.controls.servicoDestaque.disable({ emitEvent: false });
-      this.imagemDestaqueArquivo = null;
       this.imagemDestaquePreviewUrl.set(null);
     }
   }
@@ -297,9 +316,10 @@ export class Editor {
     this.form.controls.servicoDestaque.controls.imagemPosicao.setValue(posicao);
   }
 
-  onImagemDestaqueSelecionada(evento: Event): void {
+  async onImagemDestaqueSelecionada(evento: Event): Promise<void> {
     const input = evento.target as HTMLInputElement;
     const arquivo = input.files?.[0];
+    input.value = '';
     if (!arquivo) return;
 
     if (!arquivo.type.startsWith('image/')) {
@@ -307,12 +327,22 @@ export class Editor {
       return;
     }
 
-    this.imagemDestaqueArquivo = arquivo;
-    this.imagemDestaquePreviewUrl.set(URL.createObjectURL(arquivo));
+    this.destaqueEnviando.set(true);
+    this.destaqueProgresso.set(0);
+    try {
+      const url = await this.cloudinaryService.enviarImagem(arquivo, 'cc-news/destaques', (percentual) =>
+        this.destaqueProgresso.set(percentual),
+      );
+      this.imagemDestaquePreviewUrl.set(url);
+      this.toastService.sucesso('Imagem do destaque enviada com sucesso.');
+    } catch {
+      this.toastService.erro('Não foi possível enviar a imagem do destaque. Tente novamente.');
+    } finally {
+      this.destaqueEnviando.set(false);
+    }
   }
 
   removerImagemDestaque(): void {
-    this.imagemDestaqueArquivo = null;
     this.imagemDestaquePreviewUrl.set(null);
   }
 
@@ -329,66 +359,39 @@ export class Editor {
     this.modalAberto.set(null);
   }
 
-  async salvarAtualizacao(dados: Omit<Atualizacao, 'id'>): Promise<void> {
+  salvarAtualizacao(dados: Omit<Atualizacao, 'id'>): void {
     const modal = this.modalAberto();
     if (!modal) return;
 
-    const id = this.edicaoId();
-    try {
-      if (this.modo() === 'editar' && id) {
-        if (modal.atualizacaoEditando) {
-          await this.editionService.atualizarAtualizacao(id, modal.atualizacaoEditando.id, dados);
-        } else {
-          await this.editionService.adicionarAtualizacao(id, dados);
-        }
-      } else if (modal.atualizacaoEditando) {
-        const idEditando = modal.atualizacaoEditando.id;
-        this.atualizacoesPendentes.update((lista) =>
-          lista.map((item) => (item.id === idEditando ? { ...dados, id: idEditando } : item)),
-        );
-      } else {
-        this.atualizacoesPendentes.update((lista) => [...lista, { ...dados, id: gerarIdLocal() }]);
-      }
-
-      this.fecharModal();
-      this.toastService.sucesso(
-        modal.atualizacaoEditando ? 'Atualização editada com sucesso.' : 'Atualização adicionada com sucesso.',
+    if (modal.atualizacaoEditando) {
+      const idEditando = modal.atualizacaoEditando.id;
+      this.atualizacoesPendentes.update((lista) =>
+        lista.map((item) => (item.id === idEditando ? { ...dados, id: idEditando } : item)),
       );
-    } catch {
-      this.toastService.erro('Não foi possível salvar a atualização. Tente novamente em instantes.');
+    } else {
+      this.atualizacoesPendentes.update((lista) => [...lista, { ...dados, id: gerarIdLocal() }]);
     }
+
+    this.fecharModal();
+    this.toastService.sucesso(
+      modal.atualizacaoEditando
+        ? 'Atualização editada. Clique em Salvar para publicar as mudanças.'
+        : 'Atualização adicionada. Clique em Salvar para publicar as mudanças.',
+    );
   }
 
   async excluirAtualizacao(atualizacao: Atualizacao): Promise<void> {
     const confirmado = await this.confirmDialogService.confirmar(CONFIRMACOES.excluirAtualizacao(atualizacao.titulo));
     if (!confirmado) return;
 
-    const id = this.edicaoId();
-    try {
-      if (this.modo() === 'editar' && id) {
-        await this.editionService.removerAtualizacao(id, atualizacao.id);
-      } else {
-        this.atualizacoesPendentes.update((lista) => lista.filter((item) => item.id !== atualizacao.id));
-      }
-      this.toastService.sucesso('Atualização excluída com sucesso.');
-    } catch {
-      this.toastService.erro('Não foi possível excluir a atualização. Tente novamente em instantes.');
-    }
+    this.atualizacoesPendentes.update((lista) => lista.filter((item) => item.id !== atualizacao.id));
+    this.toastService.sucesso('Atualização removida. Clique em Salvar para publicar as mudanças.');
   }
 
-  async alternarVisibilidade(atualizacao: Atualizacao): Promise<void> {
-    const id = this.edicaoId();
-    try {
-      if (this.modo() === 'editar' && id) {
-        await this.editionService.alternarVisibilidadeAtualizacao(id, atualizacao.id);
-      } else {
-        this.atualizacoesPendentes.update((lista) =>
-          lista.map((item) => (item.id === atualizacao.id ? { ...item, visivel: !item.visivel } : item)),
-        );
-      }
-    } catch {
-      this.toastService.erro('Não foi possível atualizar a visibilidade. Tente novamente em instantes.');
-    }
+  alternarVisibilidade(atualizacao: Atualizacao): void {
+    this.atualizacoesPendentes.update((lista) =>
+      lista.map((item) => (item.id === atualizacao.id ? { ...item, visivel: !item.visivel } : item)),
+    );
   }
 
   atualizacoesPorCategoria(categoria: CategoriaAtualizacao): Atualizacao[] {
@@ -428,6 +431,7 @@ export class Editor {
       status: valores.status,
       capaUrl: this.capaPreviewUrl() ?? undefined,
       servicoDestaque,
+      atualizacoes: this.atualizacoesPendentes(),
     };
 
     this.salvando.set(true);
@@ -438,11 +442,7 @@ export class Editor {
         await this.editionService.atualizar(id, dados);
         this.toastService.sucesso('Edição salva com sucesso.');
       } else {
-        const nova = await this.editionService.criar(dados);
-        for (const atualizacao of this.atualizacoesPendentes()) {
-          const { id: _descartado, ...resto } = atualizacao;
-          await this.editionService.adicionarAtualizacao(nova.id, resto);
-        }
+        await this.editionService.criar(dados);
         this.toastService.sucesso('Edição criada com sucesso.');
       }
       this.router.navigateByUrl('/admin');

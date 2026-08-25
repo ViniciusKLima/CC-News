@@ -12,6 +12,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Header } from '../../../shared/components/header/header';
 import { Footer } from '../../../shared/components/footer/footer';
 import {
@@ -25,6 +26,8 @@ import {
   labelTipo,
 } from '../../../core/models/edition.model';
 import { EditionService } from '../../../core/services/edition.service';
+import { urlImagemOtimizada } from '../../../core/services/cloudinary.service';
+import { extrairIdYoutube, urlEmbedYoutube, urlThumbnailYoutube } from '../../../core/utils/youtube.util';
 
 export type FiltroCategoria = 'todos' | CategoriaAtualizacao;
 
@@ -54,8 +57,13 @@ const CORES_CATEGORIA: Record<CategoriaAtualizacao, CorAcento> = {
 export class Edition implements AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly editionService = inject(EditionService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   readonly loading = this.editionService.loading;
+
+  protected readonly urlImagemOtimizada = urlImagemOtimizada;
+  protected readonly extrairIdYoutube = extrairIdYoutube;
+  protected readonly urlThumbnailYoutube = urlThumbnailYoutube;
 
   readonly edicao = computed<Edicao | undefined>(() => {
     const id = this.route.snapshot.paramMap.get('id');
@@ -101,7 +109,7 @@ export class Edition implements AfterViewInit {
   private houveArrasto = false;
 
   readonly imagemAmpliada = signal<string | null>(null);
-  readonly videosIniciados = signal<ReadonlySet<string>>(new Set());
+  readonly videoAmpliado = signal<string | null>(null);
 
   readonly skeletonTabs = Array.from({ length: 5 });
   readonly skeletonItens = Array.from({ length: 6 });
@@ -192,19 +200,29 @@ export class Edition implements AfterViewInit {
     this.imagemAmpliada.set(null);
   }
 
+  // O player embutido do YouTube não reduz bem os próprios controles em
+  // espaços pequenos (como o card de uma atualização), os ícones ficam
+  // grandes e se sobrepõem. Por isso o vídeo só toca dentro do lightbox, num
+  // tamanho grande o suficiente pros controles nativos do YouTube caberem.
+  ampliarVideo(videoId: string): void {
+    this.videoAmpliado.set(videoId);
+  }
+
+  fecharVideoAmpliado(): void {
+    this.videoAmpliado.set(null);
+  }
+
   @HostListener('document:keydown.escape')
   onEscape(): void {
     this.fecharImagemAmpliada();
+    this.fecharVideoAmpliado();
   }
 
-  // Vídeo com botão de play próprio, sem os controles nativos de cara
-  videoIniciado(id: string): boolean {
-    return this.videosIniciados().has(id);
-  }
-
-  iniciarVideo(id: string, video: HTMLVideoElement): void {
-    this.videosIniciados.update((atual) => new Set(atual).add(id));
-    video.play();
+  // O id extraído já passou pela validação da regex do youtube.util (só
+  // letras, números, - e _), então é seguro marcar a URL de embed como
+  // confiável para o Angular não bloquear o iframe.
+  urlEmbedSeguro(videoId: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`${urlEmbedYoutube(videoId)}?autoplay=1&rel=0`);
   }
 
   selecionarFiltro(valor: FiltroCategoria): void {

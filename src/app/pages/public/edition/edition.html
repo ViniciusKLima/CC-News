@@ -118,7 +118,7 @@
               @if (destaque.imagemUrl) {
                 <div class="destaque-imagem-wrap">
                   <img
-                    [src]="destaque.imagemUrl"
+                    [src]="urlImagemOtimizada(destaque.imagemUrl, 'card')"
                     [alt]="destaque.titulo"
                     [class]="'pos-' + (destaque.imagemPosicao || 'centro')"
                     (click)="ampliarImagem(destaque.imagemUrl)"
@@ -188,28 +188,22 @@
                   @if (item.midia) {
                     <div class="item-midia">
                       @if (item.midia.tipo === 'video') {
-                        <div class="video-wrap" [class.nao-iniciado]="!videoIniciado(item.id)">
-                          <video
-                            #videoEl
-                            [src]="item.midia.url"
-                            [attr.controls]="videoIniciado(item.id) ? true : null"
-                            preload="metadata"
-                            (click)="!videoIniciado(item.id) && iniciarVideo(item.id, videoEl)"
-                          ></video>
-                          @if (!videoIniciado(item.id)) {
+                        @if (extrairIdYoutube(item.midia.url); as videoId) {
+                          <div class="video-wrap" (click)="ampliarVideo(videoId)">
+                            <img [src]="urlThumbnailYoutube(videoId)" alt="" />
                             <button
                               type="button"
                               class="video-play-btn"
                               aria-label="Reproduzir vídeo"
-                              (click)="iniciarVideo(item.id, videoEl)"
+                              (click)="ampliarVideo(videoId)"
                             >
                               <i class="bi bi-play-fill"></i>
                             </button>
-                          }
-                        </div>
+                          </div>
+                        }
                       } @else {
                         <img
-                          [src]="item.midia.url"
+                          [src]="urlImagemOtimizada(item.midia.url, 'detalhe')"
                           [alt]="item.titulo"
                           (click)="ampliarImagem(item.midia.url)"
                         />
@@ -288,6 +282,23 @@
     <button type="button" class="lightbox-fechar" aria-label="Fechar" (click)="fecharImagemAmpliada()">
       <i class="bi bi-x-lg"></i>
     </button>
-    <img class="lightbox-imagem" [src]="url" alt="" (click)="$event.stopPropagation()" />
+    <img class="lightbox-imagem" [src]="urlImagemOtimizada(url, 'hero')" alt="" (click)="$event.stopPropagation()" />
+  </div>
+}
+
+<!-- Lightbox de vídeo, o player do YouTube só é embutido aqui, em tamanho grande -->
+@if (videoAmpliado(); as videoId) {
+  <div class="lightbox-backdrop" (click)="fecharVideoAmpliado()">
+    <button type="button" class="lightbox-fechar" aria-label="Fechar" (click)="fecharVideoAmpliado()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+    <div class="lightbox-video" (click)="$event.stopPropagation()">
+      <iframe
+        [src]="urlEmbedSeguro(videoId)"
+        title="Vídeo da atualização"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+      ></iframe>
+    </div>
   </div>
 }

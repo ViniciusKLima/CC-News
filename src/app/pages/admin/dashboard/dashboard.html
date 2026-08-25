@@ -134,7 +134,7 @@
                     <div class="edicao-info">
                       <div class="edicao-capa" [class]="'capa-' + edicao.tipo">
                         @if (edicao.capaUrl) {
-                          <img [src]="edicao.capaUrl" [alt]="edicao.titulo" />
+                          <img [src]="urlImagemOtimizada(edicao.capaUrl, 'mobile')" [alt]="edicao.titulo" />
                         } @else {
                           <i [class]="'bi ' + iconeTipo(edicao.tipo)"></i>
                         }

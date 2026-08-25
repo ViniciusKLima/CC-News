@@ -32,6 +32,7 @@ export interface PeriodoEspecial {
 
 export type PeriodoEdicao = PeriodoSemanal | PeriodoMensal | PeriodoAnual | PeriodoEspecial;
 
+/** Para imagem, url é o link do Cloudinary. Para vídeo, é o link do YouTube colado pelo editor (ver youtube.util para extrair o id). */
 export interface MidiaAtualizacao {
   tipo: 'imagem' | 'video';
   url: string;

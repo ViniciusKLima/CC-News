@@ -46,8 +46,14 @@
             <label>Capa da edição</label>
             <div class="capa-upload">
               @if (capaPreviewUrl()) {
-                <img [src]="capaPreviewUrl()" alt="Pré-visualização da capa" />
-                <button type="button" class="capa-remover" aria-label="Remover capa" (click)="removerCapa()">
+                <img [src]="urlImagemOtimizada(capaPreviewUrl()!, 'detalhe')" alt="Pré-visualização da capa" />
+                <button
+                  type="button"
+                  class="capa-remover"
+                  aria-label="Remover capa"
+                  [disabled]="capaEnviando()"
+                  (click)="removerCapa()"
+                >
                   <i class="bi bi-x-lg"></i>
                 </button>
               } @else {
@@ -57,11 +63,18 @@
                   <small>PNG, JPG ou WEBP<br />Recomendado: 720x1080px (retrato)</small>
                 </label>
               }
+              @if (capaEnviando()) {
+                <div class="upload-overlay">
+                  <div class="upload-spinner"></div>
+                  <span>Enviando... {{ capaProgresso() }}%</span>
+                </div>
+              }
               <input
                 id="capa-input"
                 type="file"
                 accept="image/*"
                 class="visually-hidden"
+                [disabled]="capaEnviando()"
                 (change)="onCapaSelecionada($event)"
               />
             </div>
@@ -276,7 +289,7 @@
               <div class="capa-upload destaque-imagem-upload">
                 @if (imagemDestaquePreviewUrl()) {
                   <img
-                    [src]="imagemDestaquePreviewUrl()"
+                    [src]="urlImagemOtimizada(imagemDestaquePreviewUrl()!, 'card')"
                     alt="Pré-visualização do serviço em destaque"
                     [class]="'pos-' + form.controls.servicoDestaque.controls.imagemPosicao.value"
                   />
@@ -284,6 +297,7 @@
                     type="button"
                     class="capa-remover"
                     aria-label="Remover imagem do destaque"
+                    [disabled]="destaqueEnviando()"
                     (click)="removerImagemDestaque()"
                   >
                     <i class="bi bi-x-lg"></i>
@@ -295,11 +309,18 @@
                     <small>PNG, JPG ou WEBP<br />Recomendado: proporção quadrada</small>
                   </label>
                 }
+                @if (destaqueEnviando()) {
+                  <div class="upload-overlay">
+                    <div class="upload-spinner"></div>
+                    <span>Enviando... {{ destaqueProgresso() }}%</span>
+                  </div>
+                }
                 <input
                   id="destaque-imagem-input"
                   type="file"
                   accept="image/*"
                   class="visually-hidden"
+                  [disabled]="destaqueEnviando()"
                   (change)="onImagemDestaqueSelecionada($event)"
                 />
               </div>
@@ -411,9 +432,12 @@
                   @if (atualizacao.midia) {
                     <div class="atualizacao-midia">
                       @if (atualizacao.midia.tipo === 'video') {
+                        @if (extrairIdYoutube(atualizacao.midia.url); as videoId) {
+                          <img [src]="urlThumbnailYoutube(videoId)" alt="" />
+                        }
                         <span class="midia-play"><i class="bi bi-play-fill"></i></span>
                       } @else {
-                        <img [src]="atualizacao.midia.url" alt="" />
+                        <img [src]="urlImagemOtimizada(atualizacao.midia.url, 'card')" alt="" />
                       }
                     </div>
                   }

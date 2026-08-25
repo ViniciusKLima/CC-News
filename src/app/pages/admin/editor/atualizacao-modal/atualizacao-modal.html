@@ -83,32 +83,76 @@
         }
       </div>
 
-      <div class="campo-linha">
-        <div class="campo">
-          <label for="atualizacao-midia-tipo">Tipo de mídia</label>
-          <div class="select-wrap">
-            <select id="atualizacao-midia-tipo" formControlName="midiaTipo">
-              <option value="imagem">Foto</option>
-              <option value="video">Vídeo</option>
-            </select>
-            <i class="bi bi-chevron-down"></i>
-          </div>
-        </div>
-
-        <div class="campo campo-flex">
-          <label for="atualizacao-midia-url">Link da foto ou vídeo (opcional)</label>
-          <input
-            id="atualizacao-midia-url"
-            type="text"
-            formControlName="midiaUrl"
-            placeholder="https://..."
-          />
+      <div class="campo">
+        <label for="atualizacao-midia-tipo">Mídia (opcional)</label>
+        <div class="select-wrap">
+          <select id="atualizacao-midia-tipo" formControlName="midiaTipo">
+            <option value="nenhum">Sem mídia</option>
+            <option value="imagem">Foto</option>
+            <option value="video">Vídeo do YouTube</option>
+          </select>
+          <i class="bi bi-chevron-down"></i>
         </div>
       </div>
-      <p class="dica-midia">
-        <i class="bi bi-info-circle"></i>
-        O upload direto de arquivos será integrado futuramente ao Firebase Storage. Por enquanto, informe um link.
-      </p>
+
+      @if (form.controls.midiaTipo.value === 'imagem') {
+        <div class="campo">
+          <label>Foto</label>
+          <div class="midia-imagem-upload">
+            @if (form.controls.midiaImagemUrl.value) {
+              <img [src]="urlImagemOtimizada(form.controls.midiaImagemUrl.value, 'card')" alt="Pré-visualização da imagem" />
+              <button
+                type="button"
+                class="capa-remover"
+                aria-label="Remover imagem"
+                [disabled]="midiaEnviando()"
+                (click)="removerImagemMidia()"
+              >
+                <i class="bi bi-x-lg"></i>
+              </button>
+            } @else {
+              <label class="capa-vazia" for="atualizacao-midia-input">
+                <i class="bi bi-image"></i>
+                <span>Adicionar foto</span>
+                <small>PNG, JPG ou WEBP</small>
+              </label>
+            }
+            @if (midiaEnviando()) {
+              <div class="upload-overlay">
+                <div class="upload-spinner"></div>
+                <span>Enviando... {{ midiaProgresso() }}%</span>
+              </div>
+            }
+            <input
+              id="atualizacao-midia-input"
+              type="file"
+              accept="image/*"
+              class="visually-hidden"
+              [disabled]="midiaEnviando()"
+              (change)="onImagemSelecionada($event)"
+            />
+          </div>
+        </div>
+      }
+
+      @if (form.controls.midiaTipo.value === 'video') {
+        <div class="campo">
+          <label for="atualizacao-midia-video">Link do YouTube</label>
+          <input
+            id="atualizacao-midia-video"
+            type="text"
+            formControlName="midiaVideoUrl"
+            placeholder="https://www.youtube.com/watch?v=..."
+            [class.invalido]="!!midiaVideoErro()"
+            (input)="onMidiaVideoUrlAlterada()"
+          />
+          @if (midiaVideoErro()) {
+            <span class="erro-campo">{{ midiaVideoErro() }}</span>
+          } @else {
+            <p class="dica-midia"><i class="bi bi-info-circle"></i> Aceita links do youtube.com ou youtu.be.</p>
+          }
+        </div>
+      }
 
       <footer class="modal-rodape">
         <button type="button" class="btn-secundario" (click)="onFechar()">Cancelar</button>

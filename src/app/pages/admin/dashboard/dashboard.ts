@@ -6,6 +6,7 @@ import { EditionService } from '../../../core/services/edition.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { CONFIRMACOES } from '../../../core/services/confirm-dialog.presets';
+import { urlImagemOtimizada } from '../../../core/services/cloudinary.service';
 import { AdminSidebar } from '../../../shared/components/admin-sidebar/admin-sidebar';
 
 const TIPO_ICONES: Record<TipoEdicao, string> = {
@@ -42,6 +43,7 @@ export class Dashboard {
 
   protected readonly formatarPeriodo = formatarPeriodo;
   protected readonly labelTipo = labelTipo;
+  protected readonly urlImagemOtimizada = urlImagemOtimizada;
 
   termoBusca = signal('');
   filtroMes = signal('');

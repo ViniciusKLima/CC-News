@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit, inject, input, output, signal } from '@angular/core';
+import { Component, HostListener, OnInit, computed, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Atualizacao, CategoriaAtualizacao, MidiaAtualizacao, labelCategoria } from '../../../../core/models/edition.model';
 import { CloudinaryService, urlImagemOtimizada } from '../../../../core/services/cloudinary.service';
@@ -6,6 +6,7 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { extrairIdYoutube } from '../../../../core/utils/youtube.util';
 
 const ICONES_DISPONIVEIS = [
+  // Gerais
   'bi-stars',
   'bi-graph-up-arrow',
   'bi-tools',
@@ -26,7 +27,38 @@ const ICONES_DISPONIVEIS = [
   'bi-lightning-charge',
   'bi-gear',
   'bi-file-earmark-text',
+  // Órgão público
+  'bi-bank',
+  'bi-building',
+  'bi-buildings',
+  'bi-flag',
+  'bi-patch-check',
+  // Formulários
+  'bi-clipboard-check',
+  'bi-ui-checks',
+  'bi-input-cursor-text',
+  'bi-list-check',
+  'bi-card-checklist',
+  // Endereço
+  'bi-signpost',
+  'bi-house-door',
+  'bi-pin-map',
+  'bi-compass',
+  'bi-truck',
+  // Tecnologia
+  'bi-cpu',
+  'bi-code-slash',
+  'bi-wifi',
+  'bi-phone',
+  'bi-laptop',
+  'bi-cloud',
+  'bi-robot',
+  'bi-database',
+  'bi-qr-code',
+  'bi-hdd-network',
 ];
+
+const ICONES_POR_PAGINA = 20;
 
 const TITULO_MAXLENGTH = 70;
 const DESCRICAO_MAXLENGTH = 220;
@@ -50,6 +82,7 @@ export class AtualizacaoModal implements OnInit {
   readonly atualizacaoEditando = input<Atualizacao | null>(null);
 
   readonly salvar = output<Omit<Atualizacao, 'id'>>();
+  readonly salvarEContinuar = output<Omit<Atualizacao, 'id'>>();
   readonly fechar = output<void>();
 
   readonly icones = ICONES_DISPONIVEIS;
@@ -63,11 +96,20 @@ export class AtualizacaoModal implements OnInit {
   readonly midiaProgresso = signal(0);
   readonly midiaVideoErro = signal<string | null>(null);
 
+  // Paginação da grade de ícones: com muitas opções, mostrar tudo de uma vez
+  // fica poluído, então navega em blocos de ICONES_POR_PAGINA por vez.
+  readonly paginaIcone = signal(0);
+  readonly totalPaginasIcone = Math.ceil(this.icones.length / ICONES_POR_PAGINA);
+  readonly iconesPaginados = computed(() => {
+    const inicio = this.paginaIcone() * ICONES_POR_PAGINA;
+    return this.icones.slice(inicio, inicio + ICONES_POR_PAGINA);
+  });
+
   readonly form = this.fb.nonNullable.group({
     icone: ['bi-stars', Validators.required],
     titulo: ['', [Validators.required, Validators.maxLength(TITULO_MAXLENGTH)]],
     descricao: ['', [Validators.required, Validators.maxLength(DESCRICAO_MAXLENGTH)]],
-    impacto: ['', [Validators.required, Validators.maxLength(IMPACTO_MAXLENGTH)]],
+    impacto: ['', [Validators.maxLength(IMPACTO_MAXLENGTH)]],
     midiaTipo: ['nenhum' as 'nenhum' | 'imagem' | 'video'],
     midiaImagemUrl: [''],
     midiaVideoUrl: [''],
@@ -95,6 +137,11 @@ export class AtualizacaoModal implements OnInit {
         midiaVideoUrl: midia?.tipo === 'video' ? midia.url : '',
       });
       this.aplicarTipoMidia(midia?.tipo ?? 'nenhum');
+
+      const indiceIcone = this.icones.indexOf(editando.icone);
+      if (indiceIcone > -1) {
+        this.paginaIcone.set(Math.floor(indiceIcone / ICONES_POR_PAGINA));
+      }
     }
   }
 
@@ -104,6 +151,14 @@ export class AtualizacaoModal implements OnInit {
 
   selecionarIcone(icone: string): void {
     this.form.controls.icone.setValue(icone);
+  }
+
+  iconePaginaAnterior(): void {
+    this.paginaIcone.update((pagina) => Math.max(0, pagina - 1));
+  }
+
+  iconePaginaSeguinte(): void {
+    this.paginaIcone.update((pagina) => Math.min(this.totalPaginasIcone - 1, pagina + 1));
   }
 
   campoInvalido(campo: 'icone' | 'titulo' | 'descricao' | 'impacto'): boolean {
@@ -179,25 +234,25 @@ export class AtualizacaoModal implements OnInit {
     return undefined;
   }
 
-  onSalvar(): void {
+  private construirDados(): Omit<Atualizacao, 'id'> | null {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      return;
+      return null;
     }
 
     const valores = this.form.getRawValue();
 
     if (valores.midiaTipo === 'imagem' && (this.midiaEnviando() || !valores.midiaImagemUrl)) {
       this.toastService.erro('Aguarde o envio da imagem terminar antes de salvar.');
-      return;
+      return null;
     }
 
     if (valores.midiaTipo === 'video' && !extrairIdYoutube(valores.midiaVideoUrl)) {
       this.midiaVideoErro.set('Informe um link válido do YouTube.');
-      return;
+      return null;
     }
 
-    this.salvar.emit({
+    return {
       categoria: this.categoria(),
       icone: valores.icone,
       titulo: valores.titulo.trim(),
@@ -205,7 +260,36 @@ export class AtualizacaoModal implements OnInit {
       impacto: valores.impacto.trim(),
       midia: this.midiaParaSalvar(valores),
       visivel: this.atualizacaoEditando()?.visivel ?? true,
+    };
+  }
+
+  onSalvar(): void {
+    const dados = this.construirDados();
+    if (!dados) return;
+
+    this.salvar.emit(dados);
+  }
+
+  // Salva o item atual e limpa o formulário sem fechar o modal, pra criar
+  // vários itens seguidos sem precisar reabrir o modal a cada um. Só faz
+  // sentido pra novas atualizações (ver modal-rodape no template).
+  onSalvarEContinuar(): void {
+    const dados = this.construirDados();
+    if (!dados) return;
+
+    this.salvarEContinuar.emit(dados);
+
+    this.form.reset({
+      icone: 'bi-stars',
+      titulo: '',
+      descricao: '',
+      impacto: '',
+      midiaTipo: 'nenhum',
+      midiaImagemUrl: '',
+      midiaVideoUrl: '',
     });
+    this.aplicarTipoMidia('nenhum');
+    this.paginaIcone.set(0);
   }
 
   onFechar(): void {

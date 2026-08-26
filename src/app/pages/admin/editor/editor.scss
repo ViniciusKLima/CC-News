@@ -869,6 +869,50 @@ textarea {
     font-weight: 700;
     vertical-align: middle;
   }
+
+  // Resumo com o total de cada tipo de atualização, visível na gaveta
+  // geral mesmo antes de abrir cada categoria individualmente.
+  .categorias-resumo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .categoria-resumo-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    font-weight: 700;
+
+    &.cor-azul {
+      background: var(--bgc-azul-opacity);
+      color: var(--color-primary);
+    }
+
+    &.cor-roxo {
+      background: var(--bgc-purple-opacity);
+      color: var(--bgc-purple);
+    }
+
+    &.cor-verde {
+      background: var(--bgc-verde-opacity);
+      color: var(--color-success);
+    }
+
+    &.cor-laranja {
+      background: var(--bgc-yellow-opacity);
+      color: var(--color-warning);
+    }
+
+    &.cor-rosa {
+      background: #ffe4f0;
+      color: #d6336c;
+    }
+  }
 }
 
 // Cada categoria de "Atualizações por categoria" vira uma subseção dentro

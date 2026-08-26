@@ -12,9 +12,34 @@
 
     <form class="modal-corpo" [formGroup]="form" (ngSubmit)="onSalvar()">
       <div class="campo">
-        <label id="label-icone">Ícone *</label>
+        <div class="campo-cabecalho">
+          <label id="label-icone">Ícone *</label>
+          @if (totalPaginasIcone > 1) {
+            <div class="icone-paginacao">
+              <button
+                type="button"
+                class="icone-paginacao-seta"
+                aria-label="Ícones anteriores"
+                [disabled]="paginaIcone() === 0"
+                (click)="iconePaginaAnterior()"
+              >
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              <span class="icone-paginacao-contagem">{{ paginaIcone() + 1 }}/{{ totalPaginasIcone }}</span>
+              <button
+                type="button"
+                class="icone-paginacao-seta"
+                aria-label="Mais ícones"
+                [disabled]="paginaIcone() === totalPaginasIcone - 1"
+                (click)="iconePaginaSeguinte()"
+              >
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+          }
+        </div>
         <div class="icone-grid" role="radiogroup" aria-labelledby="label-icone">
-          @for (icone of icones; track icone) {
+          @for (icone of iconesPaginados(); track icone) {
             <button
               type="button"
               class="icone-opcao"
@@ -67,7 +92,7 @@
 
       <div class="campo">
         <div class="campo-cabecalho">
-          <label for="atualizacao-impacto">Impacto *</label>
+          <label for="atualizacao-impacto">Impacto</label>
           <span class="contador">{{ form.controls.impacto.value.length }}/{{ impactoMaxlength }}</span>
         </div>
         <input
@@ -76,11 +101,7 @@
           formControlName="impacto"
           [maxlength]="impactoMaxlength"
           placeholder="Ex.: Garante maior precisão na organização dos serviços."
-          [class.invalido]="campoInvalido('impacto')"
         />
-        @if (campoInvalido('impacto')) {
-          <span class="erro-campo">Explique o impacto desta atualização para o usuário.</span>
-        }
       </div>
 
       <div class="campo">
@@ -156,6 +177,11 @@
 
       <footer class="modal-rodape">
         <button type="button" class="btn-secundario" (click)="onFechar()">Cancelar</button>
+        @if (!modoEdicao) {
+          <button type="button" class="btn-secundario" (click)="onSalvarEContinuar()">
+            <i class="bi bi-check2"></i> Salvar e adicionar outra
+          </button>
+        }
         <button type="submit" class="btn-primario">
           <i class="bi bi-check-lg"></i> Salvar
         </button>

@@ -6,6 +6,7 @@ import {
   CATEGORIAS_ATUALIZACAO,
   CategoriaAtualizacao,
   COR_PADRAO_PLATAFORMA,
+  corCategoriaAtualizacao,
   Edicao,
   MESES_NOMES,
   PeriodoEdicao,
@@ -75,6 +76,7 @@ export class Editor {
   private readonly cloudinaryService = inject(CloudinaryService);
 
   protected readonly urlImagemOtimizada = urlImagemOtimizada;
+  protected readonly corCategoriaAtualizacao = corCategoriaAtualizacao;
 
   // Enquanto o service ainda está carregando os dados, não dá para saber se
   // o id existe ou não. Evita mostrar "edição não encontrada" precocemente.
@@ -517,6 +519,16 @@ export class Editor {
         ? 'Atualização editada. Clique em Salvar para publicar as mudanças.'
         : 'Atualização adicionada. Clique em Salvar para publicar as mudanças.',
     );
+  }
+
+  // Mesma lógica do salvarAtualizacao, mas mantém o modal aberto (pronto
+  // pra uma nova atualização na mesma categoria) em vez de fechá-lo.
+  salvarAtualizacaoEContinuar(dados: Omit<Atualizacao, 'id'>): void {
+    const modal = this.modalAberto();
+    if (!modal) return;
+
+    this.atualizacoesPendentes.update((lista) => [...lista, { ...dados, id: gerarIdLocal() }]);
+    this.toastService.sucesso('Atualização adicionada. Continue criando a próxima ou clique em Salvar.');
   }
 
   async excluirAtualizacao(atualizacao: Atualizacao): Promise<void> {

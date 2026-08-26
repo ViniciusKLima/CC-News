@@ -621,6 +621,18 @@
           <div class="secao-titulo-bloco">
             <h2>Atualizações por categoria</h2>
             <p>Novidades, melhorias, correções e itens em teste, organizados em abas na edição pública.</p>
+            <div class="categorias-resumo">
+              @for (categoria of categoriasRegulares; track categoria.valor) {
+                <span
+                  class="categoria-resumo-item"
+                  [class]="'cor-' + corCategoriaAtualizacao(categoria.valor)"
+                  [attr.title]="categoria.label"
+                >
+                  <i [class]="'bi ' + categoria.icone"></i>
+                  {{ atualizacoesPorCategoria(categoria.valor).length }}
+                </span>
+              }
+            </div>
           </div>
           <div class="secao-cabecalho-controles">
             <label class="toggle-switch" (click)="$event.stopPropagation()">
@@ -821,6 +833,7 @@
     [categoria]="modal.categoria"
     [atualizacaoEditando]="modal.atualizacaoEditando"
     (salvar)="salvarAtualizacao($event)"
+    (salvarEContinuar)="salvarAtualizacaoEContinuar($event)"
     (fechar)="fecharModal()"
   />
 }

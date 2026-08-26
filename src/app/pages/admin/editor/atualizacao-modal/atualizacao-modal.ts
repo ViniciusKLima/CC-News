@@ -17,6 +17,7 @@ import { Atualizacao, CategoriaAtualizacao, MidiaAtualizacao, labelCategoria } f
 import { CloudinaryService, urlImagemOtimizada } from '../../../../core/services/cloudinary.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { extrairIdYoutube } from '../../../../core/utils/youtube.util';
+import { FecharAoClicarFora } from '../../../../shared/directives/fechar-ao-clicar-fora.directive';
 
 const ICONES_DISPONIVEIS = [
   // Gerais
@@ -123,7 +124,7 @@ const IMPACTO_MAXLENGTH = 140;
 // persistir (Firestore ou lista em memória) é o Editor que o abre.
 @Component({
   selector: 'app-atualizacao-modal',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, FecharAoClicarFora],
   templateUrl: './atualizacao-modal.html',
   styleUrl: './atualizacao-modal.scss',
 })
@@ -389,12 +390,6 @@ export class AtualizacaoModal implements OnInit, AfterViewInit, OnDestroy {
 
   onFechar(): void {
     this.fechar.emit();
-  }
-
-  onBackdropClick(evento: MouseEvent): void {
-    if (evento.target === evento.currentTarget) {
-      this.onFechar();
-    }
   }
 
   @HostListener('document:keydown.escape')

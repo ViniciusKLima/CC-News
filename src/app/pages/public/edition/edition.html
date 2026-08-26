@@ -107,9 +107,9 @@
     } @else if (edicao(); as ed) {
       <div class="edition-grid" [class.sem-sidebar]="!temSidebar()">
         <div class="edition-main">
-          <!-- Bloco de serviço em destaque (opcional), configurado na edição -->
+          <!-- Bloco de destaque da edição (opcional), configurado na edição -->
           @if (ed.servicoDestaque; as destaque) {
-            <span class="destaque-label">Serviço em destaque</span>
+            <span class="destaque-label">Destaque da edição</span>
             <article
               class="destaque-card"
               [style.--destaque-cor]="destaque.cor"

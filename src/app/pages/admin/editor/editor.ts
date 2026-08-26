@@ -59,7 +59,7 @@ interface ValoresFormulario {
 }
 
 // Formulário de criação e edição de edições: dados gerais, período (que
-// muda de acordo com o tipo), capa, serviço em destaque e a lista de
+// muda de acordo com o tipo), capa, destaque da edição e a lista de
 // atualizações (abertas em um modal à parte, ver AtualizacaoModal).
 @Component({
   selector: 'app-editor',
@@ -128,7 +128,7 @@ export class Editor {
   readonly slugAtivo = signal(false);
 
   // As quatro seções abaixo são opcionais, cada uma com seu próprio
-  // interruptor (mesmo estilo do Serviço em destaque). Por padrão todas
+  // interruptor (mesmo estilo do Destaque da edição). Por padrão todas
   // ficam ligadas, exceto o texto livre. O Resumo depende das Atualizações
   // por categoria estarem ligadas, já que ele é a contagem de itens delas.
   readonly atualizacoesAtivas = signal(true);
@@ -382,7 +382,7 @@ export class Editor {
     this.form.controls.capaCor.setValue(valor);
   }
 
-  // Bloco opcional de serviço em destaque, exibido no topo da edição pública
+  // Bloco opcional de destaque da edição, exibido no topo da edição pública
   alternarServicoDestaque(ativo: boolean): void {
     this.servicoDestaqueAtivo.set(ativo);
 

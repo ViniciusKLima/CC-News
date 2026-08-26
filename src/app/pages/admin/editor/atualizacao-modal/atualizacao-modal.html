@@ -1,4 +1,4 @@
-<div class="modal-backdrop" (click)="onBackdropClick($event)">
+<div class="modal-backdrop" appFecharAoClicarFora (fecharAoClicarFora)="onFechar()">
   <div class="modal-painel" role="dialog" aria-modal="true" [attr.aria-label]="(modoEdicao ? 'Editar' : 'Nova') + ' atualização de ' + labelCategoria(categoria())">
     <header class="modal-cabecalho">
       <div>

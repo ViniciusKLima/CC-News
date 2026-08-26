@@ -1,5 +1,9 @@
 @if (confirmDialogService.confirmacao(); as confirmacao) {
-  <div class="modal-backdrop" (click)="onBackdropClick($event)">
+  <div
+    class="modal-backdrop"
+    appFecharAoClicarFora
+    (fecharAoClicarFora)="confirmDialogService.responder(false)"
+  >
     <div class="modal-painel" role="alertdialog" aria-modal="true" [attr.aria-label]="confirmacao.titulo">
       <h2>{{ confirmacao.titulo }}</h2>
       <p>{{ confirmacao.descricao }}</p>

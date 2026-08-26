@@ -386,11 +386,11 @@
         }
       </section>
 
-      <!-- SERVIÇO EM DESTAQUE -->
+      <!-- DESTAQUE DA EDIÇÃO -->
       <section class="painel-secao">
         <div class="secao-cabecalho secao-cabecalho-clicavel" (click)="alternarSecao('destaque')">
           <div class="secao-titulo-bloco">
-            <h2>Serviço em destaque</h2>
+            <h2>Destaque da edição</h2>
             <p>Destaca um serviço ou funcionalidade no topo da edição pública. Totalmente opcional.</p>
           </div>
           <div class="secao-cabecalho-controles">
@@ -399,7 +399,7 @@
                 type="checkbox"
                 [checked]="servicoDestaqueAtivo()"
                 (change)="alternarServicoDestaque($any($event.target).checked)"
-                aria-label="Adicionar serviço em destaque"
+                aria-label="Adicionar destaque da edição"
               />
               <span class="toggle-slider"></span>
             </label>
@@ -423,7 +423,7 @@
                 @if (imagemDestaquePreviewUrl()) {
                   <img
                     [src]="urlImagemOtimizada(imagemDestaquePreviewUrl()!, 'destaque')"
-                    alt="Pré-visualização do serviço em destaque"
+                    alt="Pré-visualização do destaque da edição"
                     [class]="'pos-' + form.controls.servicoDestaque.controls.imagemPosicao.value"
                   />
                   <button
@@ -518,11 +518,11 @@
                   formControlName="descricao"
                   [maxlength]="resumoMaxlength"
                   rows="3"
-                  placeholder="Descreva o serviço em destaque..."
+                  placeholder="Descreva o destaque da edição..."
                   [class.invalido]="servicoDestaqueCampoInvalido('descricao')"
                 ></textarea>
                 @if (servicoDestaqueCampoInvalido('descricao')) {
-                  <span class="erro-campo">Descreva o serviço em destaque.</span>
+                  <span class="erro-campo">Descreva o destaque da edição.</span>
                 }
               </div>
 
@@ -534,7 +534,7 @@
                     id="destaque-cor"
                     class="cor-hex-input"
                     formControlName="cor"
-                    aria-label="Selecionar cor do serviço em destaque"
+                    aria-label="Selecionar cor do destaque da edição"
                   />
                   <input
                     type="text"
@@ -608,7 +608,7 @@
               @if (atualizacoesAtivas()) {
                 Vai aparecer na lateral da edição pública, ao lado do Resumo e dos Próximos passos.
               } @else {
-                Vai aparecer no lugar das atualizações por categoria, logo abaixo do serviço em destaque.
+                Vai aparecer no lugar das atualizações por categoria, logo abaixo do destaque da edição.
               }
             </p>
           </div>

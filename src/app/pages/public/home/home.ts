@@ -18,6 +18,7 @@ import { Footer } from '../../../shared/components/footer/footer';
 import {
   anoAgrupamento,
   COR_PADRAO_PLATAFORMA,
+  dataOrdenacaoAgrupamento,
   Edicao,
   mesAgrupamento,
   MESES_NOMES,
@@ -121,6 +122,10 @@ export class Home implements AfterViewInit {
         mapa.set(id, grupo);
       }
       grupo.edicoes.push(edicao);
+    }
+
+    for (const grupo of mapa.values()) {
+      grupo.edicoes.sort((a, b) => dataOrdenacaoAgrupamento(a).localeCompare(dataOrdenacaoAgrupamento(b)));
     }
 
     return Array.from(mapa.values()).sort((a, b) => b.id.localeCompare(a.id));

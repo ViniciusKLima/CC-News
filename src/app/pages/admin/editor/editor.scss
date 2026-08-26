@@ -157,7 +157,7 @@
   align-items: start;
 }
 
-// Serviço em destaque só tem capa + conteúdo, sem a terceira coluna (Status
+// Destaque da edição só tem capa + conteúdo, sem a terceira coluna (Status
 // e URL) de "Dados da edição". Sem esse ajuste, a grade reservava a largura
 // da 3ª coluna vazia e o conteúdo ficava desencostado da borda direita.
 .destaque-grid {
@@ -211,7 +211,7 @@
 }
 
 // Seletor de cor hexadecimal, reaproveitado na capa da edição e no
-// serviço em destaque: mesmo mecanismo, mesma aparência nos dois lugares.
+// destaque da edição: mesmo mecanismo, mesma aparência nos dois lugares.
 .cor-hex-escolha {
   display: flex;
   flex-direction: column;
@@ -637,7 +637,7 @@ textarea {
 }
 
 // ---------------------------------------------------------------------------
-// Serviço em destaque
+// Destaque da edição
 // ---------------------------------------------------------------------------
 
 .toggle-switch {

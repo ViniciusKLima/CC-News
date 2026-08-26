@@ -64,7 +64,7 @@ export interface ServicoDestaque {
   cor: string;
 }
 
-/** Azul marinho padrão da plataforma, sugerido em todo campo de cor sólida (capa da edição, serviço em destaque). */
+/** Azul marinho padrão da plataforma, sugerido em todo campo de cor sólida (capa da edição, destaque da edição). */
 export const COR_PADRAO_PLATAFORMA = '#102f55';
 
 export interface Edicao {
@@ -206,6 +206,19 @@ export function mesAgrupamento(edicao: Edicao): number {
     return Number(periodo.dataInicio.slice(5, 7)) || Number(edicao.criadoEm.slice(5, 7));
   }
   return Number(edicao.criadoEm.slice(5, 7));
+}
+
+// Data (AAAA-MM-DD) usada só pra ordenar as edições dentro do mesmo grupo de
+// mês, da mais antiga pra mais recente — assim uma edição criada depois mas
+// com período anterior (ex.: preenchendo uma semana que ficou pra trás)
+// aparece na posição cronológica certa, em vez de sempre ir pro fim da lista
+// por ter sido criada por último.
+export function dataOrdenacaoAgrupamento(edicao: Edicao): string {
+  const periodo = edicao.periodo;
+  if (periodo.tipo === 'semanal') return periodo.dataInicio || edicao.criadoEm;
+  if (periodo.tipo === 'mensal') return `${periodo.ano}-${String(periodo.mes).padStart(2, '0')}-01`;
+  if (periodo.tipo === 'anual') return `${periodo.ano}-01-01`;
+  return edicao.criadoEm;
 }
 
 function formatarDataCurta(iso: string): string {

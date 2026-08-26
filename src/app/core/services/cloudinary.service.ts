@@ -19,7 +19,7 @@ const TRANSFORMACOES_PRESET: Record<PresetImagem, string> = {
   // aparece (editor, lista do admin e card da home), só variando o
   // tamanho final da caixa via CSS.
   capa: 'w_720,h_1080,c_fill,g_auto',
-  // Serviço em destaque: recorte 1.4:1 (paisagem), o mesmo formato da área
+  // Destaque da edição: recorte 1.4:1 (paisagem), o mesmo formato da área
   // onde a foto aparece no card de destaque público, tanto no preview do
   // editor quanto na edição pública.
   destaque: 'w_980,h_700,c_fill,g_auto',
@@ -39,7 +39,7 @@ export function urlImagemOtimizada(url: string, preset?: PresetImagem): string {
 
 /**
  * Upload de imagens para o Cloudinary, usado pelo Editor de edições (capa,
- * serviço em destaque e mídia das atualizações) no lugar do Firebase
+ * destaque da edição e mídia das atualizações) no lugar do Firebase
  * Storage. O upload é "unsigned", direto do navegador, com um preset
  * público configurado no painel do Cloudinary (sem API Secret no frontend).
  * Firestore guarda só a URL retornada, nunca o arquivo em si.

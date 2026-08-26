@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Auth, sendPasswordResetEmail } from '@angular/fire/auth';
 import { PERFIS_ACESSO, PerfilAcesso, StatusUsuario, Usuario } from '../../../../core/models/usuario.model';
 import { ToastService } from '../../../../core/services/toast.service';
+import { FecharAoClicarFora } from '../../../../shared/directives/fechar-ao-clicar-fora.directive';
 
 export interface DadosFormularioUsuario {
   nome: string;
@@ -16,7 +17,7 @@ export interface DadosFormularioUsuario {
 // documento no Firestore é o próprio e-mail (ver UsuarioService).
 @Component({
   selector: 'app-usuario-modal',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, FecharAoClicarFora],
   templateUrl: './usuario-modal.html',
   styleUrl: './usuario-modal.scss',
 })
@@ -93,12 +94,6 @@ export class UsuarioModal implements OnInit {
 
   onFechar(): void {
     this.fechar.emit();
-  }
-
-  onBackdropClick(evento: MouseEvent): void {
-    if (evento.target === evento.currentTarget) {
-      this.onFechar();
-    }
   }
 
   @HostListener('document:keydown.escape')

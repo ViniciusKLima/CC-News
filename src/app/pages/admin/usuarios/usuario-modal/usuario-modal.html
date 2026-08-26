@@ -1,4 +1,4 @@
-<div class="modal-backdrop" (click)="onBackdropClick($event)">
+<div class="modal-backdrop" appFecharAoClicarFora (fecharAoClicarFora)="onFechar()">
   <div class="modal-painel" role="dialog" aria-modal="true" [attr.aria-label]="modoEdicao ? 'Editar usuário' : 'Adicionar usuário'">
     <header class="modal-cabecalho">
       <div>

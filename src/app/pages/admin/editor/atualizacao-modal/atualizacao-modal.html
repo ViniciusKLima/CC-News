@@ -14,7 +14,7 @@
       <div class="campo">
         <div class="campo-cabecalho">
           <label id="label-icone">Ícone *</label>
-          @if (totalPaginasIcone > 1) {
+          @if (totalPaginasIcone() > 1) {
             <div class="icone-paginacao">
               <button
                 type="button"
@@ -25,12 +25,12 @@
               >
                 <i class="bi bi-chevron-left"></i>
               </button>
-              <span class="icone-paginacao-contagem">{{ paginaIcone() + 1 }}/{{ totalPaginasIcone }}</span>
+              <span class="icone-paginacao-contagem">{{ paginaIcone() + 1 }}/{{ totalPaginasIcone() }}</span>
               <button
                 type="button"
                 class="icone-paginacao-seta"
                 aria-label="Mais ícones"
-                [disabled]="paginaIcone() === totalPaginasIcone - 1"
+                [disabled]="paginaIcone() === totalPaginasIcone() - 1"
                 (click)="iconePaginaSeguinte()"
               >
                 <i class="bi bi-chevron-right"></i>
@@ -38,7 +38,7 @@
             </div>
           }
         </div>
-        <div class="icone-grid" role="radiogroup" aria-labelledby="label-icone">
+        <div #iconeGrid class="icone-grid" role="radiogroup" aria-labelledby="label-icone">
           @for (icone of iconesPaginados(); track icone) {
             <button
               type="button"

@@ -1,4 +1,17 @@
-import { Component, HostListener, OnInit, computed, inject, input, output, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Atualizacao, CategoriaAtualizacao, MidiaAtualizacao, labelCategoria } from '../../../../core/models/edition.model';
 import { CloudinaryService, urlImagemOtimizada } from '../../../../core/services/cloudinary.service';
@@ -56,9 +69,50 @@ const ICONES_DISPONIVEIS = [
   'bi-database',
   'bi-qr-code',
   'bi-hdd-network',
+  // Avaliação e engajamento
+  'bi-star',
+  'bi-star-fill',
+  'bi-hand-thumbs-up',
+  'bi-heart',
+  'bi-trophy',
+  'bi-award',
+  'bi-emoji-smile',
+  'bi-megaphone',
+  'bi-chat-dots',
+  'bi-people',
+  // Segurança e acesso
+  'bi-lock',
+  'bi-unlock',
+  'bi-fingerprint',
+  'bi-universal-access',
+  // Financeiro
+  'bi-cash-coin',
+  'bi-credit-card',
+  'bi-piggy-bank',
+  'bi-receipt',
+  // Dados e indicadores
+  'bi-bar-chart',
+  'bi-pie-chart',
+  'bi-clipboard-data',
+  // Diversos
+  'bi-rocket-takeoff',
+  'bi-puzzle',
+  'bi-magic',
+  'bi-translate',
+  'bi-globe',
+  'bi-arrow-repeat',
+  'bi-clock-history',
+  'bi-exclamation-triangle',
+  'bi-check-circle',
 ];
 
-const ICONES_POR_PAGINA = 20;
+// Precisa refletir o minmax(38px, 1fr) e o gap de 8px do grid de ícones no
+// SCSS: são usados pra calcular quantas colunas cabem por linha e, com isso,
+// quantos ícones cabem por página sem sobrar espaço vazio na última coluna.
+const ICONE_LARGURA_MIN = 38;
+const ICONE_GAP = 8;
+const ICONE_LINHAS_POR_PAGINA = 3;
+const ICONES_POR_PAGINA_INICIAL = 20;
 
 const TITULO_MAXLENGTH = 70;
 const DESCRICAO_MAXLENGTH = 220;
@@ -73,10 +127,14 @@ const IMPACTO_MAXLENGTH = 140;
   templateUrl: './atualizacao-modal.html',
   styleUrl: './atualizacao-modal.scss',
 })
-export class AtualizacaoModal implements OnInit {
+export class AtualizacaoModal implements OnInit, AfterViewInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly cloudinaryService = inject(CloudinaryService);
   private readonly toastService = inject(ToastService);
+
+  @ViewChild('iconeGrid') private readonly iconeGridRef?: ElementRef<HTMLElement>;
+  private resizeObserver?: ResizeObserver;
+  private primeiraMedicaoFeita = false;
 
   readonly categoria = input.required<CategoriaAtualizacao>();
   readonly atualizacaoEditando = input<Atualizacao | null>(null);
@@ -97,12 +155,17 @@ export class AtualizacaoModal implements OnInit {
   readonly midiaVideoErro = signal<string | null>(null);
 
   // Paginação da grade de ícones: com muitas opções, mostrar tudo de uma vez
-  // fica poluído, então navega em blocos de ICONES_POR_PAGINA por vez.
+  // fica poluído, então navega em blocos por vez. O tamanho do bloco é
+  // recalculado pelo ResizeObserver (ver ngAfterViewInit) de acordo com
+  // quantas colunas cabem na largura atual do modal, pra não sobrar espaço
+  // vazio numa página enquanto ícones "extras" ficam empurrados pra próxima.
   readonly paginaIcone = signal(0);
-  readonly totalPaginasIcone = Math.ceil(this.icones.length / ICONES_POR_PAGINA);
+  readonly iconesPorPagina = signal(ICONES_POR_PAGINA_INICIAL);
+  readonly totalPaginasIcone = computed(() => Math.max(1, Math.ceil(this.icones.length / this.iconesPorPagina())));
   readonly iconesPaginados = computed(() => {
-    const inicio = this.paginaIcone() * ICONES_POR_PAGINA;
-    return this.icones.slice(inicio, inicio + ICONES_POR_PAGINA);
+    const tamanho = this.iconesPorPagina();
+    const inicio = this.paginaIcone() * tamanho;
+    return this.icones.slice(inicio, inicio + tamanho);
   });
 
   readonly form = this.fb.nonNullable.group({
@@ -137,11 +200,43 @@ export class AtualizacaoModal implements OnInit {
         midiaVideoUrl: midia?.tipo === 'video' ? midia.url : '',
       });
       this.aplicarTipoMidia(midia?.tipo ?? 'nenhum');
+    }
+  }
 
-      const indiceIcone = this.icones.indexOf(editando.icone);
-      if (indiceIcone > -1) {
-        this.paginaIcone.set(Math.floor(indiceIcone / ICONES_POR_PAGINA));
-      }
+  ngAfterViewInit(): void {
+    const grade = this.iconeGridRef?.nativeElement;
+    if (!grade) return;
+
+    this.resizeObserver = new ResizeObserver((entradas) => {
+      const largura = entradas[0]?.contentRect.width;
+      if (largura) this.atualizarIconesPorPagina(largura);
+    });
+    this.resizeObserver.observe(grade);
+    this.atualizarIconesPorPagina(grade.clientWidth);
+  }
+
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
+  }
+
+  // Colunas cabíveis na largura atual (mesma conta do CSS Grid com
+  // auto-fill) vezes um número fixo de linhas, pra aproveitar o espaço
+  // horizontal disponível em vez de um total de ícones fixo por página.
+  private atualizarIconesPorPagina(largura: number): void {
+    const colunas = Math.max(1, Math.floor((largura + ICONE_GAP) / (ICONE_LARGURA_MIN + ICONE_GAP)));
+    const porPagina = colunas * ICONE_LINHAS_POR_PAGINA;
+    this.iconesPorPagina.set(porPagina);
+
+    if (!this.primeiraMedicaoFeita) {
+      this.primeiraMedicaoFeita = true;
+      const indiceIcone = this.icones.indexOf(this.form.controls.icone.value);
+      this.paginaIcone.set(indiceIcone > -1 ? Math.floor(indiceIcone / porPagina) : 0);
+      return;
+    }
+
+    const totalPaginas = Math.max(1, Math.ceil(this.icones.length / porPagina));
+    if (this.paginaIcone() >= totalPaginas) {
+      this.paginaIcone.set(totalPaginas - 1);
     }
   }
 
@@ -158,7 +253,7 @@ export class AtualizacaoModal implements OnInit {
   }
 
   iconePaginaSeguinte(): void {
-    this.paginaIcone.update((pagina) => Math.min(this.totalPaginasIcone - 1, pagina + 1));
+    this.paginaIcone.update((pagina) => Math.min(this.totalPaginasIcone() - 1, pagina + 1));
   }
 
   campoInvalido(campo: 'icone' | 'titulo' | 'descricao' | 'impacto'): boolean {

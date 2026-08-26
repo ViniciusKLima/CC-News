@@ -15,6 +15,7 @@ import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { CONFIRMACOES } from '../../../core/services/confirm-dialog.presets';
 import { urlImagemOtimizada } from '../../../core/services/cloudinary.service';
+import { gradienteCapa } from '../../../core/utils/cor.util';
 import { AdminSidebar } from '../../../shared/components/admin-sidebar/admin-sidebar';
 
 interface GrupoMensal {
@@ -46,6 +47,7 @@ export class Dashboard {
   protected readonly labelTipo = labelTipo;
   protected readonly urlImagemOtimizada = urlImagemOtimizada;
   protected readonly corPadrao = COR_PADRAO_PLATAFORMA;
+  protected readonly gradienteCapa = gradienteCapa;
 
   termoBusca = signal('');
   filtroMes = signal('');

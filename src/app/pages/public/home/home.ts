@@ -17,6 +17,7 @@ import { Header } from '../../../shared/components/header/header';
 import { Footer } from '../../../shared/components/footer/footer';
 import {
   anoAgrupamento,
+  COR_PADRAO_PLATAFORMA,
   Edicao,
   mesAgrupamento,
   MESES_NOMES,
@@ -25,6 +26,7 @@ import {
 } from '../../../core/models/edition.model';
 import { EditionService } from '../../../core/services/edition.service';
 import { urlImagemOtimizada } from '../../../core/services/cloudinary.service';
+import { gradienteCapa } from '../../../core/utils/cor.util';
 
 interface GrupoMensal {
   id: string;
@@ -59,6 +61,8 @@ export class Home implements AfterViewInit {
   protected readonly formatarPeriodo = formatarPeriodo;
   protected readonly labelTipo = labelTipo;
   protected readonly urlImagemOtimizada = urlImagemOtimizada;
+  protected readonly gradienteCapa = gradienteCapa;
+  protected readonly corPadrao = COR_PADRAO_PLATAFORMA;
 
   // A área pública só mostra edições com status "publico". As arquivadas
   // continuam existindo no service, mas não devem aparecer aqui.

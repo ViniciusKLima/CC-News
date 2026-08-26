@@ -23,6 +23,7 @@ import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { CONFIRMACOES } from '../../../core/services/confirm-dialog.presets';
 import { CloudinaryService, urlImagemOtimizada } from '../../../core/services/cloudinary.service';
+import { gradienteCapa } from '../../../core/utils/cor.util';
 import { AtualizacaoModal } from './atualizacao-modal/atualizacao-modal';
 import { AtualizacaoCard } from '../../../shared/components/atualizacao-card/atualizacao-card';
 
@@ -77,6 +78,7 @@ export class Editor {
 
   protected readonly urlImagemOtimizada = urlImagemOtimizada;
   protected readonly corCategoriaAtualizacao = corCategoriaAtualizacao;
+  protected readonly gradienteCapa = gradienteCapa;
 
   // Enquanto o service ainda está carregando os dados, não dá para saber se
   // o id existe ou não. Evita mostrar "edição não encontrada" precocemente.

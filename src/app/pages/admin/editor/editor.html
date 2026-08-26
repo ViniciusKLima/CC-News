@@ -77,7 +77,7 @@
                   [class.selecionado]="capaModo() === 'cor'"
                   (click)="alternarCapaModo('cor')"
                 >
-                  <i class="bi bi-palette"></i> Cor sólida
+                  <i class="bi bi-palette"></i> Cor
                 </button>
               </div>
 
@@ -118,7 +118,7 @@
                 </div>
               } @else {
                 <div class="cor-hex-escolha">
-                  <div class="cor-hex-preview" [style.background-color]="form.controls.capaCor.value">
+                  <div class="cor-hex-preview" [style.background]="gradienteCapa(form.controls.capaCor.value)">
                     <i class="bi bi-newspaper"></i>
                   </div>
                   <div class="cor-hex-campos">

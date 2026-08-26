@@ -167,8 +167,11 @@
               <div
                 class="card-edicao d-flex flex-column justify-content-between align-items-start"
                 [class.tem-imagem]="!!edicao.capaUrl"
-                [style.background-color]="edicao.capaCor || null"
-                [style.background-image]="edicao.capaUrl ? 'url(' + urlImagemOtimizada(edicao.capaUrl, 'capa') + ')' : null"
+                [style.background-image]="
+                  edicao.capaUrl
+                    ? 'url(' + urlImagemOtimizada(edicao.capaUrl, 'capa') + ')'
+                    : gradienteCapa(edicao.capaCor || corPadrao)
+                "
               >
                 <div class="data-edicao d-flex align-items-center">
                   <i class="bi bi-calendar-week"></i>

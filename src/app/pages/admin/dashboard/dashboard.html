@@ -132,7 +132,7 @@
                 @for (edicao of grupo.edicoes; track edicao.id) {
                   <div class="edicao-linha">
                     <div class="edicao-info">
-                      <div class="edicao-capa" [style.background]="edicao.capaCor || corPadrao">
+                      <div class="edicao-capa" [style.background]="gradienteCapa(edicao.capaCor || corPadrao)">
                         @if (edicao.capaUrl) {
                           <img [src]="urlImagemOtimizada(edicao.capaUrl, 'capa')" [alt]="edicao.titulo" />
                         } @else {

@@ -187,14 +187,15 @@ export function formatarPeriodo(periodo: PeriodoEdicao): string {
 }
 
 // Mês/ano usados para agrupar a edição no histórico (dashboard do admin e
-// home pública). Semanal usa o início do período informado; mensal usa o
-// próprio mês/ano escolhido; anual e especial não têm um mês próprio, então
-// usam a data de criação da edição.
+// home pública). Semanal usa o FIM do período informado (uma edição "29 de
+// junho a 4 de julho" pertence a julho, o mês em que ela termina, não a
+// junho); mensal usa o próprio mês/ano escolhido; anual e especial não têm
+// um mês próprio, então usam a data de criação da edição.
 export function anoAgrupamento(edicao: Edicao): number {
   const periodo = edicao.periodo;
   if (periodo.tipo === 'mensal') return periodo.ano;
   if (periodo.tipo === 'semanal') {
-    return Number(periodo.dataInicio.slice(0, 4)) || Number(edicao.criadoEm.slice(0, 4));
+    return Number(periodo.dataFim.slice(0, 4)) || Number(edicao.criadoEm.slice(0, 4));
   }
   return Number(edicao.criadoEm.slice(0, 4));
 }
@@ -203,19 +204,20 @@ export function mesAgrupamento(edicao: Edicao): number {
   const periodo = edicao.periodo;
   if (periodo.tipo === 'mensal') return periodo.mes;
   if (periodo.tipo === 'semanal') {
-    return Number(periodo.dataInicio.slice(5, 7)) || Number(edicao.criadoEm.slice(5, 7));
+    return Number(periodo.dataFim.slice(5, 7)) || Number(edicao.criadoEm.slice(5, 7));
   }
   return Number(edicao.criadoEm.slice(5, 7));
 }
 
 // Data (AAAA-MM-DD) usada só pra ordenar as edições dentro do mesmo grupo de
-// mês, da mais antiga pra mais recente — assim uma edição criada depois mas
-// com período anterior (ex.: preenchendo uma semana que ficou pra trás)
-// aparece na posição cronológica certa, em vez de sempre ir pro fim da lista
-// por ter sido criada por último.
+// mês, da mais recente pra mais antiga — assim uma edição criada antes mas
+// com período posterior (ex.: preenchendo uma semana que ficou pra trás)
+// aparece na posição cronológica certa, em vez de ficar presa na posição em
+// que foi criada. Usa o FIM do período (mesmo critério do agrupamento por
+// mês, ver anoAgrupamento/mesAgrupamento).
 export function dataOrdenacaoAgrupamento(edicao: Edicao): string {
   const periodo = edicao.periodo;
-  if (periodo.tipo === 'semanal') return periodo.dataInicio || edicao.criadoEm;
+  if (periodo.tipo === 'semanal') return periodo.dataFim || periodo.dataInicio || edicao.criadoEm;
   if (periodo.tipo === 'mensal') return `${periodo.ano}-${String(periodo.mes).padStart(2, '0')}-01`;
   if (periodo.tipo === 'anual') return `${periodo.ano}-01-01`;
   return edicao.criadoEm;

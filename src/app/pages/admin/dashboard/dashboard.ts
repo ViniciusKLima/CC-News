@@ -111,7 +111,7 @@ export class Dashboard {
     }
 
     for (const grupo of mapa.values()) {
-      grupo.edicoes.sort((a, b) => dataOrdenacaoAgrupamento(a).localeCompare(dataOrdenacaoAgrupamento(b)));
+      grupo.edicoes.sort((a, b) => dataOrdenacaoAgrupamento(b).localeCompare(dataOrdenacaoAgrupamento(a)));
     }
 
     return Array.from(mapa.values()).sort((a, b) => b.chave.localeCompare(a.chave));

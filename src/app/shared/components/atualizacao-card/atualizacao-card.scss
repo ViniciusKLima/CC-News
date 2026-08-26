@@ -33,20 +33,35 @@
 .atualizacao-midia {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
   border-radius: 10px;
   overflow: hidden;
   background: var(--color-secondary);
 
-  img,
+  // Thumbnail de vídeo do YouTube: mantém 16:9 fixo (já vem nessa proporção)
+  // com o botão de play centralizado por cima.
   .video-wrap {
     display: block;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    aspect-ratio: 16 / 9;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
   }
 
-  img.interativo {
+  // Foto enviada: mostra a imagem inteira, sem cortar nem dar zoom. A
+  // largura preenche o card e a altura acompanha a proporção original da
+  // imagem, em vez de forçar um recorte 16:9 que descartava parte da foto.
+  > img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  > img.interativo {
     cursor: zoom-in;
     transition: transform 0.2s ease;
 

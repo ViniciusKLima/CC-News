@@ -330,6 +330,15 @@ export class AtualizacaoModal implements OnInit, AfterViewInit, OnDestroy {
     return undefined;
   }
 
+  // Próximos passos usa um layout público de linha do tempo (só ícone,
+  // título e descrição, ver edition.html) — impacto e mídia não fazem
+  // sentido nessa categoria, então o modal nem mostra esses campos pra ela
+  // (ver atualizacao-modal.html) e aqui garante que não são salvos, mesmo
+  // que um item antigo tenha esses dados de antes dessa mudança.
+  protected get semImpactoNemMidia(): boolean {
+    return this.categoria() === 'proximos-passos';
+  }
+
   private construirDados(): Omit<Atualizacao, 'id'> | null {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -338,14 +347,16 @@ export class AtualizacaoModal implements OnInit, AfterViewInit, OnDestroy {
 
     const valores = this.form.getRawValue();
 
-    if (valores.midiaTipo === 'imagem' && (this.midiaEnviando() || !valores.midiaImagemUrl)) {
-      this.toastService.erro('Aguarde o envio da imagem terminar antes de salvar.');
-      return null;
-    }
+    if (!this.semImpactoNemMidia) {
+      if (valores.midiaTipo === 'imagem' && (this.midiaEnviando() || !valores.midiaImagemUrl)) {
+        this.toastService.erro('Aguarde o envio da imagem terminar antes de salvar.');
+        return null;
+      }
 
-    if (valores.midiaTipo === 'video' && !extrairIdYoutube(valores.midiaVideoUrl)) {
-      this.midiaVideoErro.set('Informe um link válido do YouTube.');
-      return null;
+      if (valores.midiaTipo === 'video' && !extrairIdYoutube(valores.midiaVideoUrl)) {
+        this.midiaVideoErro.set('Informe um link válido do YouTube.');
+        return null;
+      }
     }
 
     return {
@@ -353,8 +364,8 @@ export class AtualizacaoModal implements OnInit, AfterViewInit, OnDestroy {
       icone: valores.icone,
       titulo: valores.titulo.trim(),
       descricao: valores.descricao.trim(),
-      impacto: valores.impacto.trim(),
-      midia: this.midiaParaSalvar(valores),
+      impacto: this.semImpactoNemMidia ? '' : valores.impacto.trim(),
+      midia: this.semImpactoNemMidia ? undefined : this.midiaParaSalvar(valores),
       visivel: this.atualizacaoEditando()?.visivel ?? true,
     };
   }

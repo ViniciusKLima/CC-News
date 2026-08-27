@@ -193,6 +193,17 @@
   line-height: 1.4;
 }
 
+// Fica colado na base do card mesmo quando o grid estica o card pra
+// acompanhar a altura da linha (imagens de proporções diferentes geram
+// alturas de conteúdo diferentes) — assim o impacto/badge de todos os
+// cards de uma mesma linha fica alinhado na mesma posição vertical.
+.atualizacao-rodape {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
 .atualizacao-impacto {
   margin: 0;
   padding: 6px 10px;

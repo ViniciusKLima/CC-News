@@ -29,9 +29,14 @@
 
   <h3>{{ atualizacao().titulo }}</h3>
   <p class="atualizacao-descricao">{{ atualizacao().descricao }}</p>
-  <p class="atualizacao-impacto">{{ atualizacao().impacto }}</p>
 
-  @if (!atualizacao().visivel) {
-    <span class="badge-oculta"><i class="bi bi-eye-slash"></i> Oculta para o público</span>
-  }
+  <div class="atualizacao-rodape">
+    @if (atualizacao().impacto) {
+      <p class="atualizacao-impacto">{{ atualizacao().impacto }}</p>
+    }
+
+    @if (!atualizacao().visivel) {
+      <span class="badge-oculta"><i class="bi bi-eye-slash"></i> Oculta para o público</span>
+    }
+  </div>
 </article>

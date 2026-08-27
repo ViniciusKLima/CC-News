@@ -387,11 +387,11 @@
 .itens-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  // A altura da imagem de cada card agora acompanha a proporção original da
-  // foto (ver atualizacao-card.scss), então os cards de uma mesma linha
-  // podem ter alturas diferentes — align-items: start evita que o grid
-  // estique todos pra igualar o mais alto.
-  align-items: start;
+  // A altura da imagem de cada card varia com a proporção original da foto
+  // (ver atualizacao-card.scss), mas os cards continuam esticando pra
+  // igualar a altura da linha (comportamento padrão do grid) — o rodapé do
+  // card (ver .atualizacao-rodape) absorve essa diferença ficando colado
+  // embaixo, então as bordas de cada linha ficam alinhadas.
   gap: 18px;
 }
 
@@ -495,49 +495,78 @@
 
 .passos-lista {
   list-style: none;
-  margin: 0 0 16px;
+  margin: 0 0 4px;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+}
 
-  li {
-    display: flex;
-    gap: 12px;
+// Cada passo é uma linha de uma "linha do tempo": ícone à esquerda, texto à
+// direita. O ::before desenha o trecho de linha que conecta o ícone deste
+// passo ao de baixo, preenchendo exatamente o espaço reservado pelo
+// padding-bottom — por isso não há gap no <ul>, o espaçamento entre os
+// passos é todo feito por esse padding.
+.passo-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 22px;
+
+  &.sem-linha {
+    padding-bottom: 0;
+  }
+
+  &:not(.sem-linha)::before {
+    content: '';
+    position: absolute;
+    top: 30px;
+    bottom: 0;
+    left: 14px;
+    width: 2px;
+    background: var(--color-border);
   }
 }
 
-.passo-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-top: 5px;
+.passo-icone {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
+  border-radius: 50%;
+  font-size: 0.85rem;
 
-  &.dot-azul {
-    background: var(--color-primary);
+  &.cor-azul {
+    background: var(--bgc-azul-opacity);
+    color: var(--color-primary);
   }
 
-  &.dot-roxo {
-    background: var(--bgc-purple);
+  &.cor-roxo {
+    background: var(--bgc-purple-opacity);
+    color: var(--bgc-purple);
   }
 
-  &.dot-verde {
-    background: var(--color-success);
+  &.cor-verde {
+    background: var(--bgc-verde-opacity);
+    color: var(--color-success);
   }
 
-  &.dot-laranja {
-    background: var(--color-warning);
+  &.cor-laranja {
+    background: var(--bgc-yellow-opacity);
+    color: var(--color-warning);
   }
 
-  &.dot-rosa {
-    background: #d6336c;
+  &.cor-rosa {
+    background: #ffe4f0;
+    color: #d6336c;
   }
 }
 
 .passo-conteudo {
   flex: 1;
   min-width: 0;
+  padding-top: 4px;
 }
 
 .passo-titulo {

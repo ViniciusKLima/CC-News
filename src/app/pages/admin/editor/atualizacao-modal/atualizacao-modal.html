@@ -90,33 +90,35 @@
         }
       </div>
 
-      <div class="campo">
-        <div class="campo-cabecalho">
-          <label for="atualizacao-impacto">Impacto</label>
-          <span class="contador">{{ form.controls.impacto.value.length }}/{{ impactoMaxlength }}</span>
+      @if (!semImpactoNemMidia) {
+        <div class="campo">
+          <div class="campo-cabecalho">
+            <label for="atualizacao-impacto">Impacto</label>
+            <span class="contador">{{ form.controls.impacto.value.length }}/{{ impactoMaxlength }}</span>
+          </div>
+          <input
+            id="atualizacao-impacto"
+            type="text"
+            formControlName="impacto"
+            [maxlength]="impactoMaxlength"
+            placeholder="Ex.: Garante maior precisão na organização dos serviços."
+          />
         </div>
-        <input
-          id="atualizacao-impacto"
-          type="text"
-          formControlName="impacto"
-          [maxlength]="impactoMaxlength"
-          placeholder="Ex.: Garante maior precisão na organização dos serviços."
-        />
-      </div>
 
-      <div class="campo">
-        <label for="atualizacao-midia-tipo">Mídia (opcional)</label>
-        <div class="select-wrap">
-          <select id="atualizacao-midia-tipo" formControlName="midiaTipo">
-            <option value="nenhum">Sem mídia</option>
-            <option value="imagem">Foto</option>
-            <option value="video">Vídeo do YouTube</option>
-          </select>
-          <i class="bi bi-chevron-down"></i>
+        <div class="campo">
+          <label for="atualizacao-midia-tipo">Mídia (opcional)</label>
+          <div class="select-wrap">
+            <select id="atualizacao-midia-tipo" formControlName="midiaTipo">
+              <option value="nenhum">Sem mídia</option>
+              <option value="imagem">Foto</option>
+              <option value="video">Vídeo do YouTube</option>
+            </select>
+            <i class="bi bi-chevron-down"></i>
+          </div>
         </div>
-      </div>
+      }
 
-      @if (form.controls.midiaTipo.value === 'imagem') {
+      @if (!semImpactoNemMidia && form.controls.midiaTipo.value === 'imagem') {
         <div class="campo">
           <label>Foto</label>
           <div class="midia-imagem-upload">
@@ -156,7 +158,7 @@
         </div>
       }
 
-      @if (form.controls.midiaTipo.value === 'video') {
+      @if (!semImpactoNemMidia && form.controls.midiaTipo.value === 'video') {
         <div class="campo">
           <label for="atualizacao-midia-video">Link do YouTube</label>
           <input

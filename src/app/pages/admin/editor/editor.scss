@@ -968,11 +968,11 @@ textarea {
 .atualizacoes-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  // A altura da imagem de cada card agora acompanha a proporção original da
-  // foto (ver atualizacao-card.scss), então os cards de uma mesma linha
-  // podem ter alturas diferentes — align-items: start evita que o grid
-  // estique todos pra igualar o mais alto.
-  align-items: start;
+  // A altura da imagem de cada card varia com a proporção original da foto
+  // (ver atualizacao-card.scss), mas os cards continuam esticando pra
+  // igualar a altura da linha (comportamento padrão do grid) — o rodapé do
+  // card (ver .atualizacao-rodape) absorve essa diferença ficando colado
+  // embaixo, então as bordas de cada linha ficam alinhadas.
   gap: 16px;
 }
 

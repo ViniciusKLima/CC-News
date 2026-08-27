@@ -230,9 +230,11 @@
                   <p class="sidebar-vazio">Nenhum item nesta categoria por enquanto.</p>
                 } @else {
                   <ul class="passos-lista">
-                    @for (passo of proximosPassos(); track passo.id) {
-                      <li>
-                        <span class="passo-dot" [class]="'dot-' + corCategoria(passo.categoria)"></span>
+                    @for (passo of proximosPassos(); track passo.id; let ultimo = $last) {
+                      <li class="passo-item" [class.sem-linha]="ultimo">
+                        <span class="passo-icone" [class]="'cor-' + corCategoria(passo.categoria)">
+                          <i [class]="'bi ' + passo.icone"></i>
+                        </span>
                         <div class="passo-conteudo">
                           <span class="passo-titulo">{{ passo.titulo }}</span>
                           <p class="passo-descricao">{{ passo.descricao }}</p>

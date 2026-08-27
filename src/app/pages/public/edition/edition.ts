@@ -118,6 +118,9 @@ export class Edition implements AfterViewInit {
 
   readonly imagemAmpliada = signal<string | null>(null);
   readonly videoAmpliado = signal<string | null>(null);
+  // Enquanto o iframe do YouTube carrega, fica com fundo branco/transparente
+  // parado — esse skeleton cobre esse vazio até o (load) do iframe disparar.
+  readonly videoCarregando = signal(true);
 
   readonly skeletonTabs = Array.from({ length: 5 });
   readonly skeletonItens = Array.from({ length: 6 });
@@ -213,6 +216,7 @@ export class Edition implements AfterViewInit {
   // grandes e se sobrepõem. Por isso o vídeo só toca dentro do lightbox, num
   // tamanho grande o suficiente pros controles nativos do YouTube caberem.
   ampliarVideo(videoId: string): void {
+    this.videoCarregando.set(true);
     this.videoAmpliado.set(videoId);
   }
 
@@ -229,9 +233,21 @@ export class Edition implements AfterViewInit {
   // O id extraído já passou pela validação da regex do youtube.util (só
   // letras, números, - e _), então é seguro marcar a URL de embed como
   // confiável para o Angular não bloquear o iframe.
-  urlEmbedSeguro(videoId: string): SafeResourceUrl {
+  //
+  // Precisa ser um computed (memoizado), não um método chamado direto no
+  // template: bypassSecurityTrustResourceUrl devolve um objeto NOVO a cada
+  // chamada, mesmo pra mesma URL. Se o [src] do iframe fosse recalculado a
+  // cada ciclo de change detection, o binding via um método comum, ele
+  // recebe uma referência diferente a cada vez e o Angular recarrega o
+  // iframe do zero (o vídeo reinicia). Entrar em tela cheia dispara um
+  // resize da janela, que aciona o onResize() abaixo e uma nova detecção de
+  // mudanças — e era exatamente esse recarregamento que derrubava a tela
+  // cheia e reiniciava o vídeo.
+  readonly urlEmbedVideoAmpliado = computed<SafeResourceUrl | null>(() => {
+    const videoId = this.videoAmpliado();
+    if (!videoId) return null;
     return this.sanitizer.bypassSecurityTrustResourceUrl(`${urlEmbedYoutube(videoId)}?autoplay=1&rel=0`);
-  }
+  });
 
   selecionarFiltro(valor: FiltroCategoria): void {
     if (this.houveArrasto) {

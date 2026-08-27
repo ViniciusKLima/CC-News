@@ -793,6 +793,7 @@
 }
 
 .lightbox-video {
+  position: relative;
   width: min(90vw, 960px);
   aspect-ratio: 16 / 9;
   border-radius: 16px;
@@ -806,6 +807,15 @@
     height: 100%;
     border: 0;
   }
+}
+
+// Cobre o iframe (que fica branco/parado enquanto o player do YouTube
+// carrega) até o evento (load) disparar.
+.lightbox-video-skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 0;
 }
 
 .lightbox-fechar {

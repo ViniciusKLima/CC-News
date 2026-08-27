@@ -284,11 +284,15 @@
       <i class="bi bi-x-lg"></i>
     </button>
     <div class="lightbox-video" (click)="$event.stopPropagation()">
+      @if (videoCarregando()) {
+        <div class="lightbox-video-skeleton skeleton"></div>
+      }
       <iframe
-        [src]="urlEmbedSeguro(videoId)"
+        [src]="urlEmbedVideoAmpliado()"
         title="Vídeo da atualização"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowfullscreen
+        (load)="videoCarregando.set(false)"
       ></iframe>
     </div>
   </div>

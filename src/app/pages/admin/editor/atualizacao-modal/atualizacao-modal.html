@@ -166,6 +166,10 @@
               (change)="onImagemSelecionada($event)"
             />
           </div>
+          <p class="dica-midia">
+            <i class="bi bi-info-circle"></i> A foto aparece na largura inteira do card, sem cortes. Recomendamos
+            proporção paisagem 16:9 (ex.: 1200 x 675px) para manter o visual consistente entre os cards.
+          </p>
         </div>
       }
 
@@ -183,7 +187,11 @@
           @if (midiaVideoErro()) {
             <span class="erro-campo">{{ midiaVideoErro() }}</span>
           } @else {
-            <p class="dica-midia"><i class="bi bi-info-circle"></i> Aceita links do youtube.com ou youtu.be.</p>
+            <p class="dica-midia">
+              <i class="bi bi-info-circle"></i> Aceita links do youtube.com ou youtu.be. A miniatura no card usa
+              proporção 16:9 — prefira vídeos no formato paisagem (não vertical/Shorts) para não cortar partes
+              importantes da imagem.
+            </p>
           }
         </div>
       }

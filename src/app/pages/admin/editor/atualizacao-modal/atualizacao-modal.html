@@ -6,11 +6,10 @@
           <select
             class="modal-categoria-select"
             aria-label="Categoria da atualização"
-            [value]="categoriaSelecionada()"
             (change)="onCategoriaAlterada($event)"
           >
             @for (cat of categorias; track cat.valor) {
-              <option [value]="cat.valor">{{ cat.label }}</option>
+              <option [value]="cat.valor" [selected]="cat.valor === categoriaSelecionada()">{{ cat.label }}</option>
             }
           </select>
           <i class="bi bi-chevron-down"></i>

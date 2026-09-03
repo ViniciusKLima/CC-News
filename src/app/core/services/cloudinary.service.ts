@@ -8,7 +8,7 @@ export type PastaCloudinary = 'cc-news/edicoes/capas' | 'cc-news/destaques' | 'c
 // Tamanhos padrão usados nas telas da aplicação. Cada um vira uma
 // transformação diferente em cima da mesma imagem original, sem precisar
 // subir o arquivo mais de uma vez.
-export type PresetImagem = 'hero' | 'card' | 'detalhe' | 'mobile' | 'capa' | 'destaque';
+export type PresetImagem = 'hero' | 'card' | 'detalhe' | 'mobile' | 'capa' | 'destaque' | 'atualizacaoFoto';
 
 const TRANSFORMACOES_PRESET: Record<PresetImagem, string> = {
   hero: 'w_1600,c_fill,g_auto',
@@ -23,6 +23,11 @@ const TRANSFORMACOES_PRESET: Record<PresetImagem, string> = {
   // onde a foto aparece no card de destaque público, tanto no preview do
   // editor quanto na edição pública.
   destaque: 'w_980,h_700,c_fill,g_auto',
+  // Foto de uma atualização: sem crop (c_limit, não c_fill), pra respeitar
+  // a proporção original da imagem enviada — o card já mostra ela na
+  // largura inteira com altura automática, então forçar um recorte aqui
+  // (como o preset "card" faz) deixava a entrega sempre quadrada.
+  atualizacaoFoto: 'w_1200,c_limit',
 };
 
 /**

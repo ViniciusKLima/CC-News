@@ -148,7 +148,7 @@
               <label class="capa-vazia" for="atualizacao-midia-input">
                 <i class="bi bi-image"></i>
                 <span>Adicionar foto</span>
-                <small>PNG, JPG ou WEBP</small>
+                <small>PNG, JPG ou WEBP<br />16:9 (1200x675px)</small>
               </label>
             }
             @if (midiaEnviando()) {
@@ -166,10 +166,6 @@
               (change)="onImagemSelecionada($event)"
             />
           </div>
-          <p class="dica-midia">
-            <i class="bi bi-info-circle"></i> A foto aparece na largura inteira do card, sem cortes. Recomendamos
-            proporção paisagem 16:9 (ex.: 1200 x 675px) para manter o visual consistente entre os cards.
-          </p>
         </div>
       }
 

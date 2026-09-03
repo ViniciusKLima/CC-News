@@ -6,6 +6,11 @@
 
     @if (!carregando() && !edicaoNaoEncontrada()) {
       <div class="editor-topbar-acoes">
+        @if (rascunhoStatusTexto(); as texto) {
+          <span class="rascunho-status" title="Cópia de segurança local, protege contra fechar ou recarregar a aba sem querer. Não é a mesma coisa que publicar: clique em Salvar para isso.">
+            <i class="bi bi-cloud-check"></i> {{ texto }}
+          </span>
+        }
         @if (modo() === 'editar') {
           <button type="button" class="btn-perigo" (click)="excluirEdicao()">
             <i class="bi bi-trash3"></i> Excluir

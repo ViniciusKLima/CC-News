@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, HostListener, OnDestroy, computed, effect, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
@@ -20,6 +20,7 @@ import {
 } from '../../../core/models/edition.model';
 import { EditionService } from '../../../core/services/edition.service';
 import { PreviewService } from '../../../core/services/preview.service';
+import { RascunhoService } from '../../../core/services/rascunho.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { CONFIRMACOES } from '../../../core/services/confirm-dialog.presets';
@@ -37,6 +38,7 @@ const SLUG_MAXLENGTH = 60;
 const TEXTO_LIVRE_MAXLENGTH = 1000;
 const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const HEX_PATTERN = /^#[0-9a-fA-F]{6}$/;
+const RASCUNHO_INTERVALO_MS = 20_000;
 
 function gerarIdLocal(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -59,6 +61,23 @@ interface ValoresFormulario {
   servicoDestaque: { titulo: string; descricao: string; cor: string; imagemPosicao: PosicaoImagemDestaque };
 }
 
+// Cópia de segurança do estado do Editor guardada pelo RascunhoService.
+// Cobre tudo que o formulário/sinais precisam pra reconstruir a tela
+// exatamente como estava, não só os campos do FormGroup.
+interface RascunhoEditor {
+  form: ValoresFormulario;
+  capaModo: 'imagem' | 'cor';
+  capaPreviewUrl: string | null;
+  servicoDestaqueAtivo: boolean;
+  imagemDestaquePreviewUrl: string | null;
+  slugAtivo: boolean;
+  textoLivreAtivo: boolean;
+  atualizacoesAtivas: boolean;
+  resumoAtivo: boolean;
+  proximosPassosAtivo: boolean;
+  atualizacoes: Atualizacao[];
+}
+
 // Formulário de criação e edição de edições: dados gerais, período (que
 // muda de acordo com o tipo), capa, destaque da edição e a lista de
 // atualizações (abertas em um modal à parte, ver AtualizacaoModal).
@@ -68,12 +87,13 @@ interface ValoresFormulario {
   templateUrl: './editor.html',
   styleUrl: './editor.scss',
 })
-export class Editor {
+export class Editor implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly editionService = inject(EditionService);
   private readonly previewService = inject(PreviewService);
+  private readonly rascunhoService = inject(RascunhoService);
   private readonly toastService = inject(ToastService);
   private readonly confirmDialogService = inject(ConfirmDialogService);
   private readonly cloudinaryService = inject(CloudinaryService);
@@ -190,6 +210,26 @@ export class Editor {
 
   private jaPreenchido = false;
 
+  // Enquanto o admin ainda não respondeu se quer restaurar um rascunho
+  // encontrado ao abrir o Editor, o preenchimento automático a partir dos
+  // dados do Firestore (efeito abaixo) fica pausado — senão a resposta do
+  // Firestore poderia sobrescrever o rascunho antes da pergunta ser
+  // respondida. E o autosave também pausa nesse meio tempo, pra não
+  // salvar por cima do próprio rascunho ainda com o formulário em branco.
+  private readonly aguardandoRascunho = signal(false);
+
+  // Mostrado discretamente perto do botão Salvar, só pra deixar claro que o
+  // progresso está protegido contra fechar/recarregar a aba sem querer.
+  readonly ultimoRascunhoSalvoEm = signal<string | null>(null);
+  readonly rascunhoStatusTexto = computed(() => {
+    const salvoEm = this.ultimoRascunhoSalvoEm();
+    if (!salvoEm) return null;
+    const hora = new Intl.DateTimeFormat('pt-BR', { timeStyle: 'short' }).format(new Date(salvoEm));
+    return `Rascunho salvo às ${hora}`;
+  });
+
+  private rascunhoIntervalId?: ReturnType<typeof setInterval>;
+
   constructor() {
     this.desabilitarTodosPeriodos();
     this.form.controls.servicoDestaque.disable({ emitEvent: false });
@@ -198,14 +238,31 @@ export class Editor {
 
     this.form.controls.tipo.valueChanges.subscribe((tipo) => this.aplicarTipo(tipo));
 
-    // Quando os dados chegam (modo edição), preenche o formulário uma única vez.
+    // Quando os dados chegam (modo edição), preenche o formulário uma única
+    // vez — mas só depois de resolvida a pergunta de restaurar rascunho
+    // abaixo, senão os dados do Firestore poderiam sobrescrever a resposta.
     effect(() => {
       const edicao = this.edicao();
-      if (edicao && !this.jaPreenchido) {
+      if (edicao && !this.jaPreenchido && !this.aguardandoRascunho()) {
         this.jaPreenchido = true;
         this.preencherFormulario(edicao);
       }
     });
+
+    this.verificarRascunhoSalvo();
+
+    this.rascunhoIntervalId = setInterval(() => this.salvarRascunhoAgora(), RASCUNHO_INTERVALO_MS);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.rascunhoIntervalId);
+  }
+
+  // Salva uma última cópia de segurança se a aba for fechada ou recarregada
+  // entre um autosave periódico e o outro.
+  @HostListener('window:beforeunload')
+  onBeforeUnload(): void {
+    this.salvarRascunhoAgora();
   }
 
   secaoAberta(chave: string): boolean {
@@ -322,6 +379,91 @@ export class Editor {
     this.atualizacoesAtivas.set(edicao.mostrarAtualizacoes !== false);
     this.resumoAtivo.set(edicao.mostrarAtualizacoes !== false && edicao.mostrarResumo !== false);
     this.proximosPassosAtivo.set(edicao.mostrarProximosPassos !== false);
+  }
+
+  // Rascunho local (proteção contra F5/fechar a aba sem querer) — ver
+  // RascunhoService. Só existe no navegador de quem estava editando, nunca
+  // é publicado sozinho: publicar continua sendo função exclusiva do salvar().
+  private verificarRascunhoSalvo(): void {
+    const rascunho = this.rascunhoService.obter<RascunhoEditor>(this.edicaoId());
+    if (!rascunho?.dados?.form?.titulo?.trim() && !rascunho?.dados?.atualizacoes?.length) return;
+
+    this.aguardandoRascunho.set(true);
+    const dataFormatada = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(
+      new Date(rascunho.salvoEm),
+    );
+
+    this.confirmDialogService.confirmar(CONFIRMACOES.restaurarRascunho(dataFormatada)).then((restaurar) => {
+      if (restaurar) {
+        try {
+          this.aplicarRascunho(rascunho.dados);
+          this.jaPreenchido = true;
+          this.toastService.sucesso('Rascunho restaurado. Revise e clique em Salvar quando terminar.');
+        } catch {
+          this.toastService.erro('Não foi possível restaurar o rascunho salvo.');
+          this.rascunhoService.limpar(this.edicaoId());
+        }
+      } else {
+        this.rascunhoService.limpar(this.edicaoId());
+      }
+      this.aguardandoRascunho.set(false);
+    });
+  }
+
+  private aplicarRascunho(rascunho: RascunhoEditor): void {
+    this.form.patchValue(rascunho.form);
+
+    this.capaModo.set(rascunho.capaModo);
+    this.capaPreviewUrl.set(rascunho.capaPreviewUrl);
+
+    this.servicoDestaqueAtivo.set(rascunho.servicoDestaqueAtivo);
+    if (rascunho.servicoDestaqueAtivo) {
+      this.form.controls.servicoDestaque.enable({ emitEvent: false });
+    } else {
+      this.form.controls.servicoDestaque.disable({ emitEvent: false });
+    }
+    this.imagemDestaquePreviewUrl.set(rascunho.imagemDestaquePreviewUrl);
+
+    this.slugAtivo.set(rascunho.slugAtivo);
+    if (rascunho.slugAtivo) {
+      this.form.controls.slug.enable({ emitEvent: false });
+    } else {
+      this.form.controls.slug.disable({ emitEvent: false });
+    }
+
+    this.textoLivreAtivo.set(rascunho.textoLivreAtivo);
+    if (rascunho.textoLivreAtivo) {
+      this.form.controls.textoLivre.enable({ emitEvent: false });
+    } else {
+      this.form.controls.textoLivre.disable({ emitEvent: false });
+    }
+
+    this.atualizacoesAtivas.set(rascunho.atualizacoesAtivas);
+    this.resumoAtivo.set(rascunho.resumoAtivo);
+    this.proximosPassosAtivo.set(rascunho.proximosPassosAtivo);
+    this.atualizacoesPendentes.set(rascunho.atualizacoes);
+  }
+
+  private salvarRascunhoAgora(): void {
+    if (this.aguardandoRascunho()) return;
+    if (!this.form.controls.titulo.value.trim() && this.atualizacoesPendentes().length === 0) return;
+
+    const rascunho: RascunhoEditor = {
+      form: this.form.getRawValue() as ValoresFormulario,
+      capaModo: this.capaModo(),
+      capaPreviewUrl: this.capaPreviewUrl(),
+      servicoDestaqueAtivo: this.servicoDestaqueAtivo(),
+      imagemDestaquePreviewUrl: this.imagemDestaquePreviewUrl(),
+      slugAtivo: this.slugAtivo(),
+      textoLivreAtivo: this.textoLivreAtivo(),
+      atualizacoesAtivas: this.atualizacoesAtivas(),
+      resumoAtivo: this.resumoAtivo(),
+      proximosPassosAtivo: this.proximosPassosAtivo(),
+      atualizacoes: this.atualizacoesPendentes(),
+    };
+
+    this.rascunhoService.salvar(this.edicaoId(), rascunho);
+    this.ultimoRascunhoSalvoEm.set(new Date().toISOString());
   }
 
   campoInvalido(campo: 'titulo' | 'resumo' | 'tipo'): boolean {
@@ -687,6 +829,8 @@ export class Editor {
         await this.editionService.criar(dados);
         this.toastService.sucesso('Edição criada com sucesso.');
       }
+      // Publicado com sucesso: o rascunho local não serve mais pra nada.
+      this.rascunhoService.limpar(this.edicaoId());
       this.router.navigateByUrl('/admin');
     } catch {
       this.toastService.erro('Não foi possível salvar a edição. Tente novamente em instantes.');

@@ -17,6 +17,12 @@ export const CONFIRMACOES = {
     rotuloConfirmar: 'Excluir',
     variante: 'perigo',
   }),
+  restaurarRascunho: (dataFormatada: string): ConfirmacaoOpcoes => ({
+    titulo: 'Restaurar rascunho não salvo',
+    descricao: `Encontramos um rascunho salvo automaticamente em ${dataFormatada} que ainda não foi publicado (a aba foi fechada ou recarregada antes de clicar em Salvar). Deseja continuar de onde parou?`,
+    rotuloConfirmar: 'Restaurar rascunho',
+    rotuloCancelar: 'Começar do zero',
+  }),
   excluirUsuario: (nome: string, contaJaAtivada: boolean): ConfirmacaoOpcoes => ({
     titulo: 'Excluir usuário',
     descricao: contaJaAtivada

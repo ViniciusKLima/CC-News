@@ -45,9 +45,30 @@
 
 .editor-topbar-acoes {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 10px;
+}
+
+.rascunho-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: default;
+
+  i {
+    color: var(--color-success);
+  }
+}
+
+@media (max-width: 700px) {
+  .rascunho-status {
+    display: none;
+  }
 }
 
 .btn-perigo {

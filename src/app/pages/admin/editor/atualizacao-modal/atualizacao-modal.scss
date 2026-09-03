@@ -329,8 +329,11 @@ textarea {
 
 .midia-imagem-upload {
   position: relative;
-  width: 160px;
-  aspect-ratio: 1;
+  width: 100%;
+  // Mesma proporção recomendada pra foto da atualização (16:9), pra a
+  // caixa de upload já dar uma prévia de como a imagem vai ficar no card
+  // publicado, em vez de um quadrado sem relação com o formato final.
+  aspect-ratio: 16 / 9;
   border-radius: 12px;
   overflow: hidden;
   background: var(--background-body);

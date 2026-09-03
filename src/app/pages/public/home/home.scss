@@ -1,11 +1,7 @@
-// Seção fixa de destaques (edições marcadas como "fixada"), acima do hero
+// Seção fixa de destaques (edições marcadas como "fixada"), entre a busca
+// e o histórico por mês — mesma largura de card usada em .materias.
 .destaques-fixos {
   --card-w: 330px;
-  padding-top: 28px;
-
-  .header-edicao {
-    padding-block: 20px 12px;
-  }
 }
 
 @media (max-width: 700px) {

@@ -210,13 +210,13 @@ export class Editor implements OnDestroy {
 
   private jaPreenchido = false;
 
-  // Enquanto o admin ainda não respondeu se quer restaurar um rascunho
-  // encontrado ao abrir o Editor, o preenchimento automático a partir dos
-  // dados do Firestore (efeito abaixo) fica pausado — senão a resposta do
-  // Firestore poderia sobrescrever o rascunho antes da pergunta ser
-  // respondida. E o autosave também pausa nesse meio tempo, pra não
-  // salvar por cima do próprio rascunho ainda com o formulário em branco.
-  private readonly aguardandoRascunho = signal(false);
+  // Retrato do formulário no momento em que foi carregado (dados do
+  // Firestore em modo edição, ou o formulário em branco em modo criação).
+  // O autosave (salvarRascunhoAgora) só grava um rascunho quando o estado
+  // atual diverge dessa referência — assim só abrir uma edição pra olhar,
+  // sem mudar nada, não cria um rascunho "fantasma" oferecendo restaurar
+  // os mesmos dados que já estão publicados.
+  private baselineRascunho: string | null = null;
 
   // Mostrado discretamente perto do botão Salvar, só pra deixar claro que o
   // progresso está protegido contra fechar/recarregar a aba sem querer.
@@ -239,15 +239,21 @@ export class Editor implements OnDestroy {
     this.form.controls.tipo.valueChanges.subscribe((tipo) => this.aplicarTipo(tipo));
 
     // Quando os dados chegam (modo edição), preenche o formulário uma única
-    // vez — mas só depois de resolvida a pergunta de restaurar rascunho
-    // abaixo, senão os dados do Firestore poderiam sobrescrever a resposta.
+    // vez e marca esse estado como a referência "sem alterações" pro autosave.
     effect(() => {
       const edicao = this.edicao();
-      if (edicao && !this.jaPreenchido && !this.aguardandoRascunho()) {
+      if (edicao && !this.jaPreenchido) {
         this.jaPreenchido = true;
         this.preencherFormulario(edicao);
+        this.baselineRascunho = JSON.stringify(this.construirRascunho());
       }
     });
+
+    // Modo criação: não há dados do Firestore pra esperar, o formulário em
+    // branco já é a referência inicial.
+    if (this.modo() === 'criar') {
+      this.baselineRascunho = JSON.stringify(this.construirRascunho());
+    }
 
     this.verificarRascunhoSalvo();
 
@@ -388,16 +394,19 @@ export class Editor implements OnDestroy {
     const rascunho = this.rascunhoService.obter<RascunhoEditor>(this.edicaoId());
     if (!rascunho?.dados?.form?.titulo?.trim() && !rascunho?.dados?.atualizacoes?.length) return;
 
-    this.aguardandoRascunho.set(true);
     const dataFormatada = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(
       new Date(rascunho.salvoEm),
     );
 
+    // A pergunta é assíncrona (espera o admin responder), mas isso não
+    // compete com o preenchimento a partir do Firestore (efeito no
+    // constructor): esse preenchimento sempre roda primeiro e imediatamente
+    // vira a referência "sem alterações"; se o admin restaurar o rascunho
+    // depois, ele é aplicado por cima, sem risco de um sobrescrever o outro.
     this.confirmDialogService.confirmar(CONFIRMACOES.restaurarRascunho(dataFormatada)).then((restaurar) => {
       if (restaurar) {
         try {
           this.aplicarRascunho(rascunho.dados);
-          this.jaPreenchido = true;
           this.toastService.sucesso('Rascunho restaurado. Revise e clique em Salvar quando terminar.');
         } catch {
           this.toastService.erro('Não foi possível restaurar o rascunho salvo.');
@@ -406,7 +415,6 @@ export class Editor implements OnDestroy {
       } else {
         this.rascunhoService.limpar(this.edicaoId());
       }
-      this.aguardandoRascunho.set(false);
     });
   }
 
@@ -444,11 +452,8 @@ export class Editor implements OnDestroy {
     this.atualizacoesPendentes.set(rascunho.atualizacoes);
   }
 
-  private salvarRascunhoAgora(): void {
-    if (this.aguardandoRascunho()) return;
-    if (!this.form.controls.titulo.value.trim() && this.atualizacoesPendentes().length === 0) return;
-
-    const rascunho: RascunhoEditor = {
+  private construirRascunho(): RascunhoEditor {
+    return {
       form: this.form.getRawValue() as ValoresFormulario,
       capaModo: this.capaModo(),
       capaPreviewUrl: this.capaPreviewUrl(),
@@ -461,6 +466,15 @@ export class Editor implements OnDestroy {
       proximosPassosAtivo: this.proximosPassosAtivo(),
       atualizacoes: this.atualizacoesPendentes(),
     };
+  }
+
+  private salvarRascunhoAgora(): void {
+    const rascunho = this.construirRascunho();
+    const rascunhoJson = JSON.stringify(rascunho);
+    // Nada mudou desde que a tela foi carregada (ou desde a última
+    // publicação): não faz sentido oferecer "restaurar" os mesmos dados que
+    // já estão publicados, então nem grava.
+    if (rascunhoJson === this.baselineRascunho) return;
 
     this.rascunhoService.salvar(this.edicaoId(), rascunho);
     this.ultimoRascunhoSalvoEm.set(new Date().toISOString());

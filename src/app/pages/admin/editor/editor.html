@@ -11,6 +11,9 @@
             <i class="bi bi-trash3"></i> Excluir
           </button>
         }
+        <button type="button" class="btn-preview" (click)="visualizarPreview()">
+          <i class="bi bi-eye"></i> Pré-visualizar
+        </button>
         <button type="button" class="btn-salvar" [disabled]="salvando()" (click)="salvar()">
           <i class="bi bi-save"></i> {{ salvando() ? 'Salvando...' : 'Salvar' }}
         </button>

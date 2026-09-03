@@ -45,6 +45,8 @@
 
 .editor-topbar-acoes {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 10px;
 }
 
@@ -68,6 +70,30 @@
 
   &:focus-visible {
     outline: 2px solid var(--color-danger);
+    outline-offset: 2px;
+  }
+}
+
+.btn-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--color-primary);
+  border-radius: 10px;
+  padding: 9px 16px;
+  background: #fff;
+  color: var(--color-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: var(--bgc-azul-opacity);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 }
@@ -1153,6 +1179,7 @@ textarea {
   }
 
   .btn-perigo,
+  .btn-preview,
   .btn-salvar {
     padding: 9px 12px;
     font-size: 0.78rem;

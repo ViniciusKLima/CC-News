@@ -27,6 +27,7 @@ import {
   labelTipo,
 } from '../../../core/models/edition.model';
 import { EditionService } from '../../../core/services/edition.service';
+import { PreviewService } from '../../../core/services/preview.service';
 import { urlImagemOtimizada } from '../../../core/services/cloudinary.service';
 import { urlEmbedYoutube } from '../../../core/utils/youtube.util';
 import { AtualizacaoCard } from '../../../shared/components/atualizacao-card/atualizacao-card';
@@ -51,21 +52,31 @@ export interface ResumoStat {
 export class Edition implements AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly editionService = inject(EditionService);
+  private readonly previewService = inject(PreviewService);
   private readonly sanitizer = inject(DomSanitizer);
 
-  readonly loading = this.editionService.loading;
+  // Modo de pré-visualização (rota /admin/preview/:id, ver app.routes.ts):
+  // os dados vêm da sessionStorage (PreviewService) em vez do Firestore, e
+  // uma edição em rascunho/arquivada também pode ser exibida, já que quem
+  // está olhando é o próprio admin que a está editando.
+  protected readonly modoPreview = this.route.snapshot.data['preview'] === true;
+
+  readonly loading = computed(() => !this.modoPreview && this.editionService.loading());
 
   protected readonly urlImagemOtimizada = urlImagemOtimizada;
 
   readonly edicao = computed<Edicao | undefined>(() => {
     const id = this.route.snapshot.paramMap.get('id');
-    return id ? this.editionService.obterPorIdOuSlug(id) : undefined;
+    if (!id) return undefined;
+    return this.modoPreview ? this.previewService.obter(id) : this.editionService.obterPorIdOuSlug(id);
   });
 
-  // Edições arquivadas não devem ficar acessíveis na área pública, mesmo por link direto.
+  // Edições arquivadas não devem ficar acessíveis na área pública, mesmo por
+  // link direto. Em modo preview essa checagem de status não se aplica.
   readonly edicaoNaoEncontrada = computed(() => {
     if (this.loading()) return false;
     const edicao = this.edicao();
+    if (this.modoPreview) return !edicao;
     return !edicao || edicao.status !== 'publico';
   });
 

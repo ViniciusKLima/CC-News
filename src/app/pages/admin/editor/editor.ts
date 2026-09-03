@@ -19,6 +19,7 @@ import {
   TipoEdicao,
 } from '../../../core/models/edition.model';
 import { EditionService } from '../../../core/services/edition.service';
+import { PreviewService } from '../../../core/services/preview.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { CONFIRMACOES } from '../../../core/services/confirm-dialog.presets';
@@ -72,6 +73,7 @@ export class Editor {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly editionService = inject(EditionService);
+  private readonly previewService = inject(PreviewService);
   private readonly toastService = inject(ToastService);
   private readonly confirmDialogService = inject(ConfirmDialogService);
   private readonly cloudinaryService = inject(CloudinaryService);
@@ -549,6 +551,61 @@ export class Editor {
 
   atualizacoesPorCategoria(categoria: CategoriaAtualizacao): Atualizacao[] {
     return this.atualizacoes().filter((item) => item.categoria === categoria);
+  }
+
+  // Pré-visualização: abre a mesma tela pública da edição numa aba separada,
+  // com os dados atuais do formulário (ainda não salvos), sem publicar nada.
+  // Usa os mesmos requisitos mínimos de validação do salvar() (título, tipo
+  // e período), mas ignora checagens específicas de persistência (URL
+  // personalizada em uso, capa obrigatória), que não afetam a visualização.
+  visualizarPreview(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.toastService.erro('Preencha os campos obrigatórios para pré-visualizar a edição.');
+      return;
+    }
+
+    const valores = this.form.getRawValue() as ValoresFormulario;
+    const periodo = this.montarPeriodo(valores);
+    if (!periodo) {
+      this.toastService.erro('Selecione o tipo da edição e preencha o período corretamente para pré-visualizar.');
+      return;
+    }
+
+    const servicoDestaque: ServicoDestaque | undefined = this.servicoDestaqueAtivo()
+      ? {
+          titulo: valores.servicoDestaque.titulo.trim(),
+          descricao: valores.servicoDestaque.descricao.trim(),
+          cor: valores.servicoDestaque.cor,
+          imagemPosicao: valores.servicoDestaque.imagemPosicao,
+          imagemUrl: this.imagemDestaquePreviewUrl() ?? undefined,
+        }
+      : undefined;
+
+    const edicaoPreview: Edicao = {
+      id: this.edicaoId() ?? '',
+      criadoEm: this.edicao()?.criadoEm ?? new Date().toISOString().slice(0, 10),
+      titulo: valores.titulo.trim(),
+      resumo: valores.resumo.trim(),
+      tipo: valores.tipo as TipoEdicao,
+      periodo,
+      status: valores.status,
+      capaUrl: this.capaModo() === 'imagem' ? this.capaPreviewUrl() ?? undefined : undefined,
+      capaCor: this.capaModo() === 'cor' ? valores.capaCor : undefined,
+      servicoDestaque,
+      textoLivre: this.textoLivreAtivo() ? valores.textoLivre.trim() : undefined,
+      atualizacoes: this.atualizacoesPendentes(),
+      mostrarAtualizacoes: this.atualizacoesAtivas(),
+      mostrarResumo: this.resumoAtivo(),
+      mostrarProximosPassos: this.proximosPassosAtivo(),
+    };
+
+    // Sem "noopener": a sessionStorage só é copiada para a nova aba quando a
+    // relação de opener é preservada (é assim que o PreviewService consegue
+    // levar os dados até lá). Como o destino é sempre uma rota interna fixa
+    // (nunca uma URL vinda de fora), não há risco de tabnabbing aqui.
+    const id = this.previewService.salvar(edicaoPreview);
+    window.open(`/admin/preview/${id}`, '_blank');
   }
 
   // Salvar (criar ou atualizar) e excluir a edição

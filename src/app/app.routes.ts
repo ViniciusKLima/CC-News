@@ -53,6 +53,16 @@ export const routes: Routes = [
     component: Editor,
     canActivate: [authGuard],
   },
+  // Pré-visualização de uma edição ainda não publicada, aberta pelo Editor
+  // numa aba separada. Reaproveita o mesmo componente da edição pública
+  // (ver Edition, propriedade `preview`), mas os dados vêm da sessionStorage
+  // (ver PreviewService) em vez do Firestore.
+  {
+    path: 'admin/preview/:id',
+    component: Edition,
+    canActivate: [authGuard],
+    data: { preview: true },
+  },
 
   // Rota inexistente
   {

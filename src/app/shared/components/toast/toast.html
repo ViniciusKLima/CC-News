@@ -6,6 +6,7 @@
       <button type="button" aria-label="Fechar notificação" (click)="toastService.fechar(toast.id)">
         <i class="bi bi-x-lg"></i>
       </button>
+      <div class="toast-progresso" [style.animation-duration.ms]="duracaoMs"></div>
     </div>
   }
 </div>

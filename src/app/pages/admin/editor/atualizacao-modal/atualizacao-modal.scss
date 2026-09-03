@@ -57,12 +57,42 @@
     color: var(--color-text);
   }
 
-  .modal-categoria {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--color-primary);
+  .modal-categoria-select-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+
+    select.modal-categoria-select {
+      appearance: none;
+      border: none;
+      background: none;
+      margin: 0;
+      padding: 2px 18px 2px 0;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-primary);
+      cursor: pointer;
+      border-radius: 4px;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+      }
+    }
+
+    > i {
+      position: absolute;
+      right: 2px;
+      font-size: 0.6rem;
+      color: var(--color-primary);
+      pointer-events: none;
+    }
   }
 }
 

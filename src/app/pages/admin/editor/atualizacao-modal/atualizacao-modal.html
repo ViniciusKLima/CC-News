@@ -1,8 +1,20 @@
 <div class="modal-backdrop" appFecharAoClicarFora (fecharAoClicarFora)="onFechar()">
-  <div class="modal-painel" role="dialog" aria-modal="true" [attr.aria-label]="(modoEdicao ? 'Editar' : 'Nova') + ' atualização de ' + labelCategoria(categoria())">
+  <div class="modal-painel" role="dialog" aria-modal="true" [attr.aria-label]="(modoEdicao ? 'Editar' : 'Nova') + ' atualização de ' + labelCategoria(categoriaSelecionada())">
     <header class="modal-cabecalho">
       <div>
-        <span class="modal-categoria">{{ labelCategoria(categoria()) }}</span>
+        <div class="modal-categoria-select-wrap">
+          <select
+            class="modal-categoria-select"
+            aria-label="Categoria da atualização"
+            [value]="categoriaSelecionada()"
+            (change)="onCategoriaAlterada($event)"
+          >
+            @for (cat of categorias; track cat.valor) {
+              <option [value]="cat.valor">{{ cat.label }}</option>
+            }
+          </select>
+          <i class="bi bi-chevron-down"></i>
+        </div>
         <h2>{{ modoEdicao ? 'Editar atualização' : 'Nova atualização' }}</h2>
       </div>
       <button type="button" class="modal-fechar" aria-label="Fechar" (click)="onFechar()">

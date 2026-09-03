@@ -13,7 +13,13 @@ import {
   signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Atualizacao, CategoriaAtualizacao, MidiaAtualizacao, labelCategoria } from '../../../../core/models/edition.model';
+import {
+  Atualizacao,
+  CATEGORIAS_ATUALIZACAO,
+  CategoriaAtualizacao,
+  MidiaAtualizacao,
+  labelCategoria,
+} from '../../../../core/models/edition.model';
 import { CloudinaryService, urlImagemOtimizada } from '../../../../core/services/cloudinary.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { extrairIdYoutube } from '../../../../core/utils/youtube.util';
@@ -140,11 +146,17 @@ export class AtualizacaoModal implements OnInit, AfterViewInit, OnDestroy {
   readonly categoria = input.required<CategoriaAtualizacao>();
   readonly atualizacaoEditando = input<Atualizacao | null>(null);
 
+  // Categoria efetiva do item, editável pelo seletor no cabeçalho do modal
+  // (ex.: corrigir uma atualização criada na categoria errada). Começa com
+  // o valor do input `categoria`, mas pode ser trocada livremente depois.
+  readonly categoriaSelecionada = signal<CategoriaAtualizacao>('novidades');
+
   readonly salvar = output<Omit<Atualizacao, 'id'>>();
   readonly salvarEContinuar = output<Omit<Atualizacao, 'id'>>();
   readonly fechar = output<void>();
 
   readonly icones = ICONES_DISPONIVEIS;
+  readonly categorias = CATEGORIAS_ATUALIZACAO;
   readonly tituloMaxlength = TITULO_MAXLENGTH;
   readonly descricaoMaxlength = DESCRICAO_MAXLENGTH;
   readonly impactoMaxlength = IMPACTO_MAXLENGTH;
@@ -188,6 +200,8 @@ export class AtualizacaoModal implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     // Inputs só ficam disponíveis após a construção do componente. O
     // pré-preenchimento precisa acontecer aqui, não no constructor.
+    this.categoriaSelecionada.set(this.categoria());
+
     const editando = this.atualizacaoEditando();
     if (editando) {
       const midia = editando.midia;
@@ -243,6 +257,10 @@ export class AtualizacaoModal implements OnInit, AfterViewInit, OnDestroy {
 
   get modoEdicao(): boolean {
     return !!this.atualizacaoEditando();
+  }
+
+  onCategoriaAlterada(evento: Event): void {
+    this.categoriaSelecionada.set((evento.target as HTMLSelectElement).value as CategoriaAtualizacao);
   }
 
   selecionarIcone(icone: string): void {
@@ -336,7 +354,7 @@ export class AtualizacaoModal implements OnInit, AfterViewInit, OnDestroy {
   // (ver atualizacao-modal.html) e aqui garante que não são salvos, mesmo
   // que um item antigo tenha esses dados de antes dessa mudança.
   protected get semImpactoNemMidia(): boolean {
-    return this.categoria() === 'proximos-passos';
+    return this.categoriaSelecionada() === 'proximos-passos';
   }
 
   private construirDados(): Omit<Atualizacao, 'id'> | null {
@@ -360,7 +378,7 @@ export class AtualizacaoModal implements OnInit, AfterViewInit, OnDestroy {
     }
 
     return {
-      categoria: this.categoria(),
+      categoria: this.categoriaSelecionada(),
       icone: valores.icone,
       titulo: valores.titulo.trim(),
       descricao: valores.descricao.trim(),

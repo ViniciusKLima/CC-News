@@ -1,5 +1,56 @@
 <app-header></app-header>
 <main class="main-content">
+  <!-- Seção fixa de destaques (ex.: edições de tutorial), acima de tudo o
+       resto. Edições aqui continuam aparecendo normalmente no mês delas no
+       histórico logo abaixo — fixar só adiciona, nunca move. -->
+  @if (!loading() && edicoesFixadas().length > 0) {
+    <section class="destaques-fixos">
+      <div class="container">
+        <div class="header-edicao d-flex align-items-center">
+          <i class="bi bi-pin-angle-fill"></i>
+          <h4 class="periodo m-0">Fixados no topo</h4>
+          <span></span>
+        </div>
+
+        <div class="grid-fixados d-flex flex-wrap gap-4">
+          @for (edicao of edicoesFixadas(); track edicao.id) {
+            <div
+              class="card-edicao d-flex flex-column justify-content-between align-items-start"
+              [class.tem-imagem]="!!edicao.capaUrl"
+              [style.background-image]="
+                edicao.capaUrl
+                  ? 'url(' + urlImagemOtimizada(edicao.capaUrl, 'capa') + ')'
+                  : gradienteCapa(edicao.capaCor || corPadrao)
+              "
+            >
+              <div class="data-edicao d-flex align-items-center">
+                <i class="bi bi-calendar-week"></i>
+                <h4 class="data m-0">{{ formatarPeriodo(edicao.periodo) }}</h4>
+              </div>
+              <div [class]="'tipo-edicao text-center tipo-' + edicao.tipo">
+                Edição {{ labelTipo(edicao.tipo) }}
+              </div>
+              <div class="txt-edicao">
+                <h4 class="tt-edicao">{{ edicao.titulo }}</h4>
+                <p class="p-edicao">
+                  {{ edicao.resumo }}
+                </p>
+              </div>
+              <div class="footer-edicao d-flex justify-content-between align-items-center w-100">
+                <div class="total-novo m-0 d-flex align-items-center">
+                  {{ contarNovidades(edicao) }} novidades
+                </div>
+                <a class="ver-edicao" [routerLink]="['/edicao', edicao.slug || edicao.id]">
+                  Ver edição <i class="bi bi-arrow-right m-0"></i>
+                </a>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  }
+
   <!-- Hero de abertura da home -->
   <section class="hero d-flex align-items-center">
     <div class="container">

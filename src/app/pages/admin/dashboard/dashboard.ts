@@ -170,6 +170,19 @@ export class Dashboard {
     this.fecharMenu();
   }
 
+  // Fixa/desafixa a edição na seção de destaques do topo da home pública.
+  // Continua aparecendo normalmente no mês dela no histórico também.
+  async alternarFixada(edicao: Edicao): Promise<void> {
+    try {
+      await this.editionService.atualizarFixada(edicao.id, !edicao.fixada);
+      this.toastService.sucesso(
+        edicao.fixada ? 'Edição desafixada da home.' : 'Edição fixada no topo da home.',
+      );
+    } catch {
+      this.toastService.erro('Não foi possível atualizar. Tente novamente em instantes.');
+    }
+  }
+
   // Ações sobre uma edição: publicar/arquivar e excluir (com confirmação)
   async alternarStatus(edicao: Edicao): Promise<void> {
     const novoStatus = edicao.status === 'publico' ? 'arquivado' : 'publico';

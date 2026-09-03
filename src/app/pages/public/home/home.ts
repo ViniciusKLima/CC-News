@@ -69,6 +69,15 @@ export class Home implements AfterViewInit {
   // continuam existindo no service, mas não devem aparecer aqui.
   readonly edicoesPublicas = computed(() => this.editionService.edicoes().filter((edicao) => edicao.status === 'publico'));
 
+  // Edições fixadas pelo admin (ver botão "fixar" no dashboard), exibidas
+  // numa seção própria no topo da home, além de continuarem aparecendo
+  // normalmente no mês delas no histórico abaixo.
+  readonly edicoesFixadas = computed(() =>
+    this.edicoesPublicas()
+      .filter((edicao) => edicao.fixada)
+      .sort((a, b) => dataOrdenacaoAgrupamento(b).localeCompare(dataOrdenacaoAgrupamento(a))),
+  );
+
   readonly anosDisponiveis = computed(() => {
     const anos = new Set(this.edicoesPublicas().map((edicao) => anoAgrupamento(edicao)));
     return Array.from(anos).sort((a, b) => b - a);

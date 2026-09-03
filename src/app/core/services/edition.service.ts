@@ -83,6 +83,10 @@ export class EditionService {
     await this.atualizar(id, { status });
   }
 
+  async atualizarFixada(id: string, fixada: boolean): Promise<void> {
+    await this.atualizar(id, { fixada });
+  }
+
   async remover(id: string): Promise<void> {
     await deleteDoc(doc(this.colecao, id));
   }

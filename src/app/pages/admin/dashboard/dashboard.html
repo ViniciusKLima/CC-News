@@ -165,6 +165,18 @@
                     <!-- Editar leva ao editor; o menu de três pontos reúne
                          publicar/arquivar e excluir -->
                     <div class="edicao-acoes">
+                      <button
+                        type="button"
+                        class="btn-icone"
+                        [class.ativo]="edicao.fixada"
+                        [attr.aria-pressed]="!!edicao.fixada"
+                        [attr.aria-label]="edicao.fixada ? 'Desafixar da home' : 'Fixar no topo da home'"
+                        [title]="edicao.fixada ? 'Desafixar da home' : 'Fixar no topo da home'"
+                        (click)="alternarFixada(edicao)"
+                      >
+                        <i class="bi" [class.bi-pin-angle-fill]="edicao.fixada" [class.bi-pin-angle]="!edicao.fixada"></i>
+                      </button>
+
                       <a
                         class="btn-icone"
                         [routerLink]="['/admin/edicao', edicao.id, 'editar']"

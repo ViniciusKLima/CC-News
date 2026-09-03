@@ -51,6 +51,7 @@ interface ValoresFormulario {
   resumo: string;
   tipo: TipoEdicao | '';
   status: StatusEdicao;
+  fixada: boolean;
   slug: string;
   textoLivre: string;
   capaCor: string;
@@ -183,6 +184,7 @@ export class Editor implements OnDestroy {
     resumo: ['', [Validators.maxLength(RESUMO_MAXLENGTH)]],
     tipo: this.fb.nonNullable.control<TipoEdicao | ''>('', Validators.required),
     status: this.fb.nonNullable.control<StatusEdicao>('arquivado', Validators.required),
+    fixada: this.fb.nonNullable.control(false),
     slug: ['', [Validators.maxLength(SLUG_MAXLENGTH), Validators.pattern(SLUG_PATTERN)]],
     textoLivre: ['', Validators.maxLength(TEXTO_LIVRE_MAXLENGTH)],
     capaCor: [COR_PADRAO_PLATAFORMA, Validators.pattern(HEX_PATTERN)],
@@ -326,6 +328,7 @@ export class Editor implements OnDestroy {
       resumo: edicao.resumo,
       tipo: edicao.tipo,
       status: edicao.status,
+      fixada: edicao.fixada ?? false,
     });
 
     switch (edicao.periodo.tipo) {
@@ -821,6 +824,7 @@ export class Editor implements OnDestroy {
       tipo: valores.tipo as TipoEdicao,
       periodo,
       status: valores.status,
+      fixada: valores.fixada,
       slug,
       capaUrl: this.capaModo() === 'imagem' ? this.capaPreviewUrl() ?? undefined : undefined,
       capaCor: this.capaModo() === 'cor' ? valores.capaCor : undefined,

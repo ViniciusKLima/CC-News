@@ -90,6 +90,8 @@ export interface Edicao {
   mostrarAtualizacoes?: boolean;
   mostrarResumo?: boolean;
   mostrarProximosPassos?: boolean;
+  /** Fixada no topo da home pública (ver seção "Destaques"), além de continuar aparecendo no mês dela no histórico. */
+  fixada?: boolean;
 }
 
 // ---------------------------------------------------------------------------

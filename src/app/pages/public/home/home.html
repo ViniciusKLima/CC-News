@@ -110,40 +110,60 @@
         <span></span>
       </div>
 
-      <div class="grid-fixados d-flex flex-wrap gap-4">
-        @for (edicao of edicoesFixadas(); track edicao.id) {
-          <div
-            class="card-edicao d-flex flex-column justify-content-between align-items-start"
-            [class.tem-imagem]="!!edicao.capaUrl"
-            [style.background-image]="
-              edicao.capaUrl
-                ? 'url(' + urlImagemOtimizada(edicao.capaUrl, 'capa') + ')'
-                : gradienteCapa(edicao.capaCor || corPadrao)
-            "
-          >
-            <div class="data-edicao d-flex align-items-center">
-              <i class="bi bi-calendar-week"></i>
-              <h4 class="data m-0">{{ formatarPeriodo(edicao.periodo) }}</h4>
-            </div>
-            <div [class]="'tipo-edicao text-center tipo-' + edicao.tipo">
-              Edição {{ labelTipo(edicao.tipo) }}
-            </div>
-            <div class="txt-edicao">
-              <h4 class="tt-edicao">{{ edicao.titulo }}</h4>
-              <p class="p-edicao">
-                {{ edicao.resumo }}
-              </p>
-            </div>
-            <div class="footer-edicao d-flex justify-content-between align-items-center w-100">
-              <div class="total-novo m-0 d-flex align-items-center">
-                {{ contarNovidades(edicao) }} novidades
+      <div class="slide-wrapper position-relative">
+        <button
+          type="button"
+          class="slide-nav prev"
+          aria-label="Ver fixados anteriores"
+          (click)="scrollSlide(slide, -1)"
+        >
+          <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <div class="slide-edicoes d-flex gap-4" #slide (scroll)="updateNavState(slide)">
+          @for (edicao of edicoesFixadas(); track edicao.id) {
+            <div
+              class="card-edicao d-flex flex-column justify-content-between align-items-start"
+              [class.tem-imagem]="!!edicao.capaUrl"
+              [style.background-image]="
+                edicao.capaUrl
+                  ? 'url(' + urlImagemOtimizada(edicao.capaUrl, 'capa') + ')'
+                  : gradienteCapa(edicao.capaCor || corPadrao)
+              "
+            >
+              <div class="data-edicao d-flex align-items-center">
+                <i class="bi bi-calendar-week"></i>
+                <h4 class="data m-0">{{ formatarPeriodo(edicao.periodo) }}</h4>
               </div>
-              <a class="ver-edicao" [routerLink]="['/edicao', edicao.slug || edicao.id]">
-                Ver edição <i class="bi bi-arrow-right m-0"></i>
-              </a>
+              <div [class]="'tipo-edicao text-center tipo-' + edicao.tipo">
+                Edição {{ labelTipo(edicao.tipo) }}
+              </div>
+              <div class="txt-edicao">
+                <h4 class="tt-edicao">{{ edicao.titulo }}</h4>
+                <p class="p-edicao">
+                  {{ edicao.resumo }}
+                </p>
+              </div>
+              <div class="footer-edicao d-flex justify-content-between align-items-center w-100">
+                <div class="total-novo m-0 d-flex align-items-center">
+                  {{ contarNovidades(edicao) }} novidades
+                </div>
+                <a class="ver-edicao" [routerLink]="['/edicao', edicao.slug || edicao.id]">
+                  Ver edição <i class="bi bi-arrow-right m-0"></i>
+                </a>
+              </div>
             </div>
-          </div>
-        }
+          }
+        </div>
+
+        <button
+          type="button"
+          class="slide-nav next"
+          aria-label="Ver próximos fixados"
+          (click)="scrollSlide(slide, 1)"
+        >
+          <i class="bi bi-chevron-right"></i>
+        </button>
       </div>
     </section>
   }

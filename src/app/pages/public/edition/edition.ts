@@ -149,7 +149,15 @@ export class Edition implements AfterViewInit {
     // "Todos" nunca inclui próximos passos, eles só aparecem na section
     // dedicada da lateral, pra não duplicar o mesmo item nos dois lugares.
     const todas = this.atualizacoesVisiveis().filter((item) => item.categoria !== 'proximos-passos');
-    return filtro === 'todos' ? todas : todas.filter((item) => item.categoria === filtro);
+    if (filtro !== 'todos') {
+      return todas.filter((item) => item.categoria === filtro);
+    }
+    // Na aba "Todos", agrupa pela ordem padrão das categorias (a mesma do
+    // admin), em vez da ordem crua de criação — senão os itens ficam
+    // intercalados conforme foram sendo cadastrados.
+    return CATEGORIAS_ATUALIZACAO.flatMap((categoria) =>
+      todas.filter((item) => item.categoria === categoria.valor),
+    );
   });
 
   readonly proximosPassos = computed(() =>

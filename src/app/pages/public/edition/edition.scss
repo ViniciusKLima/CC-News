@@ -163,6 +163,13 @@
   }
 }
 
+// Sem isso, o item de grid não encolhe abaixo do seu conteúdo mínimo — e como
+// a trilha de abas (.categorias-tabs) tem botões "nowrap", o navegador prefere
+// alargar a coluna (e a página inteira) a deixar a trilha rolar por dentro.
+.edition-main {
+  min-width: 0;
+}
+
 // Texto livre na coluna principal, quando não há atualizações por categoria
 .texto-livre-bloco {
   background: #fff;

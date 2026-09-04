@@ -595,24 +595,23 @@
   }
 }
 
-@media (max-width: 700px) {
-  .admin-filters {
-    flex-direction: column;
-  }
-
-  .admin-filters .pesquisa,
-  .admin-filters .select-wrap {
-    flex: 1 1 100%;
-  }
-
+// A grade de 5 colunas (minmax(220px,2.4fr) 150px 160px 130px 128px = ~836px
+// de mínimo, mais os 12px de gap entre elas) só cabe de verdade quando a
+// largura do conteúdo passa desse valor. Como a sidebar (240px) fica ao lado
+// do conteúdo até 900px, existia uma faixa (~900px–1150px de largura de tela)
+// em que a sidebar ainda não tinha empilhado no topo, mas a tabela já não
+// cabia mais — sobrava só o scroll horizontal forçado dentro do card. Por
+// isso o breakpoint do cartão mobile é mais largo que o da sidebar: garante
+// que, assim que a tabela deixaria de caber, ela já virou cartão.
+@media (max-width: 1180px) {
   .edicoes-cabecalho {
     display: none;
   }
 
-  // No mobile a linha vira um cartão: capa+título numa linha, as etiquetas
-  // (período, tipo, status) agrupadas logo abaixo, e as ações sempre na
-  // própria linha por último, separadas por uma borda. Sem isso, os 5
-  // blocos da grade do desktop tentavam caber lado a lado e quebravam de
+  // Em telas médias/pequenas a linha vira um cartão: capa+título numa linha,
+  // as etiquetas (período, tipo, status) agrupadas logo abaixo, e as ações
+  // sempre na própria linha por último, separadas por uma borda. Sem isso, os
+  // 5 blocos da grade do desktop tentavam caber lado a lado e quebravam de
   // um jeito imprevisível, espremendo os botões de ação no meio do caminho.
   .edicao-linha {
     display: flex;
@@ -643,5 +642,16 @@
     margin-top: 4px;
     padding-top: 12px;
     border-top: 1px solid rgba(160, 162, 174, 0.15);
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-filters {
+    flex-direction: column;
+  }
+
+  .admin-filters .pesquisa,
+  .admin-filters .select-wrap {
+    flex: 1 1 100%;
   }
 }

@@ -349,7 +349,13 @@ $grid-usuarios: minmax(160px, 1.6fr) minmax(200px, 2fr) 140px 120px 150px 70px;
   }
 }
 
-@media (max-width: 800px) {
+// A grade de 6 colunas ($grid-usuarios) só cabe de verdade acima de ~1220px
+// de largura de tela (o mínimo dela, ~900px de conteúdo, mais os 240px da
+// sidebar e o padding quando ela ainda está ao lado do conteúdo, não
+// empilhada no topo). Abaixo disso ela só teria scroll horizontal escondido
+// dentro do card — por isso o cartão mobile precisa entrar em cena bem antes
+// do breakpoint da sidebar (900px), não depois.
+@media (max-width: 1240px) {
   .usuarios-cabecalho {
     display: none;
   }

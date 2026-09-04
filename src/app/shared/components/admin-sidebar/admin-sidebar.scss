@@ -244,6 +244,19 @@
 }
 
 @media (max-width: 480px) {
+  // Nesse ponto a barra (logo + nav ícone-only + usuário) já não cabe mais
+  // com os espaçamentos do desktop — a logo por extenso e os gaps largos
+  // eram o que sobrava de largura fixa. Encolhe os dois pra abrir espaço
+  // sem cortar nenhum item.
+  .admin-sidebar {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .admin-logo {
+    width: 84px;
+  }
+
   .admin-nav-item span {
     display: none;
   }

@@ -204,7 +204,7 @@
         <!-- Lateral com o texto livre (quando convive com as atualizações), o
              resumo (contagem por categoria) e os próximos passos -->
         @if (temSidebar()) {
-          <aside class="edition-sidebar">
+          <aside class="edition-sidebar" #sidebarRef [style.top.px]="sidebarStickyTop()">
             @if (textoLivreNaLateral()) {
               <div class="sidebar-card">
                 <h3>Sobre esta edição</h3>

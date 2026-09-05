@@ -1,8 +1,10 @@
 import {
+  AfterViewChecked,
   AfterViewInit,
   Component,
   ElementRef,
   HostListener,
+  OnDestroy,
   QueryList,
   ViewChild,
   ViewChildren,
@@ -52,7 +54,7 @@ export interface ResumoStat {
   templateUrl: './edition.html',
   styleUrl: './edition.scss',
 })
-export class Edition implements AfterViewInit {
+export class Edition implements AfterViewInit, AfterViewChecked, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly editionService = inject(EditionService);
   private readonly previewService = inject(PreviewService);
@@ -125,6 +127,13 @@ export class Edition implements AfterViewInit {
   // arrasto horizontal da barra de categorias (ver métodos mais abaixo).
   @ViewChild('tabsScroll') private readonly tabsScrollRef?: ElementRef<HTMLDivElement>;
   @ViewChildren('tabBtn') private readonly tabBtns?: QueryList<ElementRef<HTMLButtonElement>>;
+
+  // "top" do sticky da lateral (Resumo + Próximos passos), calculado a
+  // partir da altura real do conteúdo em atualizarSidebarSticky() — ver
+  // comentário em edition.scss (.edition-sidebar) pra entender o efeito.
+  @ViewChild('sidebarRef') private readonly sidebarRef?: ElementRef<HTMLElement>;
+  private sidebarResizeObserver?: ResizeObserver;
+  readonly sidebarStickyTop = signal(24);
 
   readonly indicador = signal({ largura: 0, posicao: 0 });
   readonly arrastando = signal(false);
@@ -219,9 +228,49 @@ export class Edition implements AfterViewInit {
     this.tabBtns?.changes.subscribe(() => requestAnimationFrame(() => this.atualizarIndicador()));
   }
 
+  // A lateral só existe no DOM depois que a edição carrega (fica atrás de
+  // @if no template), então na primeira passada de ngAfterViewInit o
+  // #sidebarRef ainda não existe. ngAfterViewChecked roda de novo a cada
+  // verificação, então a guarda "!sidebarResizeObserver" garante que o
+  // observer é criado uma única vez, assim que a lateral aparecer.
+  ngAfterViewChecked(): void {
+    const sidebar = this.sidebarRef?.nativeElement;
+    if (this.sidebarResizeObserver || !sidebar) return;
+
+    // Observa a lateral E o header: a altura do header também entra na
+    // conta (ver atualizarSidebarSticky), e medir só uma vez no primeiro
+    // frame pode pegar o header ainda no tamanho errado.
+    this.sidebarResizeObserver = new ResizeObserver(() => this.atualizarSidebarSticky());
+    this.sidebarResizeObserver.observe(sidebar);
+    const header = document.querySelector('header');
+    if (header) this.sidebarResizeObserver.observe(header);
+  }
+
+  ngOnDestroy(): void {
+    this.sidebarResizeObserver?.disconnect();
+  }
+
   @HostListener('window:resize')
   onResize(): void {
     this.atualizarIndicador();
+    this.atualizarSidebarSticky();
+  }
+
+  // Deixa a lateral rolar normal com a página até o próprio conteúdo dela
+  // (Resumo + Próximos passos) encostar no rodapé da viewport — só a partir
+  // daí o "top" do sticky (calculado aqui) trava ela ali. Quando o conteúdo
+  // é mais alto que a viewport (raro, com bastante coisa na lateral), cai de
+  // volta pro mínimo (logo abaixo do header), já que não tem como mostrar
+  // tudo de uma vez mesmo.
+  private atualizarSidebarSticky(): void {
+    const sidebar = this.sidebarRef?.nativeElement;
+    if (!sidebar) return;
+
+    const alturaHeader = document.querySelector('header')?.getBoundingClientRect().height ?? 0;
+    const gap = 24;
+    const minimo = alturaHeader + gap;
+    const maximo = window.innerHeight - sidebar.offsetHeight;
+    this.sidebarStickyTop.set(Math.max(minimo, maximo));
   }
 
   private atualizarIndicador(): void {

@@ -56,6 +56,8 @@ export class Aparencia {
   protected readonly carregado = this.interfaceConfig.carregado;
   protected readonly salvando = signal(false);
 
+  protected readonly faviconEnviando = signal(false);
+  protected readonly faviconProgresso = signal(0);
   protected readonly logoEnviando = signal(false);
   protected readonly logoProgresso = signal(0);
   protected readonly logoAdminEnviando = signal(false);
@@ -91,7 +93,7 @@ export class Aparencia {
     return this.rascunho()!.categorias[categoria];
   }
 
-  protected atualizarCampo<K extends 'logoUrl' | 'logoAdminUrl' | 'heroTituloKicker' | 'heroTitulo' | 'heroTexto' | 'footerTitulo' | 'footerTexto'>(
+  protected atualizarCampo<K extends 'faviconUrl' | 'logoUrl' | 'logoAdminUrl' | 'heroTituloKicker' | 'heroTitulo' | 'heroTexto' | 'footerTitulo' | 'footerTexto'>(
     campo: K,
     valor: string,
   ): void {
@@ -138,6 +140,23 @@ export class Aparencia {
 
   protected atualizarFocoMobileX(valor: number): void {
     this.rascunho.update((r) => (r ? { ...r, heroBannerFocoMobileX: valor } : r));
+  }
+
+  protected async onFaviconSelecionado(evento: Event): Promise<void> {
+    const arquivo = this.extrairArquivo(evento);
+    if (!arquivo) return;
+
+    this.faviconEnviando.set(true);
+    this.faviconProgresso.set(0);
+    try {
+      const url = await this.cloudinaryService.enviarImagem(arquivo, 'cc-news/interface', (p) => this.faviconProgresso.set(p));
+      this.atualizarCampo('faviconUrl', url);
+      this.toastService.sucesso('Favicon enviado. Clique em Salvar para aplicar.');
+    } catch (erro) {
+      this.toastService.erro(mensagemErro(erro, 'Não foi possível enviar o favicon.'));
+    } finally {
+      this.faviconEnviando.set(false);
+    }
   }
 
   protected async onLogoSelecionado(evento: Event): Promise<void> {

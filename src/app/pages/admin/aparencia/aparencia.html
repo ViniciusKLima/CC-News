@@ -33,6 +33,26 @@
 
           <div class="identidade-grade">
             <div class="logos-linha">
+              <div class="campo campo-upload campo-favicon">
+                <div class="campo-cabecalho">
+                  <label>Favicon</label>
+                </div>
+                <div class="upload-imagem upload-favicon">
+                  <img [src]="r.faviconUrl" alt="Favicon atual" />
+                  @if (faviconEnviando()) {
+                    <div class="upload-overlay">
+                      <div class="upload-spinner"></div>
+                      <span>Enviando... {{ faviconProgresso() }}%</span>
+                    </div>
+                  }
+                </div>
+                <label class="btn-secundario btn-upload">
+                  <i class="bi bi-upload"></i> Trocar favicon
+                  <input type="file" accept="image/*" class="visually-hidden" [disabled]="faviconEnviando()" (change)="onFaviconSelecionado($event)" />
+                </label>
+                <p class="dica-campo">Ícone da aba do navegador. PNG/SVG quadrado.</p>
+              </div>
+
               <div class="campo campo-upload campo-logo">
                 <div class="campo-cabecalho">
                   <label>Logo do site</label>
@@ -74,78 +94,80 @@
               </div>
             </div>
 
-            <div class="campo campo-hero">
-              <div class="campo-cabecalho">
-                <label>Hero da home</label>
+            <div class="hero-coluna">
+              <div class="campo campo-hero">
+                <div class="campo-cabecalho">
+                  <label>Hero da home</label>
+                </div>
+
+                <app-hero-banner
+                  class="hero-preview"
+                  [imagemUrl]="urlImagemOtimizada(r.heroBannerUrl, 'hero')"
+                  [tituloKicker]="r.heroTituloKicker"
+                  [titulo]="r.heroTitulo"
+                  [texto]="r.heroTexto"
+                  [focoMobileX]="r.heroBannerFocoMobileX"
+                  [editavel]="true"
+                  [compacto]="true"
+                  (tituloKickerChange)="atualizarCampo('heroTituloKicker', $event)"
+                  (tituloChange)="atualizarCampo('heroTitulo', $event)"
+                  (textoChange)="atualizarCampo('heroTexto', $event)"
+                >
+                  <div heroAcoes class="hero-acoes">
+                    <label class="btn-secundario btn-upload">
+                      <i class="bi bi-upload"></i> {{ heroEnviando() ? 'Enviando... ' + heroProgresso() + '%' : 'Trocar banner' }}
+                      <input type="file" accept="image/*" class="visually-hidden" [disabled]="heroEnviando()" (change)="onHeroSelecionado($event)" />
+                    </label>
+                  </div>
+                </app-hero-banner>
+
+                <p class="dica-campo dica-editavel">
+                  <i class="bi bi-pencil-fill"></i>
+                  <span><strong>Clique no título ou no parágrafo acima</strong> para editar o texto direto em cima do visual real (a borda tracejada marca a área editável).</span>
+                </p>
+                <p class="dica-campo">
+                  Formato recomendado do banner: 1600x600px em boa resolução (a imagem inteira aparece aqui do mesmo jeito que na
+                  home, sem cortar).
+                </p>
+
+                @if (r.heroBannerHistorico.length > 0) {
+                  <div class="hero-historico">
+                    <span class="hero-historico-label">Banners recentes:</span>
+                    @for (url of r.heroBannerHistorico; track url) {
+                      <button type="button" class="hero-historico-item" (click)="usarBannerHistorico(url)" aria-label="Usar este banner">
+                        <img [src]="urlImagemOtimizada(url, 'card')" alt="" />
+                      </button>
+                    }
+                  </div>
+                }
               </div>
 
-              <app-hero-banner
-                class="hero-preview"
-                [imagemUrl]="urlImagemOtimizada(r.heroBannerUrl, 'hero')"
-                [tituloKicker]="r.heroTituloKicker"
-                [titulo]="r.heroTitulo"
-                [texto]="r.heroTexto"
-                [focoMobileX]="r.heroBannerFocoMobileX"
-                [editavel]="true"
-                [compacto]="true"
-                (tituloKickerChange)="atualizarCampo('heroTituloKicker', $event)"
-                (tituloChange)="atualizarCampo('heroTitulo', $event)"
-                (textoChange)="atualizarCampo('heroTexto', $event)"
-              >
-                <div heroAcoes class="hero-acoes">
-                  <label class="btn-secundario btn-upload">
-                    <i class="bi bi-upload"></i> {{ heroEnviando() ? 'Enviando... ' + heroProgresso() + '%' : 'Trocar banner' }}
-                    <input type="file" accept="image/*" class="visually-hidden" [disabled]="heroEnviando()" (change)="onHeroSelecionado($event)" />
-                  </label>
+              <div class="foco-mobile">
+                <label id="label-foco-hero-mobile">Foco horizontal no mobile</label>
+                <div class="foco-mobile-conteudo">
+                  <div
+                    class="foco-mobile-preview"
+                    [style.background-image]="'url(' + urlImagemOtimizada(r.heroBannerUrl, 'hero') + ')'"
+                    [style.background-position]="r.heroBannerFocoMobileX + '% center'"
+                  ></div>
+                  <div class="foco-mobile-controle">
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      class="foco-mobile-slider"
+                      aria-labelledby="label-foco-hero-mobile"
+                      [value]="r.heroBannerFocoMobileX"
+                      (input)="atualizarFocoMobileX($any($event.target).valueAsNumber)"
+                    />
+                    <span class="foco-mobile-valor">{{ r.heroBannerFocoMobileX }}%</span>
+                  </div>
                 </div>
-              </app-hero-banner>
-
-              <p class="dica-campo dica-editavel">
-                <i class="bi bi-pencil-fill"></i>
-                <span><strong>Clique no título ou no parágrafo acima</strong> para editar o texto direto em cima do visual real (a borda tracejada marca a área editável).</span>
-              </p>
-              <p class="dica-campo">
-                Formato recomendado do banner: 1600x600px em boa resolução (a imagem inteira aparece aqui do mesmo jeito que na
-                home, sem cortar).
-              </p>
-
-              @if (r.heroBannerHistorico.length > 0) {
-                <div class="hero-historico">
-                  <span class="hero-historico-label">Banners recentes:</span>
-                  @for (url of r.heroBannerHistorico; track url) {
-                    <button type="button" class="hero-historico-item" (click)="usarBannerHistorico(url)" aria-label="Usar este banner">
-                      <img [src]="urlImagemOtimizada(url, 'card')" alt="" />
-                    </button>
-                  }
-                </div>
-              }
-            </div>
-
-            <div class="foco-mobile">
-              <label id="label-foco-hero-mobile">Foco horizontal no mobile</label>
-              <div class="foco-mobile-conteudo">
-                <div
-                  class="foco-mobile-preview"
-                  [style.background-image]="'url(' + urlImagemOtimizada(r.heroBannerUrl, 'hero') + ')'"
-                  [style.background-position]="r.heroBannerFocoMobileX + '% center'"
-                ></div>
-                <div class="foco-mobile-controle">
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    class="foco-mobile-slider"
-                    aria-labelledby="label-foco-hero-mobile"
-                    [value]="r.heroBannerFocoMobileX"
-                    (input)="atualizarFocoMobileX($any($event.target).valueAsNumber)"
-                  />
-                  <span class="foco-mobile-valor">{{ r.heroBannerFocoMobileX }}%</span>
-                </div>
+                <p class="dica-campo">
+                  Arraste pra escolher qual parte horizontal da foto continua visível quando a tela é estreita — o preview ao
+                  lado simula o formato de celular (o desktop não muda, já é pensado pro formato recomendado).
+                </p>
               </div>
-              <p class="dica-campo">
-                Arraste pra escolher qual parte horizontal da foto continua visível quando a tela é estreita — o preview ao
-                lado simula o formato de celular (o desktop não muda, já é pensado pro formato recomendado).
-              </p>
             </div>
           </div>
         </section>

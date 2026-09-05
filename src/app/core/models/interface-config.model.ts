@@ -35,6 +35,8 @@ export interface TransparenciaBannerConfig {
 }
 
 export interface InterfaceConfig {
+  /** Ícone da aba do navegador (favicon), aplicado dinamicamente na tag <link rel="icon"> — ver App (app.ts). */
+  faviconUrl: string;
   logoUrl: string;
   /** Logo exibida no menu lateral do admin (fundo escuro) — separada da logo pública porque geralmente é uma variante só-branca. */
   logoAdminUrl: string;
@@ -156,6 +158,7 @@ const ICONES_BOOTSTRAP_PADRAO: string[] = [
 
 /** Config padrão: reflete exatamente os valores hardcoded existentes na aplicação, para não mudar nada visualmente antes de o admin editar algo. */
 export const INTERFACE_CONFIG_PADRAO: InterfaceConfig = {
+  faviconUrl: '/ico-ConectaNews-BlueWhite.svg',
   logoUrl: '/LogoConectaNews.svg',
   logoAdminUrl: '/LogoConectaNewsADM-White.svg',
   heroBannerUrl: '/banner-hero.png',

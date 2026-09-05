@@ -288,22 +288,22 @@ textarea {
 // Logos (site + admin) e banner do hero
 // ---------------------------------------------------------------------------
 
-// Desktop: duas colunas — as logos e o mock de foco mobile ficam à
-// esquerda (coluna mais estreita), o hero ocupa a coluna da direita
-// inteira, alinhado ao lado das logos+mock em vez de embaixo de tudo (o
-// hero sozinho numa linha cheia deixava o bloco enorme). No mobile vira
-// uma coluna só, na ordem logo > logo do admin > hero > mock (mesma ordem
-// de sempre), independente da ordem real no HTML.
+// Desktop: duas colunas — favicon, logo do site e logo do admin empilhados
+// à esquerda (coluna mais estreita), hero + mock de foco mobile empilhados
+// à direita (.hero-coluna) — o hero sozinho numa linha cheia deixava o
+// bloco enorme. No mobile vira uma coluna só, na ordem favicon > logo >
+// logo do admin > hero > mock (mesma ordem de sempre), independente da
+// ordem real no HTML.
 .identidade-grade {
   display: grid;
   grid-template-columns: minmax(240px, 320px) 1fr;
-  grid-template-areas: 'logos hero' 'mock hero';
+  grid-template-areas: 'logos hero';
   align-items: start;
   gap: 24px;
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
-    grid-template-areas: 'logos' 'hero' 'mock';
+    grid-template-areas: 'logos' 'hero';
   }
 }
 
@@ -315,12 +315,12 @@ textarea {
   gap: 20px;
 }
 
-.campo-hero {
+.hero-coluna {
   grid-area: hero;
-}
-
-.foco-mobile {
-  grid-area: mock;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
 }
 
 .campo-upload {
@@ -330,6 +330,26 @@ textarea {
 .campo-logo {
   flex: 0 1 220px;
   max-width: 260px;
+}
+
+.campo-favicon {
+  flex: 0 1 auto;
+  max-width: 160px;
+}
+
+// Favicon é sempre um ícone pequeno e quadrado — bem diferente das logos
+// (largas, 3:1), então ganha um preview compacto próprio em vez de reusar
+// .upload-logo-site/.upload-logo-admin. Precisa do .upload-imagem junto no
+// seletor pra ganhar de propósito da regra width:100% dela (mesma
+// especificidade de uma classe só, então a ordem no arquivo decidiria).
+.upload-imagem.upload-favicon {
+  width: 64px;
+  aspect-ratio: 1 / 1;
+  background: #fff;
+
+  img {
+    padding: 8px;
+  }
 }
 
 @media (max-width: 700px) {

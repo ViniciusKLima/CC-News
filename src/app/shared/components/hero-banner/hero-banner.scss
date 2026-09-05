@@ -87,22 +87,18 @@
   }
 
   // No modo editável (aba Aparência), sem nenhuma pista visual não dá pra
-  // saber que esse bloco (idêntico ao hero real) responde a clique — essa
-  // borda tracejada fica sempre visível ao redor de tudo, não só no hover
-  // de cada campo, pra deixar óbvio de cara que dá pra editar aqui.
-  &.editavel {
-    outline: 2px dashed rgba(255, 255, 255, 0.55);
-    outline-offset: -6px;
-  }
-
+  // saber que cada campo responde a clique — por isso a borda tracejada
+  // fica sempre visível em volta de cada campo editável (não do bloco
+  // inteiro), pra deixar óbvio de cara o que pode ser editado aqui.
   [contenteditable='true'] {
     cursor: text;
     border-radius: 4px;
+    outline: 2px dashed rgba(255, 255, 255, 0.55);
     outline-offset: 4px;
     transition: outline-color 0.15s ease;
 
     &:hover {
-      outline: 1px dashed rgba(255, 255, 255, 0.6);
+      outline-color: rgba(255, 255, 255, 0.9);
     }
 
     &:focus {

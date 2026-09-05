@@ -426,10 +426,20 @@
   text-align: center;
 }
 
+// position:sticky + align-items:start no .edition-grid (a área do grid
+// continua com a altura da linha inteira, mesmo a coluna não esticando):
+// a lateral acompanha o scroll até bater no fim da própria altura, que
+// coincide com o fim da coluna de atualizações, aí some junto com o rodapé.
 .edition-sidebar {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  position: sticky;
+  top: calc(var(--header-height) + 24px);
+
+  @media (max-width: 900px) {
+    position: static;
+  }
 }
 
 .sidebar-card {

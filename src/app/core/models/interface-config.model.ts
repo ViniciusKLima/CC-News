@@ -4,7 +4,7 @@
 // aba Aparência e aplicada em toda a aplicação (pública e administrativa).
 // Guardada num único documento no Firestore (ver InterfaceConfigService).
 
-import { CategoriaAtualizacao, TipoEdicao } from './edition.model';
+import { CategoriaAtualizacao, PosicaoImagemDestaque, TipoEdicao } from './edition.model';
 
 export interface CorPar {
   fundo: string;
@@ -41,6 +41,8 @@ export interface InterfaceConfig {
   heroBannerUrl: string;
   /** Até 3 banners usados antes do atual, mais recente primeiro, pra poder voltar pra um deles sem precisar reenviar. */
   heroBannerHistorico: string[];
+  /** Em telas estreitas o hero fica bem mais estreito que o banner, cortando boa parte da imagem — esta é a parte que fica visível (mesmo conceito de PosicaoImagemDestaque). No desktop a posição continua fixa (direita), já pensada pro banner recomendado. */
+  heroBannerPosicaoMobile: PosicaoImagemDestaque;
   heroTituloKicker: string;
   heroTitulo: string;
   heroTexto: string;
@@ -152,6 +154,7 @@ export const INTERFACE_CONFIG_PADRAO: InterfaceConfig = {
   logoAdminUrl: '/LogoConectaNewsADM-White.svg',
   heroBannerUrl: '/banner-hero.png',
   heroBannerHistorico: [],
+  heroBannerPosicaoMobile: 'centro',
   heroTituloKicker: 'CONECTA CIDADES',
   heroTitulo: 'NEWS',
   heroTexto:

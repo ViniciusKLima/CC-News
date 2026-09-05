@@ -1,4 +1,9 @@
-<section class="hero d-flex align-items-center" [class.compacto]="compacto()" [style.background-image]="'url(' + imagemUrl() + ')'">
+<section
+  class="hero d-flex align-items-center"
+  [class.compacto]="compacto()"
+  [style.background-image]="'url(' + imagemUrl() + ')'"
+  [style.--hero-pos-mobile]="posicaoMobileCss()"
+>
   <div class="container">
     <div class="txt-hero">
       <div class="tt-hero">

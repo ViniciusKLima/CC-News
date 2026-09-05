@@ -83,6 +83,7 @@
                 [tituloKicker]="r.heroTituloKicker"
                 [titulo]="r.heroTitulo"
                 [texto]="r.heroTexto"
+                [posicaoMobile]="r.heroBannerPosicaoMobile"
                 [editavel]="true"
                 [compacto]="true"
                 (tituloKickerChange)="atualizarCampo('heroTituloKicker', $event)"
@@ -99,7 +100,7 @@
 
               <p class="dica-campo">
                 Clique no título ou no parágrafo pra editar o texto direto em cima do visual real. Formato recomendado: 1600x600px
-                (a imagem inteira aparece aqui do mesmo jeito que na home, sem cortar).
+                em boa resolução (a imagem inteira aparece aqui do mesmo jeito que na home, sem cortar).
               </p>
 
               @if (r.heroBannerHistorico.length > 0) {
@@ -112,6 +113,28 @@
                   }
                 </div>
               }
+
+              <div class="posicao-imagem">
+                <label id="label-posicao-hero-mobile">Parte visível no mobile</label>
+                <div class="posicao-opcoes" role="radiogroup" aria-labelledby="label-posicao-hero-mobile">
+                  @for (posicao of posicoesImagem; track posicao.valor) {
+                    <button
+                      type="button"
+                      class="posicao-opcao"
+                      role="radio"
+                      [attr.aria-checked]="r.heroBannerPosicaoMobile === posicao.valor"
+                      [class.selecionada]="r.heroBannerPosicaoMobile === posicao.valor"
+                      (click)="atualizarPosicaoMobile(posicao.valor)"
+                    >
+                      {{ posicao.label }}
+                    </button>
+                  }
+                </div>
+                <p class="dica-campo">
+                  Em telas de celular o banner fica bem mais estreito que a imagem — escolha qual parte dela continua visível
+                  (o desktop não muda, já é pensado pro formato recomendado).
+                </p>
+              </div>
             </div>
           </div>
         </section>

@@ -15,7 +15,14 @@ export type PastaCloudinary =
 export type PresetImagem = 'hero' | 'card' | 'detalhe' | 'mobile' | 'capa' | 'destaque' | 'atualizacaoFoto';
 
 const TRANSFORMACOES_PRESET: Record<PresetImagem, string> = {
-  hero: 'w_1600,c_fill,g_auto',
+  // Banner do hero: sem g_auto/c_fill porque não há altura fixa (o CSS já
+  // cuida do recorte via background-size). w_2400 (em vez do w_1600
+  // original) evita a imagem sair borrada em monitores grandes/retina, e
+  // q_auto:best troca o q_auto genérico (mais agressivo) por uma
+  // compressão mais leve — o q_auto do prefixo abaixo (ver
+  // urlImagemOtimizada) fica sobrescrito por este, que vem depois na
+  // mesma transformação.
+  hero: 'w_2400,c_limit,q_auto:best',
   card: 'w_480,h_480,c_fill,g_auto',
   detalhe: 'w_1024,c_limit',
   mobile: 'w_360,c_fill,g_auto',

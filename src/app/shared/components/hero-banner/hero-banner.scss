@@ -71,6 +71,18 @@
     }
   }
 
+  // Em telas estreitas o hero fica bem mais estreito que o banner (que é
+  // pensado pra proporção larga, 1600x600), então background-size:cover
+  // acaba mostrando só uma fatia da imagem. No desktop a fatia da direita
+  // funciona bem pro banner recomendado, mas no mobile pode cortar
+  // exatamente a parte que importa — --hero-pos-mobile (escolhido na aba
+  // Aparência) é o que decide qual fatia aparece aqui.
+  @media (max-width: 700px) {
+    &:not(.compacto) {
+      background-position: var(--hero-pos-mobile, center);
+    }
+  }
+
   // No modo editável (aba Aparência), os textos viram contenteditable —
   // esse contorno tracejado no hover/foco é o único jeito de o admin
   // perceber que aquele texto responde a clique, já que visualmente é

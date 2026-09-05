@@ -32,44 +32,46 @@
           </div>
 
           <div class="identidade-grade">
-            <div class="campo campo-upload campo-logo">
-              <div class="campo-cabecalho">
-                <label>Logo do site</label>
+            <div class="logos-linha">
+              <div class="campo campo-upload campo-logo">
+                <div class="campo-cabecalho">
+                  <label>Logo do site</label>
+                </div>
+                <div class="upload-imagem upload-logo-site">
+                  <img [src]="r.logoUrl" alt="Logo atual do site" />
+                  @if (logoEnviando()) {
+                    <div class="upload-overlay">
+                      <div class="upload-spinner"></div>
+                      <span>Enviando... {{ logoProgresso() }}%</span>
+                    </div>
+                  }
+                </div>
+                <label class="btn-secundario btn-upload">
+                  <i class="bi bi-upload"></i> Trocar logo
+                  <input type="file" accept="image/*" class="visually-hidden" [disabled]="logoEnviando()" (change)="onLogoSelecionado($event)" />
+                </label>
+                <p class="dica-campo">Cabeçalho público. PNG/SVG transparente, altura de 40px.</p>
               </div>
-              <div class="upload-imagem upload-logo-site">
-                <img [src]="r.logoUrl" alt="Logo atual do site" />
-                @if (logoEnviando()) {
-                  <div class="upload-overlay">
-                    <div class="upload-spinner"></div>
-                    <span>Enviando... {{ logoProgresso() }}%</span>
-                  </div>
-                }
-              </div>
-              <label class="btn-secundario btn-upload">
-                <i class="bi bi-upload"></i> Trocar logo
-                <input type="file" accept="image/*" class="visually-hidden" [disabled]="logoEnviando()" (change)="onLogoSelecionado($event)" />
-              </label>
-              <p class="dica-campo">Cabeçalho público. PNG/SVG transparente, altura de 40px.</p>
-            </div>
 
-            <div class="campo campo-upload campo-logo">
-              <div class="campo-cabecalho">
-                <label>Logo do admin</label>
+              <div class="campo campo-upload campo-logo">
+                <div class="campo-cabecalho">
+                  <label>Logo do admin</label>
+                </div>
+                <div class="upload-imagem upload-logo-admin">
+                  <img [src]="r.logoAdminUrl" alt="Logo atual do admin" />
+                  @if (logoAdminEnviando()) {
+                    <div class="upload-overlay">
+                      <div class="upload-spinner"></div>
+                      <span>Enviando... {{ logoAdminProgresso() }}%</span>
+                    </div>
+                  }
+                </div>
+                <label class="btn-secundario btn-upload">
+                  <i class="bi bi-upload"></i> Trocar logo
+                  <input type="file" accept="image/*" class="visually-hidden" [disabled]="logoAdminEnviando()" (change)="onLogoAdminSelecionado($event)" />
+                </label>
+                <p class="dica-campo">Menu lateral. De preferência toda branca, altura de 40px.</p>
               </div>
-              <div class="upload-imagem upload-logo-admin">
-                <img [src]="r.logoAdminUrl" alt="Logo atual do admin" />
-                @if (logoAdminEnviando()) {
-                  <div class="upload-overlay">
-                    <div class="upload-spinner"></div>
-                    <span>Enviando... {{ logoAdminProgresso() }}%</span>
-                  </div>
-                }
-              </div>
-              <label class="btn-secundario btn-upload">
-                <i class="bi bi-upload"></i> Trocar logo
-                <input type="file" accept="image/*" class="visually-hidden" [disabled]="logoAdminEnviando()" (change)="onLogoAdminSelecionado($event)" />
-              </label>
-              <p class="dica-campo">Menu lateral. De preferência toda branca, altura de 40px.</p>
             </div>
 
             <div class="campo campo-hero">
@@ -98,9 +100,13 @@
                 </div>
               </app-hero-banner>
 
+              <p class="dica-campo dica-editavel">
+                <i class="bi bi-pencil-fill"></i>
+                <span><strong>Clique no título ou no parágrafo acima</strong> para editar o texto direto em cima do visual real (a borda tracejada marca a área editável).</span>
+              </p>
               <p class="dica-campo">
-                Clique no título ou no parágrafo pra editar o texto direto em cima do visual real. Formato recomendado: 1600x600px
-                em boa resolução (a imagem inteira aparece aqui do mesmo jeito que na home, sem cortar).
+                Formato recomendado do banner: 1600x600px em boa resolução (a imagem inteira aparece aqui do mesmo jeito que na
+                home, sem cortar).
               </p>
 
               @if (r.heroBannerHistorico.length > 0) {
@@ -222,7 +228,7 @@
 
                   <div class="campos-cor">
                     <button type="button" class="btn-secundario btn-icone-trocar" (click)="alternarSeletorIcone(categoria.valor)">
-                      <i class="bi bi-emoji-smile"></i> Ícone
+                      Ícone
                     </button>
                     <div class="cor-hex-campos">
                       <input
@@ -326,9 +332,11 @@
             <span class="secao-icone"><i class="bi bi-shield-check"></i></span>
             <h2>Banner de encerramento</h2>
           </div>
-          <p class="secao-descricao">
-            Aparece no fim de toda edição pública. Clique no ícone, no título, na descrição ou no texto do botão pra editar
-            direto em cima do visual real.
+          <p class="secao-descricao">Aparece no fim de toda edição pública.</p>
+          <p class="dica-campo dica-editavel">
+            <i class="bi bi-pencil-fill"></i>
+            <span><strong>Clique no ícone, no título, na descrição ou no texto do botão abaixo</strong> para editar direto em
+            cima do visual real (a borda tracejada marca a área editável).</span>
           </p>
 
           <app-transparencia-banner

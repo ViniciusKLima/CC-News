@@ -52,8 +52,11 @@
     }
 
     .txt-hero {
+      // Contido a ~60% da largura (em vez de 100%), pra ficar parecido com
+      // a proporção real do hero público (uma caixa de texto mais estreita
+      // à esquerda, não o texto esticado de ponta a ponta do banner).
       width: auto;
-      max-width: 100%;
+      max-width: 60%;
 
       .conecta {
         font-size: 0.6rem;
@@ -83,10 +86,15 @@
     }
   }
 
-  // No modo editável (aba Aparência), os textos viram contenteditable —
-  // esse contorno tracejado no hover/foco é o único jeito de o admin
-  // perceber que aquele texto responde a clique, já que visualmente é
-  // idêntico ao hero real.
+  // No modo editável (aba Aparência), sem nenhuma pista visual não dá pra
+  // saber que esse bloco (idêntico ao hero real) responde a clique — essa
+  // borda tracejada fica sempre visível ao redor de tudo, não só no hover
+  // de cada campo, pra deixar óbvio de cara que dá pra editar aqui.
+  &.editavel {
+    outline: 2px dashed rgba(255, 255, 255, 0.55);
+    outline-offset: -6px;
+  }
+
   [contenteditable='true'] {
     cursor: text;
     border-radius: 4px;

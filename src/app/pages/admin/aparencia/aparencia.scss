@@ -250,6 +250,28 @@ textarea {
   color: var(--color-text-secondary);
 }
 
+// Chama mais atenção que uma dica comum: é o aviso de que o bloco logo
+// acima (hero ou banner de encerramento) é editável clicando em cima —
+// sem isso não tem como quem não sabe adivinhar que aquilo responde a clique.
+.dica-editavel {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 0.76rem;
+  color: var(--color-text);
+
+  i {
+    margin-top: 1px;
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  strong {
+    color: var(--color-primary);
+  }
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -266,14 +288,20 @@ textarea {
 // Logos (site + admin) e banner do hero
 // ---------------------------------------------------------------------------
 
-// As 3 logos/banner ficam lado a lado (logo do site e do admin são pequenas,
-// o hero ocupa o espaço restante) enquanto couberem confortavelmente, e
-// empilham no mobile — mesmo raciocínio de breakpoint do .secoes-par abaixo.
+// As duas logos (pequenas) ficam numa linha própria lado a lado, e o hero
+// (bem mais alto, com preview + histórico + foco mobile) vem inteiro numa
+// linha abaixo — junto na mesma linha das logos, a diferença de altura
+// deixava um vão vazio enorme do lado das logos (que terminam bem antes).
 .identidade-grade {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.logos-linha {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  align-items: flex-start;
 }
 
 .campo-upload {
@@ -281,32 +309,21 @@ textarea {
 }
 
 .campo-logo {
-  flex: 0 1 180px;
-  max-width: 200px;
-}
-
-.campo-hero {
-  flex: 3 1 320px;
-  min-width: 280px;
+  flex: 0 1 220px;
+  max-width: 260px;
 }
 
 @media (max-width: 700px) {
-  .identidade-grade {
+  // Mesmo raciocínio do .secoes-par: sem stretch, em column cada item só
+  // encolhe até o "preferido" do próprio conteúdo (shrink-to-fit), que pode
+  // passar da largura da tela.
+  .logos-linha {
     flex-direction: column;
-    // Em row, flex-start evita que o hero (mais alto) estique as logos
-    // pequenas. Em column isso vira o problema oposto: sem stretch, cada
-    // item encolhe só até o "preferido" do próprio conteúdo (shrink-to-fit),
-    // que pode passar da largura da tela — stretch aqui garante 100% de
-    // largura pra cada um, empilhados um embaixo do outro como esperado.
     align-items: stretch;
   }
 
   .campo-logo {
     max-width: none;
-  }
-
-  .campo-hero {
-    min-width: 0;
   }
 }
 
@@ -444,6 +461,10 @@ textarea {
   align-items: center;
   gap: 16px;
   margin-top: 6px;
+  // Sem isso o slider vira uma barra enorme atravessando a tela toda em
+  // telas largas, já que o card do hero (ao contrário das logos) ocupa a
+  // largura inteira da seção.
+  max-width: 420px;
 }
 
 .foco-mobile-preview {
@@ -615,10 +636,17 @@ app-icone-picker {
   }
 }
 
+// Com muitos ícones isso não pode crescer pra baixo indefinidamente — em
+// vez disso, um número fixo de linhas (6) e o excedente vira colunas extras
+// que rolam na horizontal, então a biblioteca nunca "engole" o resto da tela.
 .biblioteca-grade {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+  grid-auto-flow: column;
+  grid-template-rows: repeat(6, 44px);
+  grid-auto-columns: 44px;
   gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
 }
 
 .biblioteca-item {

@@ -288,20 +288,39 @@ textarea {
 // Logos (site + admin) e banner do hero
 // ---------------------------------------------------------------------------
 
-// As duas logos (pequenas) ficam numa linha própria lado a lado, e o hero
-// (bem mais alto, com preview + histórico + foco mobile) vem inteiro numa
-// linha abaixo — junto na mesma linha das logos, a diferença de altura
-// deixava um vão vazio enorme do lado das logos (que terminam bem antes).
+// Desktop: duas colunas — as logos e o mock de foco mobile ficam à
+// esquerda (coluna mais estreita), o hero ocupa a coluna da direita
+// inteira, alinhado ao lado das logos+mock em vez de embaixo de tudo (o
+// hero sozinho numa linha cheia deixava o bloco enorme). No mobile vira
+// uma coluna só, na ordem logo > logo do admin > hero > mock (mesma ordem
+// de sempre), independente da ordem real no HTML.
 .identidade-grade {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) 1fr;
+  grid-template-areas: 'logos hero' 'mock hero';
+  align-items: start;
   gap: 24px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'logos' 'hero' 'mock';
+  }
 }
 
 .logos-linha {
+  grid-area: logos;
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
   gap: 20px;
+}
+
+.campo-hero {
+  grid-area: hero;
+}
+
+.foco-mobile {
+  grid-area: mock;
 }
 
 .campo-upload {
@@ -452,10 +471,6 @@ textarea {
 // (mesma imagem, background-position controlado pelo slider ao lado) mais
 // um <input type="range"> nativo — três posições fixas (esquerda/centro/
 // direita) não bastavam pra fotos com o assunto fora desses três pontos.
-.foco-mobile {
-  margin-top: 12px;
-}
-
 .foco-mobile-conteudo {
   display: flex;
   align-items: center;

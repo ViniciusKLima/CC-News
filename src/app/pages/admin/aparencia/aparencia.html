@@ -301,9 +301,34 @@
 
         <!-- BIBLIOTECA DE ÍCONES -->
         <section class="painel-secao">
-          <div class="secao-titulo">
-            <span class="secao-icone"><i class="bi bi-grid-3x3-gap"></i></span>
-            <h2>Biblioteca de ícones</h2>
+          <div class="secao-titulo secao-titulo-com-paginacao">
+            <div class="secao-titulo-texto">
+              <span class="secao-icone"><i class="bi bi-grid-3x3-gap"></i></span>
+              <h2>Biblioteca de ícones</h2>
+            </div>
+            @if (totalPaginasIconeBiblioteca() > 1) {
+              <div class="icone-paginacao">
+                <button
+                  type="button"
+                  class="icone-paginacao-seta"
+                  aria-label="Ícones anteriores"
+                  [disabled]="paginaIconeBiblioteca() === 0"
+                  (click)="iconeBibliotecaPaginaAnterior()"
+                >
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                <span class="icone-paginacao-contagem">{{ paginaIconeBiblioteca() + 1 }}/{{ totalPaginasIconeBiblioteca() }}</span>
+                <button
+                  type="button"
+                  class="icone-paginacao-seta"
+                  aria-label="Mais ícones"
+                  [disabled]="paginaIconeBiblioteca() === totalPaginasIconeBiblioteca() - 1"
+                  (click)="iconeBibliotecaPaginaSeguinte()"
+                >
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            }
           </div>
           <p class="secao-descricao">
             Ícones disponíveis para as categorias acima, o banner de encerramento e para escolher em cada atualização das
@@ -332,8 +357,8 @@
             </label>
           </div>
 
-          <div class="biblioteca-grade">
-            @for (icone of r.icones; track icone.id) {
+          <div #bibliotecaGrid class="biblioteca-grade">
+            @for (icone of iconesBibliotecaPaginados(); track icone.id) {
               <div class="biblioteca-item" [attr.title]="icone.nome">
                 <app-icone [valor]="icone.valor" />
                 <button type="button" class="biblioteca-remover" [attr.aria-label]="'Remover ' + icone.nome" (click)="removerIcone(icone)">

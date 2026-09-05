@@ -636,9 +636,14 @@
     font-size: 0.78rem;
   }
 
+  // flex-end (não flex-start): o menu de "mais ações" abre alinhado pela
+  // direita do botão de "..." (ver .menu-dropdown, right:0), crescendo pra
+  // esquerda — com os botões encostados na esquerda da tela, esse
+  // crescimento estourava a borda esquerda da tela e cortava metade do
+  // menu. Encostados na direita, sobra espaço pra esquerda pra ele abrir.
   .edicao-acoes {
     flex: 1 1 100%;
-    justify-content: flex-start;
+    justify-content: flex-end;
     margin-top: 4px;
     padding-top: 12px;
     border-top: 1px solid rgba(160, 162, 174, 0.15);

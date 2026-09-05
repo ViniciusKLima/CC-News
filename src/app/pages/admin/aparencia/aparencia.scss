@@ -671,17 +671,66 @@ app-icone-picker {
   }
 }
 
-// Com muitos ícones isso não pode crescer pra baixo indefinidamente — em
-// vez disso, um número fixo de linhas (6) e o excedente vira colunas extras
-// que rolam na horizontal, então a biblioteca nunca "engole" o resto da tela.
+// Com muitos ícones isso não pode crescer pra baixo indefinidamente — em vez
+// disso, preenche a grade em linhas (como o seletor do modal de atualização)
+// e, a partir de 6 linhas cheias, vira página em vez de esticar a tela (ver
+// paginação calculada em aparencia.ts).
+.secao-titulo-com-paginacao {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+.secao-titulo-texto {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icone-paginacao {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.icone-paginacao-contagem {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  min-width: 26px;
+  text-align: center;
+}
+
+.icone-paginacao-seta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
 .biblioteca-grade {
   display: grid;
-  grid-auto-flow: column;
-  grid-template-rows: repeat(6, 44px);
-  grid-auto-columns: 44px;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
   gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 6px;
 }
 
 .biblioteca-item {

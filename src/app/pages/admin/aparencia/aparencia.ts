@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { AfterViewChecked, Component, ElementRef, OnDestroy, ViewChild, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CATEGORIAS_ATUALIZACAO, CategoriaAtualizacao, TIPOS_EDICAO, TipoEdicao } from '../../../core/models/edition.model';
 import { CorPar, IconeBiblioteca, InterfaceConfig } from '../../../core/models/interface-config.model';
@@ -16,6 +16,14 @@ import { urlImagemOtimizada } from '../../../core/services/cloudinary.service';
 
 const HEX_PATTERN = /^#[0-9a-fA-F]{6}$/;
 const HISTORICO_MAXIMO = 3;
+
+// Paginação da biblioteca de ícones: mesma ideia do seletor de ícone do
+// modal de atualização (largura medida por ResizeObserver, colunas
+// calculadas a partir dela), só que com 6 linhas por página em vez de 3.
+const BIBLIOTECA_ICONE_LARGURA_MIN = 44;
+const BIBLIOTECA_ICONE_GAP = 8;
+const BIBLIOTECA_ICONE_LINHAS_POR_PAGINA = 6;
+const BIBLIOTECA_ICONES_POR_PAGINA_INICIAL = 24;
 
 /** Chave de qual seletor de ícone (se algum) está aberto no momento: uma categoria, o banner de transparência, ou nenhum. */
 type ChaveSeletorIcone = CategoriaAtualizacao | 'transparencia' | null;
@@ -41,7 +49,7 @@ type ChaveSeletorIcone = CategoriaAtualizacao | 'transparencia' | null;
   templateUrl: './aparencia.html',
   styleUrl: './aparencia.scss',
 })
-export class Aparencia {
+export class Aparencia implements AfterViewChecked, OnDestroy {
   private readonly interfaceConfig = inject(InterfaceConfigService);
   private readonly cloudinaryService = inject(CloudinaryService);
   private readonly toastService = inject(ToastService);
@@ -70,9 +78,35 @@ export class Aparencia {
   protected readonly novoIconeNome = signal('');
   protected readonly seletorIconeAberto = signal<ChaveSeletorIcone>(null);
 
+  // Paginação da biblioteca de ícones (ver constantes no topo do arquivo):
+  // preenche a grade em linhas, e some com o scroll horizontal a partir de
+  // 6 linhas cheias, virando página em vez de esticar a tela.
+  @ViewChild('bibliotecaGrid') private readonly bibliotecaGridRef?: ElementRef<HTMLElement>;
+  private bibliotecaResizeObserver?: ResizeObserver;
+  protected readonly paginaIconeBiblioteca = signal(0);
+  protected readonly iconesBibliotecaPorPagina = signal(BIBLIOTECA_ICONES_POR_PAGINA_INICIAL);
+  protected readonly totalPaginasIconeBiblioteca = computed(() =>
+    Math.max(1, Math.ceil((this.rascunho()?.icones.length ?? 0) / this.iconesBibliotecaPorPagina())),
+  );
+  protected readonly iconesBibliotecaPaginados = computed(() => {
+    const icones = this.rascunho()?.icones ?? [];
+    const tamanho = this.iconesBibliotecaPorPagina();
+    const inicio = this.paginaIconeBiblioteca() * tamanho;
+    return icones.slice(inicio, inicio + tamanho);
+  });
+
   private inicializado = false;
 
   constructor() {
+    // Se a página atual deixar de existir (ícone removido, ou a largura
+    // mudou e agora cabem menos por página), volta pra última válida.
+    effect(() => {
+      const total = this.totalPaginasIconeBiblioteca();
+      if (this.paginaIconeBiblioteca() >= total) {
+        this.paginaIconeBiblioteca.set(total - 1);
+      }
+    });
+
     // Inicializa o rascunho uma única vez, assim que a configuração real
     // termina de carregar do Firestore (ver InterfaceConfigService) — evita
     // começar com os valores padrão e "pular" para os salvos um instante
@@ -83,6 +117,42 @@ export class Aparencia {
         this.rascunho.set(structuredClone(this.interfaceConfig.config()));
       }
     });
+  }
+
+  // A grade só existe no DOM depois que o rascunho carrega (fica atrás de
+  // @if no template), então na primeira passada o #bibliotecaGrid ainda não
+  // existe — ver mesmo raciocínio em edition.ts (sidebar sticky). A guarda
+  // "!bibliotecaResizeObserver" garante que o observer é criado uma única
+  // vez, assim que a grade aparecer.
+  ngAfterViewChecked(): void {
+    const grade = this.bibliotecaGridRef?.nativeElement;
+    if (this.bibliotecaResizeObserver || !grade) return;
+
+    this.bibliotecaResizeObserver = new ResizeObserver((entradas) => {
+      const largura = entradas[0]?.contentRect.width;
+      if (largura) this.atualizarIconesBibliotecaPorPagina(largura);
+    });
+    this.bibliotecaResizeObserver.observe(grade);
+  }
+
+  ngOnDestroy(): void {
+    this.bibliotecaResizeObserver?.disconnect();
+  }
+
+  private atualizarIconesBibliotecaPorPagina(largura: number): void {
+    const colunas = Math.max(
+      1,
+      Math.floor((largura + BIBLIOTECA_ICONE_GAP) / (BIBLIOTECA_ICONE_LARGURA_MIN + BIBLIOTECA_ICONE_GAP)),
+    );
+    this.iconesBibliotecaPorPagina.set(colunas * BIBLIOTECA_ICONE_LINHAS_POR_PAGINA);
+  }
+
+  protected iconeBibliotecaPaginaAnterior(): void {
+    this.paginaIconeBiblioteca.update((pagina) => Math.max(0, pagina - 1));
+  }
+
+  protected iconeBibliotecaPaginaSeguinte(): void {
+    this.paginaIconeBiblioteca.update((pagina) => Math.min(this.totalPaginasIconeBiblioteca() - 1, pagina + 1));
   }
 
   protected corTipo(tipo: TipoEdicao): CorPar {

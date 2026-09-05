@@ -174,9 +174,14 @@
     }
   }
 
-  > i {
+  .admin-user-seta {
     font-size: 0.8rem;
     color: rgba(255, 255, 255, 0.6);
+    transition: transform 0.15s ease;
+
+    &.aberto {
+      transform: rotate(180deg);
+    }
   }
 }
 
@@ -240,7 +245,17 @@
   // próprio .admin-user, que aqui é só o avatar/seta (bem estreito) — com
   // overflow:hidden isso cortava "Sair" quase por inteiro. Agora o menu
   // tem largura própria, ancorado pela direita.
-  .admin-user-menu {
+  //
+  // O prefixo ".admin-user" nos dois seletores abaixo não é cosmético: a
+  // regra do desktop nasce aninhada dentro de ".admin-user" no SCSS (e a de
+  // .admin-user-menu-info aninhada mais um nível ainda), então compila com
+  // especificidade maior que ".admin-user-menu"/".admin-user-menu-info"
+  // sozinhos. Sem o prefixo aqui, o "bottom" do desktop (maior
+  // especificidade) ganhava do "bottom: auto" daqui mesmo dentro do media
+  // query, e com "top" e "bottom" concorrendo a caixa colapsava pra altura
+  // zero — com overflow:hidden isso escondia o menu inteiro, meio que
+  // simulando "não abre".
+  .admin-user .admin-user-menu {
     bottom: auto;
     top: calc(100% + 8px);
     left: auto;
@@ -248,7 +263,7 @@
     width: 200px;
   }
 
-  .admin-user-menu-info {
+  .admin-user .admin-user-menu .admin-user-menu-info {
     display: flex;
   }
 }

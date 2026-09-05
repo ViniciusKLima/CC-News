@@ -1,13 +1,6 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import {
-  CATEGORIAS_ATUALIZACAO,
-  CategoriaAtualizacao,
-  PosicaoImagemDestaque,
-  POSICOES_IMAGEM_DESTAQUE,
-  TIPOS_EDICAO,
-  TipoEdicao,
-} from '../../../core/models/edition.model';
+import { CATEGORIAS_ATUALIZACAO, CategoriaAtualizacao, TIPOS_EDICAO, TipoEdicao } from '../../../core/models/edition.model';
 import { CorPar, IconeBiblioteca, InterfaceConfig } from '../../../core/models/interface-config.model';
 import { InterfaceConfigService } from '../../../core/services/interface-config.service';
 import { CloudinaryService } from '../../../core/services/cloudinary.service';
@@ -56,7 +49,6 @@ export class Aparencia {
 
   protected readonly tiposEdicao = TIPOS_EDICAO;
   protected readonly categoriasAtualizacao = CATEGORIAS_ATUALIZACAO;
-  protected readonly posicoesImagem = POSICOES_IMAGEM_DESTAQUE;
   protected readonly urlImagemOtimizada = urlImagemOtimizada;
 
   protected readonly rascunho = signal<InterfaceConfig | null>(null);
@@ -144,8 +136,8 @@ export class Aparencia {
     });
   }
 
-  protected atualizarPosicaoMobile(posicao: PosicaoImagemDestaque): void {
-    this.rascunho.update((r) => (r ? { ...r, heroBannerPosicaoMobile: posicao } : r));
+  protected atualizarFocoMobileX(valor: number): void {
+    this.rascunho.update((r) => (r ? { ...r, heroBannerFocoMobileX: valor } : r));
   }
 
   protected async onLogoSelecionado(evento: Event): Promise<void> {

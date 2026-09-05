@@ -431,44 +431,59 @@ textarea {
   }
 }
 
-// Mesmo padrão visual do seletor de posição da imagem de destaque (ver
-// editor.scss .posicao-opcao) — reaproveitado aqui pra escolher qual parte
-// do banner do hero fica visível no mobile.
-.posicao-imagem {
+// Foco horizontal do hero no mobile: um preview no formato de celular
+// (mesma imagem, background-position controlado pelo slider ao lado) mais
+// um <input type="range"> nativo — três posições fixas (esquerda/centro/
+// direita) não bastavam pra fotos com o assunto fora desses três pontos.
+.foco-mobile {
   margin-top: 12px;
 }
 
-.posicao-opcoes {
+.foco-mobile-conteudo {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 16px;
+  margin-top: 6px;
 }
 
-.posicao-opcao {
-  flex: 1;
+.foco-mobile-preview {
+  flex-shrink: 0;
+  width: 90px;
+  aspect-ratio: 3 / 4;
+  border-radius: 10px;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 6px 8px;
-  background: #fff;
-  color: var(--color-text-secondary);
-  font-size: 0.72rem;
-  font-weight: 700;
+  background-color: var(--color-secondary);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.foco-mobile-controle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.foco-mobile-slider {
+  flex: 1;
+  // width:100% (não só min-width:0): um <input type="range"> tem uma
+  // largura própria do navegador (~129px no Chrome) que o flex-shrink
+  // sozinho não reduz — só width:100% faz ele de fato acompanhar o espaço
+  // que sobra, em vez de forçar a linha toda a ficar mais larga que a tela.
+  width: 100%;
+  min-width: 0;
+  accent-color: var(--color-primary);
   cursor: pointer;
-  transition: all 0.15s ease;
+}
 
-  &:hover {
-    border-color: var(--color-primary);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
-  }
-
-  &.selecionada {
-    background: var(--bgc-azul-opacity);
-    border-color: var(--color-primary);
-    color: var(--color-primary);
-  }
+.foco-mobile-valor {
+  flex-shrink: 0;
+  width: 38px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text);
+  text-align: right;
 }
 
 // ---------------------------------------------------------------------------

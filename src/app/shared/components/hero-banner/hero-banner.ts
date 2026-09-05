@@ -1,10 +1,11 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 
 // Hero de abertura da home: imagem de fundo, título (kicker + destaque) e
-// parágrafo. Usado tanto na home pública (somente leitura) quanto na aba
-// Aparência do admin (modo `editavel`, ver aparencia.ts) — mesmo componente,
-// mesmo CSS, pra o admin ver exatamente como o hero vai ficar no ar enquanto
-// edita o texto direto em cima dele.
+// parágrafo. Usado tanto na home pública quanto como prévia (somente
+// leitura) na aba Aparência do admin — mesmo componente, mesmo CSS, pra a
+// prévia mostrar exatamente como o hero vai ficar no ar. A edição de texto
+// em si acontece por campos de formulário normais (ver aparencia.html), não
+// direto em cima deste componente.
 @Component({
   selector: 'app-hero-banner',
   imports: [],
@@ -19,26 +20,8 @@ export class HeroBanner {
   /** Ponto horizontal (0 a 100) que fica centralizado no recorte visível quando a tela é estreita demais pra mostrar o banner inteiro. No desktop a posição é sempre "direita", pensada pro banner recomendado. */
   readonly focoMobileX = input(50);
 
-  /** Modo de edição: os textos viram contenteditable e emitem as mudanças no blur. */
-  readonly editavel = input(false);
   /** Versão mais baixa, usada dentro do card da aba Aparência (o hero real ocupa 60% da altura da tela, o que não cabe bem dentro de um formulário). */
   readonly compacto = input(false);
 
   protected readonly posicaoMobileCss = computed(() => `${this.focoMobileX()}% center`);
-
-  readonly tituloKickerChange = output<string>();
-  readonly tituloChange = output<string>();
-  readonly textoChange = output<string>();
-
-  protected onBlurKicker(evento: Event): void {
-    this.tituloKickerChange.emit((evento.target as HTMLElement).innerText.trim());
-  }
-
-  protected onBlurTitulo(evento: Event): void {
-    this.tituloChange.emit((evento.target as HTMLElement).innerText.trim());
-  }
-
-  protected onBlurTexto(evento: Event): void {
-    this.textoChange.emit((evento.target as HTMLElement).innerText.trim());
-  }
 }

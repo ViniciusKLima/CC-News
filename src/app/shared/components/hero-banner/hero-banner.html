@@ -1,27 +1,17 @@
 <section
   class="hero d-flex align-items-center"
   [class.compacto]="compacto()"
-  [class.editavel]="editavel()"
   [style.background-image]="'url(' + imagemUrl() + ')'"
   [style.--hero-pos-mobile]="posicaoMobileCss()"
 >
   <div class="container">
     <div class="txt-hero">
       <div class="tt-hero">
-        @if (editavel()) {
-          <h3 class="conecta" contenteditable="true" (blur)="onBlurKicker($event)">{{ tituloKicker() }}</h3>
-          <h1 class="news" contenteditable="true" (blur)="onBlurTitulo($event)">{{ titulo() }}</h1>
-        } @else {
-          <h3 class="conecta">{{ tituloKicker() }}</h3>
-          <h1 class="news">{{ titulo() }}</h1>
-        }
+        <h3 class="conecta">{{ tituloKicker() }}</h3>
+        <h1 class="news">{{ titulo() }}</h1>
       </div>
 
-      @if (editavel()) {
-        <p class="p-hero" contenteditable="true" (blur)="onBlurTexto($event)">{{ texto() }}</p>
-      } @else {
-        <p class="p-hero">{{ texto() }}</p>
-      }
+      <p class="p-hero">{{ texto() }}</p>
     </div>
   </div>
 

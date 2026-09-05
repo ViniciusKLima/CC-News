@@ -1,28 +1,12 @@
-<div class="transparencia-banner" [class.editavel]="editavel()">
-  @if (editavel()) {
-    <button type="button" class="transparencia-icone-botao" (click)="trocarIcone.emit()" aria-label="Trocar ícone">
-      <app-icone [valor]="icone()" />
-    </button>
-  } @else {
-    <app-icone [valor]="icone()" />
-  }
+<div class="transparencia-banner">
+  <app-icone [valor]="icone()" />
 
   <div class="transparencia-texto">
-    @if (editavel()) {
-      <h4 contenteditable="true" (blur)="onBlurTitulo($event)">{{ titulo() }}</h4>
-      <p contenteditable="true" (blur)="onBlurDescricao($event)">{{ descricao() }}</p>
-    } @else {
-      <h4>{{ titulo() }}</h4>
-      <p>{{ descricao() }}</p>
-    }
+    <h4>{{ titulo() }}</h4>
+    <p>{{ descricao() }}</p>
   </div>
 
-  @if (editavel()) {
-    <div class="transparencia-link">
-      <span contenteditable="true" (blur)="onBlurBotao($event)">{{ textoBotao() }}</span>
-      <i class="bi bi-arrow-right m-0"></i>
-    </div>
-  } @else if (linkExterno()) {
+  @if (linkExterno()) {
     <a class="transparencia-link" [href]="linkBotao()" target="_blank" rel="noopener">
       {{ textoBotao() }} <i class="bi bi-arrow-right m-0"></i>
     </a>

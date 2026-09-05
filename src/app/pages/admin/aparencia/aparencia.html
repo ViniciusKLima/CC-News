@@ -100,34 +100,28 @@
                   <label>Hero da home</label>
                 </div>
 
-                <app-hero-banner
-                  class="hero-preview"
-                  [imagemUrl]="urlImagemOtimizada(r.heroBannerUrl, 'hero')"
-                  [tituloKicker]="r.heroTituloKicker"
-                  [titulo]="r.heroTitulo"
-                  [texto]="r.heroTexto"
-                  [focoMobileX]="r.heroBannerFocoMobileX"
-                  [editavel]="true"
-                  [compacto]="true"
-                  (tituloKickerChange)="atualizarCampo('heroTituloKicker', $event)"
-                  (tituloChange)="atualizarCampo('heroTitulo', $event)"
-                  (textoChange)="atualizarCampo('heroTexto', $event)"
-                >
-                  <div heroAcoes class="hero-acoes">
-                    <label class="btn-secundario btn-upload">
-                      <i class="bi bi-upload"></i> {{ heroEnviando() ? 'Enviando... ' + heroProgresso() + '%' : 'Trocar banner' }}
-                      <input type="file" accept="image/*" class="visually-hidden" [disabled]="heroEnviando()" (change)="onHeroSelecionado($event)" />
-                    </label>
-                  </div>
-                </app-hero-banner>
+                <div class="preview-somente-leitura">
+                  <app-hero-banner
+                    class="hero-preview"
+                    [imagemUrl]="urlImagemOtimizada(r.heroBannerUrl, 'hero')"
+                    [tituloKicker]="r.heroTituloKicker"
+                    [titulo]="r.heroTitulo"
+                    [texto]="r.heroTexto"
+                    [focoMobileX]="r.heroBannerFocoMobileX"
+                    [compacto]="true"
+                  >
+                    <div heroAcoes class="hero-acoes">
+                      <label class="btn-secundario btn-upload">
+                        <i class="bi bi-upload"></i> {{ heroEnviando() ? 'Enviando... ' + heroProgresso() + '%' : 'Trocar banner' }}
+                        <input type="file" accept="image/*" class="visually-hidden" [disabled]="heroEnviando()" (change)="onHeroSelecionado($event)" />
+                      </label>
+                    </div>
+                  </app-hero-banner>
+                </div>
 
-                <p class="dica-campo dica-editavel">
-                  <i class="bi bi-pencil-fill"></i>
-                  <span><strong>Clique no título ou no parágrafo acima</strong> para editar o texto direto em cima do visual real (a borda tracejada marca a área editável).</span>
-                </p>
                 <p class="dica-campo">
                   Formato recomendado do banner: 1600x600px em boa resolução (a imagem inteira aparece aqui do mesmo jeito que na
-                  home, sem cortar).
+                  home, sem cortar). O texto abaixo é só uma prévia — edite pelos campos.
                 </p>
 
                 @if (r.heroBannerHistorico.length > 0) {
@@ -140,6 +134,50 @@
                     }
                   </div>
                 }
+
+                <div class="campo">
+                  <div class="campo-cabecalho">
+                    <label for="hero-kicker">Texto de destaque</label>
+                    <span class="contador">{{ r.heroTituloKicker.length }}/40</span>
+                  </div>
+                  <input
+                    id="hero-kicker"
+                    type="text"
+                    maxlength="40"
+                    [value]="r.heroTituloKicker"
+                    (change)="atualizarCampo('heroTituloKicker', $any($event.target).value)"
+                    placeholder="Ex.: CONECTA CIDADES"
+                  />
+                </div>
+
+                <div class="campo">
+                  <div class="campo-cabecalho">
+                    <label for="hero-titulo">Título</label>
+                    <span class="contador">{{ r.heroTitulo.length }}/30</span>
+                  </div>
+                  <input
+                    id="hero-titulo"
+                    type="text"
+                    maxlength="30"
+                    [value]="r.heroTitulo"
+                    (change)="atualizarCampo('heroTitulo', $any($event.target).value)"
+                    placeholder="Ex.: NEWS"
+                  />
+                </div>
+
+                <div class="campo">
+                  <div class="campo-cabecalho">
+                    <label for="hero-texto">Texto</label>
+                    <span class="contador">{{ r.heroTexto.length }}/260</span>
+                  </div>
+                  <textarea
+                    id="hero-texto"
+                    rows="3"
+                    maxlength="260"
+                    [value]="r.heroTexto"
+                    (change)="atualizarCampo('heroTexto', $any($event.target).value)"
+                  ></textarea>
+                </div>
               </div>
 
               <div class="foco-mobile">
@@ -379,33 +417,75 @@
             <span class="secao-icone"><i class="bi bi-shield-check"></i></span>
             <h2>Banner de encerramento</h2>
           </div>
-          <p class="secao-descricao">Aparece no fim de toda edição pública.</p>
-          <p class="dica-campo dica-editavel">
-            <i class="bi bi-pencil-fill"></i>
-            <span><strong>Clique no ícone, no título, na descrição ou no texto do botão abaixo</strong> para editar direto em
-            cima do visual real (a borda tracejada marca a área editável).</span>
-          </p>
+          <p class="secao-descricao">Aparece no fim de toda edição pública. O visual abaixo é só uma prévia — edite pelos campos.</p>
 
-          <app-transparencia-banner
-            [icone]="r.transparencia.icone"
-            [titulo]="r.transparencia.titulo"
-            [descricao]="r.transparencia.descricao"
-            [textoBotao]="r.transparencia.textoBotao"
-            [linkBotao]="r.transparencia.linkBotao"
-            [editavel]="true"
-            (tituloChange)="atualizarTransparencia('titulo', $event)"
-            (descricaoChange)="atualizarTransparencia('descricao', $event)"
-            (textoBotaoChange)="atualizarTransparencia('textoBotao', $event)"
-            (trocarIcone)="alternarSeletorIcone('transparencia')"
-          />
-
-          @if (seletorIconeAberto() === 'transparencia') {
-            <app-icone-picker
-              [icones]="r.icones"
-              [selecionado]="r.transparencia.icone"
-              (escolher)="atualizarTransparencia('icone', $event)"
+          <div class="preview-somente-leitura">
+            <app-transparencia-banner
+              [icone]="r.transparencia.icone"
+              [titulo]="r.transparencia.titulo"
+              [descricao]="r.transparencia.descricao"
+              [textoBotao]="r.transparencia.textoBotao"
+              [linkBotao]="r.transparencia.linkBotao"
             />
-          }
+          </div>
+
+          <div class="campo">
+            <div class="campo-cabecalho">
+              <label>Ícone</label>
+            </div>
+            <button type="button" class="btn-secundario btn-icone-trocar" (click)="alternarSeletorIcone('transparencia')">
+              <app-icone [valor]="r.transparencia.icone" /> Trocar ícone
+            </button>
+            @if (seletorIconeAberto() === 'transparencia') {
+              <app-icone-picker
+                [icones]="r.icones"
+                [selecionado]="r.transparencia.icone"
+                (escolher)="atualizarTransparencia('icone', $event)"
+              />
+            }
+          </div>
+
+          <div class="campo">
+            <div class="campo-cabecalho">
+              <label for="transparencia-titulo">Título</label>
+              <span class="contador">{{ r.transparencia.titulo.length }}/60</span>
+            </div>
+            <input
+              id="transparencia-titulo"
+              type="text"
+              maxlength="60"
+              [value]="r.transparencia.titulo"
+              (change)="atualizarTransparencia('titulo', $any($event.target).value)"
+            />
+          </div>
+
+          <div class="campo">
+            <div class="campo-cabecalho">
+              <label for="transparencia-descricao">Descrição</label>
+              <span class="contador">{{ r.transparencia.descricao.length }}/200</span>
+            </div>
+            <textarea
+              id="transparencia-descricao"
+              rows="3"
+              maxlength="200"
+              [value]="r.transparencia.descricao"
+              (change)="atualizarTransparencia('descricao', $any($event.target).value)"
+            ></textarea>
+          </div>
+
+          <div class="campo">
+            <div class="campo-cabecalho">
+              <label for="transparencia-texto-botao">Texto do botão</label>
+              <span class="contador">{{ r.transparencia.textoBotao.length }}/40</span>
+            </div>
+            <input
+              id="transparencia-texto-botao"
+              type="text"
+              maxlength="40"
+              [value]="r.transparencia.textoBotao"
+              (change)="atualizarTransparencia('textoBotao', $any($event.target).value)"
+            />
+          </div>
 
           <div class="campo campo-link-botao">
             <label for="transparencia-link">Link do botão</label>

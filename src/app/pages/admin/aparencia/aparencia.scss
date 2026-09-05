@@ -250,26 +250,11 @@ textarea {
   color: var(--color-text-secondary);
 }
 
-// Chama mais atenção que uma dica comum: é o aviso de que o bloco logo
-// acima (hero ou banner de encerramento) é editável clicando em cima —
-// sem isso não tem como quem não sabe adivinhar que aquilo responde a clique.
-.dica-editavel {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  margin-top: 8px;
-  font-size: 0.76rem;
-  color: var(--color-text);
-
-  i {
-    margin-top: 1px;
-    color: var(--color-primary);
-    flex-shrink: 0;
-  }
-
-  strong {
-    color: var(--color-primary);
-  }
+// Hero e banner de encerramento agora são só prévia (a edição de verdade é
+// pelos campos de formulário logo abaixo) — sem isso, clicar no preview do
+// banner de encerramento navegaria de verdade pelo link do botão dele.
+.preview-somente-leitura {
+  pointer-events: none;
 }
 
 .visually-hidden {

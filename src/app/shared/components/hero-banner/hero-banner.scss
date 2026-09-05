@@ -12,6 +12,24 @@
   max-height: 500px;
   position: relative;
 
+  // Gradiente fixo atrás do texto, não a foto toda: o texto sempre fica à
+  // esquerda (ver .container abaixo) e a foto recomendada tem o assunto à
+  // direita (background-position:right), então escurecer só a metade
+  // esquerda garante leitura em qualquer foto, sem depender de quão "cheia"
+  // de detalhe ela é, e sem precisar de nenhuma decisão manual por banner.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.32) 45%, transparent 75%);
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+  }
+
   .txt-hero {
     width: 500px;
     max-width: 90vw;
@@ -83,26 +101,6 @@
   @media (max-width: 700px) {
     &:not(.compacto) {
       background-position: var(--hero-pos-mobile, center);
-    }
-  }
-
-  // No modo editável (aba Aparência), sem nenhuma pista visual não dá pra
-  // saber que cada campo responde a clique — por isso a borda tracejada
-  // fica sempre visível em volta de cada campo editável (não do bloco
-  // inteiro), pra deixar óbvio de cara o que pode ser editado aqui.
-  [contenteditable='true'] {
-    cursor: text;
-    border-radius: 4px;
-    outline: 2px dashed rgba(255, 255, 255, 0.55);
-    outline-offset: 4px;
-    transition: outline-color 0.15s ease;
-
-    &:hover {
-      outline-color: rgba(255, 255, 255, 0.9);
-    }
-
-    &:focus {
-      outline: 2px solid #fff;
     }
   }
 }

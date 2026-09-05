@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Header } from '../../../shared/components/header/header';
 import { Footer } from '../../../shared/components/footer/footer';
+import { HeroBanner } from '../../../shared/components/hero-banner/hero-banner';
 import {
   anoAgrupamento,
   COR_PADRAO_PLATAFORMA,
@@ -40,7 +41,7 @@ interface GrupoMensal {
 // agrupado por mês, exibido em carrosséis horizontais.
 @Component({
   selector: 'app-home',
-  imports: [Header, Footer, RouterLink, FormsModule],
+  imports: [Header, Footer, RouterLink, FormsModule, HeroBanner],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

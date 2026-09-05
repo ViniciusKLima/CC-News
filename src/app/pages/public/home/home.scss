@@ -10,39 +10,9 @@
   }
 }
 
-// Hero de abertura
-.hero {
-  background-color: var(--color-secondary);
-  // A imagem vem inline (ver home.html), configurável na aba Aparência do admin.
-  background-size:  cover;
-  background-repeat: no-repeat;
-  background-position: right;
-  color: white;
-  height: 60vh;
-  max-height: 500px;
-
-  .txt-hero {
-    width: 500px;
-    max-width: 90vw;
-
-    .conecta {
-      font-size: clamp(0.8rem, 2vw, 0.95rem);
-      font-weight: 700;
-      margin: 0 !important;
-    }
-    .news {
-      font-size: 4rem;
-      font-weight: 700;
-    }
-
-    .p-hero {
-      font-size: 0.85rem;
-      border-left: 4px solid var(--color-primary);
-      padding: 10px;
-      margin: 0;
-    }
-  }
-}
+// Hero de abertura: ver componente compartilhado app-hero-banner
+// (shared/components/hero-banner), reaproveitado também na aba Aparência
+// do admin para edição em cima do visual real.
 
 // Card de busca e filtros, sobreposto à hero
 .search {

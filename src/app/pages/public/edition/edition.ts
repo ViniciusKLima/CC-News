@@ -32,6 +32,7 @@ import { urlImagemOtimizada } from '../../../core/services/cloudinary.service';
 import { urlEmbedYoutube } from '../../../core/utils/youtube.util';
 import { AtualizacaoCard } from '../../../shared/components/atualizacao-card/atualizacao-card';
 import { Icone } from '../../../shared/components/icone/icone';
+import { TransparenciaBanner } from '../../../shared/components/transparencia-banner/transparencia-banner';
 
 export type FiltroCategoria = 'todos' | CategoriaAtualizacao;
 
@@ -47,7 +48,7 @@ export interface ResumoStat {
 // categoria, resumo com estatísticas e a lista de próximos passos.
 @Component({
   selector: 'app-edition',
-  imports: [Header, Footer, RouterLink, AtualizacaoCard, Icone],
+  imports: [Header, Footer, RouterLink, AtualizacaoCard, Icone, TransparenciaBanner],
   templateUrl: './edition.html',
   styleUrl: './edition.scss',
 })

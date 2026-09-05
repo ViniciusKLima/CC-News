@@ -36,7 +36,13 @@ export interface TransparenciaBannerConfig {
 
 export interface InterfaceConfig {
   logoUrl: string;
+  /** Logo exibida no menu lateral do admin (fundo escuro) — separada da logo pública porque geralmente é uma variante só-branca. */
+  logoAdminUrl: string;
   heroBannerUrl: string;
+  /** Até 3 banners usados antes do atual, mais recente primeiro, pra poder voltar pra um deles sem precisar reenviar. */
+  heroBannerHistorico: string[];
+  heroTituloKicker: string;
+  heroTitulo: string;
   heroTexto: string;
   footerTitulo: string;
   footerTexto: string;
@@ -143,7 +149,11 @@ const ICONES_BOOTSTRAP_PADRAO: string[] = [
 /** Config padrão: reflete exatamente os valores hardcoded existentes na aplicação, para não mudar nada visualmente antes de o admin editar algo. */
 export const INTERFACE_CONFIG_PADRAO: InterfaceConfig = {
   logoUrl: '/LogoConectaNews.svg',
+  logoAdminUrl: '/LogoConectaNewsADM-White.svg',
   heroBannerUrl: '/banner-hero.png',
+  heroBannerHistorico: [],
+  heroTituloKicker: 'CONECTA CIDADES',
+  heroTitulo: 'NEWS',
   heroTexto:
     'O canal oficial de atualizações da Conecta Cidades. Acompanhe novidades, melhorias, correções e o que vem a seguir na plataforma, edição após edição.',
   footerTitulo: 'Conecta Cidades — Tecnologia para aproximar prefeituras e cidadãos.',

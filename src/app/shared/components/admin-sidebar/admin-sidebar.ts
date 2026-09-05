@@ -1,6 +1,7 @@
 import { Component, HostListener, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { InterfaceConfigService } from '../../../core/services/interface-config.service';
 import { labelPerfil } from '../../../core/models/usuario.model';
 
 // Menu lateral fixo da área administrativa: navegação entre as telas do
@@ -14,6 +15,7 @@ import { labelPerfil } from '../../../core/models/usuario.model';
 export class AdminSidebar {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  protected readonly interfaceConfig = inject(InterfaceConfigService);
 
   readonly usuario = this.authService.usuario;
   readonly meuUsuario = this.authService.meuUsuario;

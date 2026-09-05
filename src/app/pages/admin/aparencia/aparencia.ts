@@ -1,7 +1,7 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CATEGORIAS_ATUALIZACAO, CategoriaAtualizacao, TIPOS_EDICAO, TipoEdicao } from '../../../core/models/edition.model';
-import { CorPar, IconeBiblioteca } from '../../../core/models/interface-config.model';
+import { CorPar, IconeBiblioteca, InterfaceConfig } from '../../../core/models/interface-config.model';
 import { InterfaceConfigService } from '../../../core/services/interface-config.service';
 import { CloudinaryService } from '../../../core/services/cloudinary.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -10,8 +10,12 @@ import { CONFIRMACOES } from '../../../core/services/confirm-dialog.presets';
 import { AdminSidebar } from '../../../shared/components/admin-sidebar/admin-sidebar';
 import { Icone } from '../../../shared/components/icone/icone';
 import { IconePicker } from '../../../shared/components/icone-picker/icone-picker';
+import { HeroBanner } from '../../../shared/components/hero-banner/hero-banner';
+import { TransparenciaBanner } from '../../../shared/components/transparencia-banner/transparencia-banner';
+import { urlImagemOtimizada } from '../../../core/services/cloudinary.service';
 
 const HEX_PATTERN = /^#[0-9a-fA-F]{6}$/;
+const HISTORICO_MAXIMO = 3;
 
 /** Chave de qual seletor de ícone (se algum) está aberto no momento: uma categoria, o banner de transparência, ou nenhum. */
 type ChaveSeletorIcone = CategoriaAtualizacao | 'transparencia' | null;
@@ -26,9 +30,14 @@ type ChaveSeletorIcone = CategoriaAtualizacao | 'transparencia' | null;
 // por tipo/categoria, lista de ícones), o que deixaria um FormGroup mais
 // complicado do que o ganho valeria. Só grava no Firestore quando o admin
 // clica em "Salvar alterações".
+//
+// O hero e o banner de transparência são editados diretamente em cima do
+// componente visual real (app-hero-banner / app-transparencia-banner, modo
+// `editavel`), não por um formulário separado — assim o admin vê exatamente
+// como o texto vai ficar no ar enquanto digita.
 @Component({
   selector: 'app-aparencia',
-  imports: [FormsModule, AdminSidebar, Icone, IconePicker],
+  imports: [FormsModule, AdminSidebar, Icone, IconePicker, HeroBanner, TransparenciaBanner],
   templateUrl: './aparencia.html',
   styleUrl: './aparencia.scss',
 })
@@ -40,24 +49,17 @@ export class Aparencia {
 
   protected readonly tiposEdicao = TIPOS_EDICAO;
   protected readonly categoriasAtualizacao = CATEGORIAS_ATUALIZACAO;
+  protected readonly urlImagemOtimizada = urlImagemOtimizada;
 
-  protected readonly rascunho = signal<{
-    logoUrl: string;
-    heroBannerUrl: string;
-    heroTexto: string;
-    footerTitulo: string;
-    footerTexto: string;
-    tipos: Record<TipoEdicao, CorPar>;
-    categorias: Record<CategoriaAtualizacao, { icone: string; fundo: string; texto: string }>;
-    icones: IconeBiblioteca[];
-    transparencia: { icone: string; titulo: string; descricao: string; textoBotao: string; linkBotao: string };
-  } | null>(null);
+  protected readonly rascunho = signal<InterfaceConfig | null>(null);
 
   protected readonly carregado = this.interfaceConfig.carregado;
   protected readonly salvando = signal(false);
 
   protected readonly logoEnviando = signal(false);
   protected readonly logoProgresso = signal(0);
+  protected readonly logoAdminEnviando = signal(false);
+  protected readonly logoAdminProgresso = signal(0);
   protected readonly heroEnviando = signal(false);
   protected readonly heroProgresso = signal(0);
   protected readonly iconeEnviando = signal(false);
@@ -89,7 +91,7 @@ export class Aparencia {
     return this.rascunho()!.categorias[categoria];
   }
 
-  protected atualizarCampo<K extends 'logoUrl' | 'heroBannerUrl' | 'heroTexto' | 'footerTitulo' | 'footerTexto'>(
+  protected atualizarCampo<K extends 'logoUrl' | 'logoAdminUrl' | 'heroTituloKicker' | 'heroTitulo' | 'heroTexto' | 'footerTitulo' | 'footerTexto'>(
     campo: K,
     valor: string,
   ): void {
@@ -124,6 +126,16 @@ export class Aparencia {
     this.seletorIconeAberto.update((atual) => (atual === chave ? null : chave));
   }
 
+  /** Troca o banner atual por um dos últimos usados, guardando o atual no histórico no lugar dele. */
+  protected usarBannerHistorico(url: string): void {
+    this.rascunho.update((r) => {
+      if (!r) return r;
+      const historicoSemNovo = r.heroBannerHistorico.filter((item) => item !== url);
+      const novoHistorico = [r.heroBannerUrl, ...historicoSemNovo].filter((item) => item && item !== url);
+      return { ...r, heroBannerUrl: url, heroBannerHistorico: dedup(novoHistorico).slice(0, HISTORICO_MAXIMO) };
+    });
+  }
+
   protected async onLogoSelecionado(evento: Event): Promise<void> {
     const arquivo = this.extrairArquivo(evento);
     if (!arquivo) return;
@@ -141,6 +153,23 @@ export class Aparencia {
     }
   }
 
+  protected async onLogoAdminSelecionado(evento: Event): Promise<void> {
+    const arquivo = this.extrairArquivo(evento);
+    if (!arquivo) return;
+
+    this.logoAdminEnviando.set(true);
+    this.logoAdminProgresso.set(0);
+    try {
+      const url = await this.cloudinaryService.enviarImagem(arquivo, 'cc-news/interface', (p) => this.logoAdminProgresso.set(p));
+      this.atualizarCampo('logoAdminUrl', url);
+      this.toastService.sucesso('Logo do admin enviada. Clique em Salvar para aplicar.');
+    } catch {
+      this.toastService.erro('Não foi possível enviar a logo. Tente novamente.');
+    } finally {
+      this.logoAdminEnviando.set(false);
+    }
+  }
+
   protected async onHeroSelecionado(evento: Event): Promise<void> {
     const arquivo = this.extrairArquivo(evento);
     if (!arquivo) return;
@@ -149,7 +178,12 @@ export class Aparencia {
     this.heroProgresso.set(0);
     try {
       const url = await this.cloudinaryService.enviarImagem(arquivo, 'cc-news/interface', (p) => this.heroProgresso.set(p));
-      this.atualizarCampo('heroBannerUrl', url);
+      const anterior = this.rascunho()!.heroBannerUrl;
+      const novoHistorico = dedup([anterior, ...this.rascunho()!.heroBannerHistorico].filter((item) => item && item !== url)).slice(
+        0,
+        HISTORICO_MAXIMO,
+      );
+      this.rascunho.update((r) => (r ? { ...r, heroBannerUrl: url, heroBannerHistorico: novoHistorico } : r));
       this.toastService.sucesso('Banner enviado. Clique em Salvar para aplicar.');
     } catch {
       this.toastService.erro('Não foi possível enviar o banner. Tente novamente.');
@@ -225,4 +259,8 @@ export class Aparencia {
     }
     return arquivo;
   }
+}
+
+function dedup(valores: string[]): string[] {
+  return [...new Set(valores)];
 }

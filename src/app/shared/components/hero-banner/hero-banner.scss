@@ -1,0 +1,66 @@
+:host {
+  display: block;
+}
+
+.hero {
+  background-color: var(--color-secondary);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: right;
+  color: white;
+  height: 60vh;
+  max-height: 500px;
+  position: relative;
+
+  .txt-hero {
+    width: 500px;
+    max-width: 90vw;
+
+    .conecta {
+      font-size: clamp(0.8rem, 2vw, 0.95rem);
+      font-weight: 700;
+      margin: 0 !important;
+    }
+    .news {
+      font-size: 4rem;
+      font-weight: 700;
+    }
+
+    .p-hero {
+      font-size: 0.85rem;
+      border-left: 4px solid var(--color-primary);
+      padding: 10px;
+      margin: 0;
+    }
+  }
+
+  // Versão reduzida usada dentro do card da aba Aparência — mesma tipografia
+  // e proporções, só menos alta, pra caber num formulário sem dominar a tela.
+  &.compacto {
+    height: 260px;
+    max-height: none;
+
+    .txt-hero .news {
+      font-size: 2.6rem;
+    }
+  }
+
+  // No modo editável (aba Aparência), os textos viram contenteditable —
+  // esse contorno tracejado no hover/foco é o único jeito de o admin
+  // perceber que aquele texto responde a clique, já que visualmente é
+  // idêntico ao hero real.
+  [contenteditable='true'] {
+    cursor: text;
+    border-radius: 4px;
+    outline-offset: 4px;
+    transition: outline-color 0.15s ease;
+
+    &:hover {
+      outline: 1px dashed rgba(255, 255, 255, 0.6);
+    }
+
+    &:focus {
+      outline: 2px solid #fff;
+    }
+  }
+}

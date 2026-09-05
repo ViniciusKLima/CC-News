@@ -1,0 +1,105 @@
+.transparencia-banner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--bgc-azul-opacity);
+  border-radius: 18px;
+  padding: 24px 28px;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  > app-icone {
+    font-size: 1.6rem;
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  .transparencia-texto {
+    flex: 1;
+
+    h4 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--color-text);
+      margin: 0 0 4px;
+    }
+
+    p {
+      font-size: 0.82rem;
+      color: var(--color-text-secondary);
+      margin: 0;
+      max-width: 520px;
+    }
+  }
+
+  .transparencia-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-primary);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: filter 0.15s ease;
+
+    &:hover {
+      filter: brightness(0.92);
+    }
+  }
+
+  // Modo editável (aba Aparência): ícone vira botão, textos viram
+  // contenteditable — o contorno tracejado no hover/foco é o único jeito de
+  // o admin perceber que aquele texto responde a clique, já que visualmente
+  // é idêntico ao banner real.
+  &.editavel {
+    .transparencia-icone-botao {
+      border: none;
+      background: none;
+      padding: 0;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+      flex-shrink: 0;
+      font-size: 1.6rem;
+      color: var(--color-primary);
+      border-radius: 8px;
+
+      &:hover,
+      &:focus-visible {
+        outline: 1px dashed var(--color-primary);
+        outline-offset: 4px;
+      }
+    }
+
+    [contenteditable='true'] {
+      cursor: text;
+      border-radius: 4px;
+      outline-offset: 2px;
+
+      &:hover {
+        outline: 1px dashed var(--color-primary);
+      }
+
+      &:focus {
+        outline: 2px solid var(--color-primary);
+      }
+    }
+
+    .transparencia-link [contenteditable='true'] {
+      color: #fff;
+
+      &:hover,
+      &:focus {
+        outline-color: #fff;
+      }
+    }
+  }
+}

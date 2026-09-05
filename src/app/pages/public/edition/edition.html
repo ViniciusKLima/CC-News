@@ -97,7 +97,7 @@
         </aside>
       </div>
 
-      <div class="transparencia-banner transparencia-skeleton">
+      <div class="transparencia-skeleton">
         <div class="skeleton skeleton-icon-lg"></div>
         <div class="transparencia-texto">
           <div class="skeleton skeleton-line skeleton-line-lg"></div>
@@ -260,22 +260,13 @@
       </div>
 
       @let transparencia = interfaceConfig.config().transparencia;
-      <div class="transparencia-banner">
-        <app-icone [valor]="transparencia.icone" />
-        <div class="transparencia-texto">
-          <h4>{{ transparencia.titulo }}</h4>
-          <p>{{ transparencia.descricao }}</p>
-        </div>
-        @if (transparencia.linkBotao.startsWith('http')) {
-          <a class="transparencia-link" [href]="transparencia.linkBotao" target="_blank" rel="noopener">
-            {{ transparencia.textoBotao }} <i class="bi bi-arrow-right m-0"></i>
-          </a>
-        } @else {
-          <a class="transparencia-link" [routerLink]="transparencia.linkBotao">
-            {{ transparencia.textoBotao }} <i class="bi bi-arrow-right m-0"></i>
-          </a>
-        }
-      </div>
+      <app-transparencia-banner
+        [icone]="transparencia.icone"
+        [titulo]="transparencia.titulo"
+        [descricao]="transparencia.descricao"
+        [textoBotao]="transparencia.textoBotao"
+        [linkBotao]="transparencia.linkBotao"
+      />
     }
   </section>
 </main>

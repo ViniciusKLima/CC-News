@@ -146,8 +146,8 @@ export class Aparencia {
       const url = await this.cloudinaryService.enviarImagem(arquivo, 'cc-news/interface', (p) => this.logoProgresso.set(p));
       this.atualizarCampo('logoUrl', url);
       this.toastService.sucesso('Logo enviada. Clique em Salvar para aplicar.');
-    } catch {
-      this.toastService.erro('Não foi possível enviar a logo. Tente novamente.');
+    } catch (erro) {
+      this.toastService.erro(mensagemErro(erro, 'Não foi possível enviar a logo.'));
     } finally {
       this.logoEnviando.set(false);
     }
@@ -163,8 +163,8 @@ export class Aparencia {
       const url = await this.cloudinaryService.enviarImagem(arquivo, 'cc-news/interface', (p) => this.logoAdminProgresso.set(p));
       this.atualizarCampo('logoAdminUrl', url);
       this.toastService.sucesso('Logo do admin enviada. Clique em Salvar para aplicar.');
-    } catch {
-      this.toastService.erro('Não foi possível enviar a logo. Tente novamente.');
+    } catch (erro) {
+      this.toastService.erro(mensagemErro(erro, 'Não foi possível enviar a logo do admin.'));
     } finally {
       this.logoAdminEnviando.set(false);
     }
@@ -185,8 +185,8 @@ export class Aparencia {
       );
       this.rascunho.update((r) => (r ? { ...r, heroBannerUrl: url, heroBannerHistorico: novoHistorico } : r));
       this.toastService.sucesso('Banner enviado. Clique em Salvar para aplicar.');
-    } catch {
-      this.toastService.erro('Não foi possível enviar o banner. Tente novamente.');
+    } catch (erro) {
+      this.toastService.erro(mensagemErro(erro, 'Não foi possível enviar o banner.'));
     } finally {
       this.heroEnviando.set(false);
     }
@@ -220,8 +220,8 @@ export class Aparencia {
       const novoIcone: IconeBiblioteca = { id: crypto.randomUUID(), nome: arquivo.name.replace(/\.[^.]+$/, ''), tipo: 'upload', valor: url };
       this.rascunho.update((r) => (r ? { ...r, icones: [...r.icones, novoIcone] } : r));
       this.toastService.sucesso('Ícone enviado. Clique em Salvar para aplicar.');
-    } catch {
-      this.toastService.erro('Não foi possível enviar o ícone. Tente novamente.');
+    } catch (erro) {
+      this.toastService.erro(mensagemErro(erro, 'Não foi possível enviar o ícone.'));
     } finally {
       this.iconeEnviando.set(false);
     }
@@ -242,8 +242,8 @@ export class Aparencia {
     try {
       await this.interfaceConfig.salvar(rascunho);
       this.toastService.sucesso('Aparência atualizada com sucesso.');
-    } catch {
-      this.toastService.erro('Não foi possível salvar as alterações. Tente novamente.');
+    } catch (erro) {
+      this.toastService.erro(mensagemErroFirestore(erro));
     } finally {
       this.salvando.set(false);
     }
@@ -263,4 +263,34 @@ export class Aparencia {
 
 function dedup(valores: string[]): string[] {
   return [...new Set(valores)];
+}
+
+/** Usa a mensagem do erro capturado quando ela existe e é específica (ex.: a do Cloudinary em CloudinaryService), senão cai no texto genérico do chamador. */
+function mensagemErro(erro: unknown, generico: string): string {
+  return erro instanceof Error && erro.message ? erro.message : `${generico} Tente novamente.`;
+}
+
+/**
+ * Traduz um erro do Firestore (ver InterfaceConfigService.salvar) numa
+ * mensagem que diz o que fazer a seguir, em vez de um "tente novamente"
+ * sem contexto. O caso mais comum aqui é "permission-denied": a coleção
+ * "configuracao" é nova no projeto e precisa de uma regra de segurança
+ * própria no Firestore (ver o aviso deixado no commit que criou esta tela).
+ */
+function mensagemErroFirestore(erro: unknown): string {
+  const codigo = (erro as { code?: string } | null)?.code;
+
+  switch (codigo) {
+    case 'permission-denied':
+      return 'Sem permissão para salvar: a regra de segurança do Firestore para a coleção "configuracao" ainda não foi criada. Peça para quem administra o projeto adicionar essa regra no Console do Firebase (Firestore Database > Regras).';
+    case 'unavailable':
+    case 'deadline-exceeded':
+      return 'Não foi possível conectar ao Firestore. Verifique sua internet e tente novamente.';
+    case 'unauthenticated':
+      return 'Sua sessão expirou. Atualize a página, faça login de novo e tente salvar novamente.';
+    case undefined:
+      return 'Não foi possível salvar as alterações. Tente novamente em instantes.';
+    default:
+      return `Não foi possível salvar as alterações (erro "${codigo}"). Tente novamente em instantes.`;
+  }
 }

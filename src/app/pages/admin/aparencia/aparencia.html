@@ -5,7 +5,7 @@
     <div class="admin-header d-flex justify-content-between align-items-start flex-wrap gap-3">
       <div>
         <h1>Aparência</h1>
-        <p>Personalize a identidade visual do Conecta News: logo, hero, cores, ícones, rodapé e banner de transparência.</p>
+        <p>Personalize a identidade visual do Conecta News: logo, hero, cores, ícones, banner de encerramento e rodapé.</p>
       </div>
       @if (rascunho()) {
         <button type="button" class="btn-primario" [disabled]="salvando()" (click)="salvar()">
@@ -31,10 +31,10 @@
             <h2>Identidade visual</h2>
           </div>
 
-          <div class="logos-grade">
-            <div class="campo campo-upload">
+          <div class="identidade-grade">
+            <div class="campo campo-upload campo-logo">
               <div class="campo-cabecalho">
-                <label>Logo do site (cabeçalho público)</label>
+                <label>Logo do site</label>
               </div>
               <div class="upload-imagem upload-logo-site">
                 <img [src]="r.logoUrl" alt="Logo atual do site" />
@@ -49,12 +49,12 @@
                 <i class="bi bi-upload"></i> Trocar logo
                 <input type="file" accept="image/*" class="visually-hidden" [disabled]="logoEnviando()" (change)="onLogoSelecionado($event)" />
               </label>
-              <p class="dica-campo">PNG ou SVG com fundo transparente. Formato recomendado: altura de 40px, largura livre.</p>
+              <p class="dica-campo">Cabeçalho público. PNG/SVG transparente, altura de 40px.</p>
             </div>
 
-            <div class="campo campo-upload">
+            <div class="campo campo-upload campo-logo">
               <div class="campo-cabecalho">
-                <label>Logo do admin (menu lateral)</label>
+                <label>Logo do admin</label>
               </div>
               <div class="upload-imagem upload-logo-admin">
                 <img [src]="r.logoAdminUrl" alt="Logo atual do admin" />
@@ -69,49 +69,50 @@
                 <i class="bi bi-upload"></i> Trocar logo
                 <input type="file" accept="image/*" class="visually-hidden" [disabled]="logoAdminEnviando()" (change)="onLogoAdminSelecionado($event)" />
               </label>
-              <p class="dica-campo">PNG ou SVG, de preferência todo branco (o fundo do menu é escuro). Formato recomendado: altura de 40px.</p>
+              <p class="dica-campo">Menu lateral. De preferência toda branca, altura de 40px.</p>
             </div>
-          </div>
 
-          <div class="campo campo-hero">
-            <div class="campo-cabecalho">
-              <label>Hero da home</label>
+            <div class="campo campo-hero">
+              <div class="campo-cabecalho">
+                <label>Hero da home</label>
+              </div>
+
+              <app-hero-banner
+                class="hero-preview"
+                [imagemUrl]="urlImagemOtimizada(r.heroBannerUrl, 'hero')"
+                [tituloKicker]="r.heroTituloKicker"
+                [titulo]="r.heroTitulo"
+                [texto]="r.heroTexto"
+                [editavel]="true"
+                [compacto]="true"
+                (tituloKickerChange)="atualizarCampo('heroTituloKicker', $event)"
+                (tituloChange)="atualizarCampo('heroTitulo', $event)"
+                (textoChange)="atualizarCampo('heroTexto', $event)"
+              >
+                <div heroAcoes class="hero-acoes">
+                  <label class="btn-secundario btn-upload">
+                    <i class="bi bi-upload"></i> {{ heroEnviando() ? 'Enviando... ' + heroProgresso() + '%' : 'Trocar banner' }}
+                    <input type="file" accept="image/*" class="visually-hidden" [disabled]="heroEnviando()" (change)="onHeroSelecionado($event)" />
+                  </label>
+                </div>
+              </app-hero-banner>
+
+              <p class="dica-campo">
+                Clique no título ou no parágrafo pra editar o texto direto em cima do visual real. Formato recomendado: 1600x600px
+                (a imagem inteira aparece aqui do mesmo jeito que na home, sem cortar).
+              </p>
+
+              @if (r.heroBannerHistorico.length > 0) {
+                <div class="hero-historico">
+                  <span class="hero-historico-label">Banners recentes:</span>
+                  @for (url of r.heroBannerHistorico; track url) {
+                    <button type="button" class="hero-historico-item" (click)="usarBannerHistorico(url)" aria-label="Usar este banner">
+                      <img [src]="urlImagemOtimizada(url, 'card')" alt="" />
+                    </button>
+                  }
+                </div>
+              }
             </div>
-            <p class="dica-campo dica-campo-hero">
-              Clique no título ou no parágrafo abaixo pra editar o texto direto em cima do visual real. Formato recomendado do
-              banner: 1600x600px (proporção larga).
-            </p>
-
-            <app-hero-banner
-              class="hero-preview"
-              [imagemUrl]="urlImagemOtimizada(r.heroBannerUrl, 'hero')"
-              [tituloKicker]="r.heroTituloKicker"
-              [titulo]="r.heroTitulo"
-              [texto]="r.heroTexto"
-              [editavel]="true"
-              [compacto]="true"
-              (tituloKickerChange)="atualizarCampo('heroTituloKicker', $event)"
-              (tituloChange)="atualizarCampo('heroTitulo', $event)"
-              (textoChange)="atualizarCampo('heroTexto', $event)"
-            >
-              <div heroAcoes class="hero-acoes">
-                <label class="btn-secundario btn-upload">
-                  <i class="bi bi-upload"></i> {{ heroEnviando() ? 'Enviando... ' + heroProgresso() + '%' : 'Trocar banner' }}
-                  <input type="file" accept="image/*" class="visually-hidden" [disabled]="heroEnviando()" (change)="onHeroSelecionado($event)" />
-                </label>
-              </div>
-            </app-hero-banner>
-
-            @if (r.heroBannerHistorico.length > 0) {
-              <div class="hero-historico">
-                <span class="hero-historico-label">Banners recentes:</span>
-                @for (url of r.heroBannerHistorico; track url) {
-                  <button type="button" class="hero-historico-item" (click)="usarBannerHistorico(url)" aria-label="Usar este banner">
-                    <img [src]="urlImagemOtimizada(url, 'card')" alt="" />
-                  </button>
-                }
-              </div>
-            }
           </div>
         </section>
 
@@ -249,7 +250,7 @@
             <h2>Biblioteca de ícones</h2>
           </div>
           <p class="secao-descricao">
-            Ícones disponíveis para as categorias acima, o banner de transparência e para escolher em cada atualização das
+            Ícones disponíveis para as categorias acima, o banner de encerramento e para escolher em cada atualização das
             edições. Adicione pelo nome de um ícone do
             <a href="https://icons.getbootstrap.com/" target="_blank" rel="noopener">Bootstrap Icons</a>
             (ex.: "stars") ou enviando uma imagem própria.
@@ -289,41 +290,18 @@
           </div>
         </section>
 
-        <!-- RODAPÉ -->
-        <section class="painel-secao">
-          <div class="secao-titulo">
-            <span class="secao-icone"><i class="bi bi-layout-text-window-reverse"></i></span>
-            <h2>Rodapé</h2>
-          </div>
-
-          <div class="campo">
-            <label for="footer-titulo">Título</label>
-            <input
-              id="footer-titulo"
-              type="text"
-              [value]="r.footerTitulo"
-              (change)="atualizarCampo('footerTitulo', $any($event.target).value)"
-            />
-          </div>
-          <div class="campo">
-            <label for="footer-texto">Texto de copyright</label>
-            <input
-              id="footer-texto"
-              type="text"
-              [value]="r.footerTexto"
-              (change)="atualizarCampo('footerTexto', $any($event.target).value)"
-            />
-            <p class="dica-campo">O link "Admin" continua aparecendo automaticamente logo depois deste texto.</p>
-          </div>
-        </section>
-
-        <!-- BANNER DE TRANSPARÊNCIA -->
+        <!-- BANNER DE ENCERRAMENTO: bloco de destaque fixo no fim de toda edição
+             pública (ver app-transparencia-banner) — não é o rodapé do site, é o
+             "Transparência que gera confiança" com botão pra "Sobre o CC News". -->
         <section class="painel-secao">
           <div class="secao-titulo">
             <span class="secao-icone"><i class="bi bi-shield-check"></i></span>
-            <h2>Banner de transparência</h2>
+            <h2>Banner de encerramento</h2>
           </div>
-          <p class="secao-descricao">Clique no ícone, no título, na descrição ou no texto do botão pra editar direto em cima do visual real.</p>
+          <p class="secao-descricao">
+            Aparece no fim de toda edição pública. Clique no ícone, no título, na descrição ou no texto do botão pra editar
+            direto em cima do visual real.
+          </p>
 
           <app-transparencia-banner
             [icone]="r.transparencia.icone"
@@ -356,6 +334,34 @@
               placeholder="/ ou https://..."
             />
             <p class="dica-campo">Use um caminho interno (ex.: "/") ou um link completo (ex.: "https://...").</p>
+          </div>
+        </section>
+
+        <!-- RODAPÉ: por último, é o bloco menos usado com frequência. -->
+        <section class="painel-secao">
+          <div class="secao-titulo">
+            <span class="secao-icone"><i class="bi bi-layout-text-window-reverse"></i></span>
+            <h2>Rodapé</h2>
+          </div>
+
+          <div class="campo">
+            <label for="footer-titulo">Título</label>
+            <input
+              id="footer-titulo"
+              type="text"
+              [value]="r.footerTitulo"
+              (change)="atualizarCampo('footerTitulo', $any($event.target).value)"
+            />
+          </div>
+          <div class="campo">
+            <label for="footer-texto">Texto de copyright</label>
+            <input
+              id="footer-texto"
+              type="text"
+              [value]="r.footerTexto"
+              (change)="atualizarCampo('footerTexto', $any($event.target).value)"
+            />
+            <p class="dica-campo">O link "Admin" continua aparecendo automaticamente logo depois deste texto.</p>
           </div>
         </section>
       </div>

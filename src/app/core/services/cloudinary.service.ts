@@ -1,4 +1,4 @@
-import { HttpClient, HttpEventType } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpEventType } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from '../../../environments/environment';
 
@@ -79,12 +79,34 @@ export class CloudinaryService {
             if (secureUrl) {
               resolve(secureUrl);
             } else {
-              reject(new Error('Resposta inesperada do Cloudinary.'));
+              reject(new Error('O Cloudinary aceitou o envio, mas não devolveu a URL da imagem. Tente novamente.'));
             }
           }
         },
-        error: (erro) => reject(erro),
+        error: (erro: HttpErrorResponse) => reject(new Error(mensagemErroUpload(erro))),
       });
     });
   }
+}
+
+/** Traduz uma falha de upload (rede ou recusa do Cloudinary) numa mensagem específica o bastante pra saber o que fazer a seguir, em vez de um "tente novamente" genérico. */
+function mensagemErroUpload(erro: HttpErrorResponse): string {
+  if (erro.status === 0) {
+    return 'Não foi possível conectar ao servidor de imagens (Cloudinary). Verifique sua internet e tente novamente.';
+  }
+
+  // O Cloudinary normalmente devolve o motivo da recusa em error.error.message
+  // (ex.: preset de upload inválido/desativado, arquivo grande demais, tipo
+  // de arquivo não suportado) — repassar esse texto é bem mais útil do que
+  // um "tente novamente" sem contexto.
+  const detalheCloudinary = (erro.error as { error?: { message?: string } } | null)?.error?.message;
+  if (detalheCloudinary) {
+    return `O Cloudinary recusou o envio: ${detalheCloudinary}`;
+  }
+
+  if (erro.status === 413) {
+    return 'O arquivo é grande demais para o Cloudinary aceitar. Envie uma imagem menor.';
+  }
+
+  return `Falha ao enviar a imagem para o Cloudinary (erro ${erro.status}). Tente novamente em instantes.`;
 }

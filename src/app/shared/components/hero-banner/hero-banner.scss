@@ -34,14 +34,40 @@
     }
   }
 
-  // Versão reduzida usada dentro do card da aba Aparência — mesma tipografia
-  // e proporções, só menos alta, pra caber num formulário sem dominar a tela.
+  // Versão usada dentro do card da aba Aparência: a altura vem da própria
+  // proporção da imagem (a mesma recomendada no campo de upload) em vez de
+  // um valor fixo, e background-size:contain garante que o banner inteiro
+  // apareça sempre, sem cortar nada — diferente do hero real, que é
+  // full-bleed e cobre (cover) a largura da tela toda.
   &.compacto {
-    height: 260px;
+    height: auto;
+    aspect-ratio: 1600 / 600;
     max-height: none;
+    background-size: contain;
+    background-position: center;
 
-    .txt-hero .news {
-      font-size: 2.6rem;
+    .container {
+      max-width: 100%;
+      padding: 10px 14px;
+    }
+
+    .txt-hero {
+      width: auto;
+      max-width: 100%;
+
+      .conecta {
+        font-size: 0.6rem;
+      }
+
+      .news {
+        font-size: 1.5rem;
+      }
+
+      .p-hero {
+        font-size: 0.62rem;
+        padding: 4px 8px;
+        border-left-width: 2px;
+      }
     }
   }
 

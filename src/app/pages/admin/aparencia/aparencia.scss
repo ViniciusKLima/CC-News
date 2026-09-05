@@ -266,15 +266,48 @@ textarea {
 // Logos (site + admin) e banner do hero
 // ---------------------------------------------------------------------------
 
-.logos-grade {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+// As 3 logos/banner ficam lado a lado (logo do site e do admin são pequenas,
+// o hero ocupa o espaço restante) enquanto couberem confortavelmente, e
+// empilham no mobile — mesmo raciocínio de breakpoint do .secoes-par abaixo.
+.identidade-grade {
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
-  margin-bottom: 20px;
+  align-items: flex-start;
 }
 
 .campo-upload {
   align-items: stretch;
+}
+
+.campo-logo {
+  flex: 0 1 180px;
+  max-width: 200px;
+}
+
+.campo-hero {
+  flex: 3 1 320px;
+  min-width: 280px;
+}
+
+@media (max-width: 700px) {
+  .identidade-grade {
+    flex-direction: column;
+    // Em row, flex-start evita que o hero (mais alto) estique as logos
+    // pequenas. Em column isso vira o problema oposto: sem stretch, cada
+    // item encolhe só até o "preferido" do próprio conteúdo (shrink-to-fit),
+    // que pode passar da largura da tela — stretch aqui garante 100% de
+    // largura pra cada um, empilhados um embaixo do outro como esperado.
+    align-items: stretch;
+  }
+
+  .campo-logo {
+    max-width: none;
+  }
+
+  .campo-hero {
+    min-width: 0;
+  }
 }
 
 .upload-imagem {
@@ -344,12 +377,9 @@ textarea {
   }
 }
 
-.dica-campo-hero {
-  margin-bottom: 10px;
-}
-
 .hero-preview {
   display: block;
+  margin-bottom: 10px;
   border-radius: 14px;
   overflow: hidden;
 }
@@ -409,11 +439,13 @@ textarea {
 // inteira sozinha — ficam lado a lado enquanto houver espaço confortável
 // para as duas, e empilham no mobile (mesmo raciocínio de breakpoint do
 // dashboard: a sidebar empilha em cima a partir de 900px, ver
-// admin-sidebar.scss).
+// admin-sidebar.scss). align-items:stretch (o padrão do flex, mas explícito
+// aqui) faz as duas terem a mesma altura — a maior é quem manda —, em vez
+// de uma ficar baixa e sobrar espaço vazio do lado da mais alta.
 .secoes-par {
   display: flex;
   gap: 20px;
-  align-items: flex-start;
+  align-items: stretch;
 
   > .painel-secao {
     flex: 1 1 380px;

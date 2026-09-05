@@ -237,13 +237,8 @@ export class Edition implements AfterViewInit, AfterViewChecked, OnDestroy {
     const sidebar = this.sidebarRef?.nativeElement;
     if (this.sidebarResizeObserver || !sidebar) return;
 
-    // Observa a lateral E o header: a altura do header também entra na
-    // conta (ver atualizarSidebarSticky), e medir só uma vez no primeiro
-    // frame pode pegar o header ainda no tamanho errado.
     this.sidebarResizeObserver = new ResizeObserver(() => this.atualizarSidebarSticky());
     this.sidebarResizeObserver.observe(sidebar);
-    const header = document.querySelector('header');
-    if (header) this.sidebarResizeObserver.observe(header);
   }
 
   ngOnDestroy(): void {
@@ -258,19 +253,16 @@ export class Edition implements AfterViewInit, AfterViewChecked, OnDestroy {
 
   // Deixa a lateral rolar normal com a página até o próprio conteúdo dela
   // (Resumo + Próximos passos) encostar no rodapé da viewport — só a partir
-  // daí o "top" do sticky (calculado aqui) trava ela ali. Quando o conteúdo
-  // é mais alto que a viewport (raro, com bastante coisa na lateral), cai de
-  // volta pro mínimo (logo abaixo do header), já que não tem como mostrar
-  // tudo de uma vez mesmo.
+  // daí o "top" do sticky (calculado aqui) trava ela ali, com o rodapé da
+  // lateral exatamente no rodapé da viewport. Quando o conteúdo é mais alto
+  // que a viewport, essa conta dá negativa de propósito: sem isso, ela
+  // travaria cedo demais (logo abaixo do header) sem nunca deixar o final
+  // dos Próximos passos aparecer antes de travar.
   private atualizarSidebarSticky(): void {
     const sidebar = this.sidebarRef?.nativeElement;
     if (!sidebar) return;
 
-    const alturaHeader = document.querySelector('header')?.getBoundingClientRect().height ?? 0;
-    const gap = 24;
-    const minimo = alturaHeader + gap;
-    const maximo = window.innerHeight - sidebar.offsetHeight;
-    this.sidebarStickyTop.set(Math.max(minimo, maximo));
+    this.sidebarStickyTop.set(window.innerHeight - sidebar.offsetHeight);
   }
 
   private atualizarIndicador(): void {

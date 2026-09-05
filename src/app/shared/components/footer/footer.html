@@ -1,9 +1,7 @@
 <footer class="d-flex align-items-center justify-content-center flex-column">
-  <h6 class="text-center tt-footer">
-    <b>Conecta Cidades</b> — Tecnologia para aproximar prefeituras e cidadãos.
-  </h6>
+  <h6 class="text-center tt-footer">{{ interfaceConfig.config().footerTitulo }}</h6>
   <p class="text-center p-footer">
-    © 2026 Conecta Cidades. Todos os direitos reservados.
+    {{ interfaceConfig.config().footerTexto }}
     <a class="link-admin" routerLink="/admin/login">Admin</a>
   </p>
 </footer>

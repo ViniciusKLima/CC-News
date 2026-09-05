@@ -210,6 +210,16 @@
     flex: 1;
   }
 
+  // Com o texto de cada item (ex.: "Usuários Internos"), 3 itens de nav
+  // (quem é admin vê Usuários Internos + Publicações + Aparência) só cabem
+  // ao lado da logo e do usuário em telas bem largas — sobrava uma faixa
+  // (~480px–700px) em que a barra horizontal já não tinha espaço, mas o
+  // ícone-only só entrava em cena bem mais tarde (480px), estourando a
+  // largura da tela. Ícone-only já a partir daqui evita essa faixa toda.
+  .admin-nav-item span {
+    display: none;
+  }
+
   .admin-user {
     margin-top: 0;
     padding-top: 0;
@@ -247,7 +257,10 @@
   // Nesse ponto a barra (logo + nav ícone-only + usuário) já não cabe mais
   // com os espaçamentos do desktop — a logo por extenso e os gaps largos
   // eram o que sobrava de largura fixa. Encolhe os dois pra abrir espaço
-  // sem cortar nenhum item.
+  // sem cortar nenhum item. O padding horizontal dos itens de nav também
+  // encolhe aqui, pois quem é admin vê 3 ícones (Usuários Internos,
+  // Publicações, Aparência) em vez de 2, e o padding do desktop não deixa
+  // os três caberem num celular pequeno (320px).
   .admin-sidebar {
     padding: 12px;
     gap: 10px;
@@ -257,7 +270,7 @@
     width: 84px;
   }
 
-  .admin-nav-item span {
-    display: none;
+  .admin-nav-item {
+    padding: 10px 8px;
   }
 }

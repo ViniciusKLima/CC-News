@@ -1,17 +1,17 @@
 <app-header></app-header>
 <main class="main-content">
   <!-- Hero de abertura da home -->
-  <section class="hero d-flex align-items-center">
+  <section
+    class="hero d-flex align-items-center"
+    [style.background-image]="'url(' + urlImagemOtimizada(interfaceConfig.config().heroBannerUrl, 'hero') + ')'"
+  >
     <div class="container">
       <div class="txt-hero">
         <div class="tt-hero">
           <h3 class="conecta">CONECTA CIDADES</h3>
           <h1 class="news">NEWS</h1>
         </div>
-        <p class="p-hero">
-          O canal oficial de atualizações da Conecta Cidades. Acompanhe novidades, melhorias, correções e o que
-          vem a seguir na plataforma, edição após edição.
-        </p>
+        <p class="p-hero">{{ interfaceConfig.config().heroTexto }}</p>
       </div>
     </div>
   </section>

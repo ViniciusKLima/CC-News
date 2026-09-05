@@ -8,6 +8,7 @@ import { Login } from './pages/admin/login/login';
 import { Dashboard } from './pages/admin/dashboard/dashboard';
 import { Editor } from './pages/admin/editor/editor';
 import { UsuariosInternos } from './pages/admin/usuarios/usuarios';
+import { Aparencia } from './pages/admin/aparencia/aparencia';
 import { authGuard } from './core/guards/auth.guard';
 import { adminRoleGuard } from './core/guards/admin-role.guard';
 
@@ -41,6 +42,11 @@ export const routes: Routes = [
   {
     path: 'admin/usuarios',
     component: UsuariosInternos,
+    canActivate: [authGuard, adminRoleGuard],
+  },
+  {
+    path: 'admin/aparencia',
+    component: Aparencia,
     canActivate: [authGuard, adminRoleGuard],
   },
   {

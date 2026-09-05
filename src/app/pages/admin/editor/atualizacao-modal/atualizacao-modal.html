@@ -59,7 +59,7 @@
               [class.selecionado]="form.controls.icone.value === icone"
               (click)="selecionarIcone(icone)"
             >
-              <i [class]="'bi ' + icone"></i>
+              <app-icone [valor]="icone" />
             </button>
           }
         </div>

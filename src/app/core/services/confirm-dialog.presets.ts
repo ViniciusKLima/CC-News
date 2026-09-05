@@ -23,6 +23,12 @@ export const CONFIRMACOES = {
     rotuloConfirmar: 'Restaurar rascunho',
     rotuloCancelar: 'Começar do zero',
   }),
+  excluirIcone: (nome: string): ConfirmacaoOpcoes => ({
+    titulo: 'Remover ícone',
+    descricao: `Remover "${nome}" da biblioteca de ícones? Atualizações que já usam esse ícone continuam mostrando ele normalmente, mas ele não aparecerá mais como opção para novos itens.`,
+    rotuloConfirmar: 'Remover',
+    variante: 'perigo',
+  }),
   excluirUsuario: (nome: string, contaJaAtivada: boolean): ConfirmacaoOpcoes => ({
     titulo: 'Excluir usuário',
     descricao: contaJaAtivada

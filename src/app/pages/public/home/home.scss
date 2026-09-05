@@ -13,7 +13,7 @@
 // Hero de abertura
 .hero {
   background-color: var(--color-secondary);
-  background-image: url(/banner-hero.png);
+  // A imagem vem inline (ver home.html), configurável na aba Aparência do admin.
   background-size:  cover;
   background-repeat: no-repeat;
   background-position: right;

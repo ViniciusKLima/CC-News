@@ -26,6 +26,7 @@ import {
   labelTipo,
 } from '../../../core/models/edition.model';
 import { EditionService } from '../../../core/services/edition.service';
+import { InterfaceConfigService } from '../../../core/services/interface-config.service';
 import { urlImagemOtimizada } from '../../../core/services/cloudinary.service';
 import { gradienteCapa } from '../../../core/utils/cor.util';
 
@@ -46,6 +47,7 @@ interface GrupoMensal {
 export class Home implements AfterViewInit {
   private readonly injector = inject(Injector);
   private readonly editionService = inject(EditionService);
+  protected readonly interfaceConfig = inject(InterfaceConfigService);
 
   readonly loading = this.editionService.loading;
   mostrarVoltarTopo = signal(false);

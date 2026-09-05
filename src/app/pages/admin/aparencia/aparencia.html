@@ -1,0 +1,360 @@
+<div class="admin-shell">
+  <app-admin-sidebar />
+
+  <main class="admin-main">
+    <div class="admin-header d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <div>
+        <h1>Aparência</h1>
+        <p>Personalize a identidade visual do Conecta News: logo, hero, cores, ícones, rodapé e banner de transparência.</p>
+      </div>
+      @if (rascunho()) {
+        <button type="button" class="btn-primario" [disabled]="salvando()" (click)="salvar()">
+          <i class="bi bi-check-lg"></i> {{ salvando() ? 'Salvando...' : 'Salvar alterações' }}
+        </button>
+      }
+    </div>
+
+    @if (!carregado() || !rascunho()) {
+      <div class="painel-secao">
+        <div class="skeleton skeleton-linha-lg"></div>
+        <div class="skeleton skeleton-linha"></div>
+        <div class="skeleton skeleton-linha skeleton-linha-sm"></div>
+      </div>
+    } @else {
+      @let r = rascunho()!;
+
+      <div class="secoes">
+        <!-- IDENTIDADE VISUAL -->
+        <section class="painel-secao">
+          <div class="secao-titulo">
+            <span class="secao-icone"><i class="bi bi-palette"></i></span>
+            <h2>Identidade visual</h2>
+          </div>
+
+          <div class="campo-linha campo-linha-topo">
+            <div class="campo campo-upload">
+              <div class="campo-cabecalho">
+                <label>Logo (cabeçalho público)</label>
+              </div>
+              <div class="upload-imagem upload-logo">
+                <img [src]="r.logoUrl" alt="Logo atual" />
+                @if (logoEnviando()) {
+                  <div class="upload-overlay">
+                    <div class="upload-spinner"></div>
+                    <span>Enviando... {{ logoProgresso() }}%</span>
+                  </div>
+                }
+              </div>
+              <label class="btn-secundario btn-upload">
+                <i class="bi bi-upload"></i> Trocar logo
+                <input type="file" accept="image/*" class="visually-hidden" [disabled]="logoEnviando()" (change)="onLogoSelecionado($event)" />
+              </label>
+              <p class="dica-campo">Recomendado: PNG ou SVG com fundo transparente, altura de ~40px.</p>
+            </div>
+
+            <div class="campo campo-upload">
+              <div class="campo-cabecalho">
+                <label>Banner do hero (topo da home)</label>
+              </div>
+              <div class="upload-imagem upload-hero">
+                <img [src]="r.heroBannerUrl" alt="Banner atual" />
+                @if (heroEnviando()) {
+                  <div class="upload-overlay">
+                    <div class="upload-spinner"></div>
+                    <span>Enviando... {{ heroProgresso() }}%</span>
+                  </div>
+                }
+              </div>
+              <label class="btn-secundario btn-upload">
+                <i class="bi bi-upload"></i> Trocar banner
+                <input type="file" accept="image/*" class="visually-hidden" [disabled]="heroEnviando()" (change)="onHeroSelecionado($event)" />
+              </label>
+              <p class="dica-campo">Recomendado: 1600x600px (proporção larga), fica atrás do texto do lado esquerdo.</p>
+            </div>
+          </div>
+
+          <div class="campo">
+            <div class="campo-cabecalho">
+              <label for="hero-texto">Texto do hero</label>
+              <span class="contador">{{ r.heroTexto.length }}/280</span>
+            </div>
+            <textarea
+              id="hero-texto"
+              maxlength="280"
+              [value]="r.heroTexto"
+              (change)="atualizarCampo('heroTexto', $any($event.target).value)"
+            ></textarea>
+          </div>
+        </section>
+
+        <!-- TIPOS DE EDIÇÃO -->
+        <section class="painel-secao">
+          <div class="secao-titulo">
+            <span class="secao-icone"><i class="bi bi-tags"></i></span>
+            <h2>Cores dos tipos de edição</h2>
+          </div>
+          <p class="secao-descricao">Cor da etiqueta de cada tipo de edição (Semanal, Mensal, Anual, Especial), usada na home e na edição pública.</p>
+
+          <div class="lista-cores">
+            @for (tipo of tiposEdicao; track tipo.valor) {
+              <div class="linha-cor">
+                <span class="pill-preview" [style.background]="corTipo(tipo.valor).fundo" [style.color]="corTipo(tipo.valor).texto">
+                  Edição {{ tipo.label }}
+                </span>
+
+                <div class="campos-cor">
+                  <div class="cor-hex-campos">
+                    <input
+                      type="color"
+                      class="cor-hex-input"
+                      [value]="corTipo(tipo.valor).fundo"
+                      (input)="atualizarCorTipo(tipo.valor, 'fundo', $any($event.target).value)"
+                      aria-label="Cor de fundo"
+                    />
+                    <input
+                      type="text"
+                      maxlength="7"
+                      [value]="corTipo(tipo.valor).fundo"
+                      (change)="atualizarCorTipo(tipo.valor, 'fundo', $any($event.target).value)"
+                      placeholder="Fundo"
+                    />
+                  </div>
+                  <div class="cor-hex-campos">
+                    <input
+                      type="color"
+                      class="cor-hex-input"
+                      [value]="corTipo(tipo.valor).texto"
+                      (input)="atualizarCorTipo(tipo.valor, 'texto', $any($event.target).value)"
+                      aria-label="Cor do texto"
+                    />
+                    <input
+                      type="text"
+                      maxlength="7"
+                      [value]="corTipo(tipo.valor).texto"
+                      (change)="atualizarCorTipo(tipo.valor, 'texto', $any($event.target).value)"
+                      placeholder="Texto"
+                    />
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+
+        <!-- CATEGORIAS DE ATUALIZAÇÃO -->
+        <section class="painel-secao">
+          <div class="secao-titulo">
+            <span class="secao-icone"><i class="bi bi-stars"></i></span>
+            <h2>Ícones e cores das categorias de atualização</h2>
+          </div>
+          <p class="secao-descricao">Ícone e cores de Novidades, Melhorias, Correções, Em fase de testes e Próximos passos.</p>
+
+          <div class="lista-cores">
+            @for (categoria of categoriasAtualizacao; track categoria.valor) {
+              <div class="linha-cor">
+                <span
+                  class="pill-preview"
+                  [style.background]="corCategoria(categoria.valor).fundo"
+                  [style.color]="corCategoria(categoria.valor).texto"
+                >
+                  <app-icone [valor]="corCategoria(categoria.valor).icone" />
+                  {{ categoria.label }}
+                </span>
+
+                <div class="campos-cor">
+                  <button type="button" class="btn-secundario btn-icone-trocar" (click)="alternarSeletorIcone(categoria.valor)">
+                    <i class="bi bi-emoji-smile"></i> Ícone
+                  </button>
+                  <div class="cor-hex-campos">
+                    <input
+                      type="color"
+                      class="cor-hex-input"
+                      [value]="corCategoria(categoria.valor).fundo"
+                      (input)="atualizarCorCategoria(categoria.valor, 'fundo', $any($event.target).value)"
+                      aria-label="Cor de fundo"
+                    />
+                    <input
+                      type="text"
+                      maxlength="7"
+                      [value]="corCategoria(categoria.valor).fundo"
+                      (change)="atualizarCorCategoria(categoria.valor, 'fundo', $any($event.target).value)"
+                      placeholder="Fundo"
+                    />
+                  </div>
+                  <div class="cor-hex-campos">
+                    <input
+                      type="color"
+                      class="cor-hex-input"
+                      [value]="corCategoria(categoria.valor).texto"
+                      (input)="atualizarCorCategoria(categoria.valor, 'texto', $any($event.target).value)"
+                      aria-label="Cor do texto"
+                    />
+                    <input
+                      type="text"
+                      maxlength="7"
+                      [value]="corCategoria(categoria.valor).texto"
+                      (change)="atualizarCorCategoria(categoria.valor, 'texto', $any($event.target).value)"
+                      placeholder="Texto"
+                    />
+                  </div>
+                </div>
+
+                @if (seletorIconeAberto() === categoria.valor) {
+                  <app-icone-picker
+                    [icones]="r.icones"
+                    [selecionado]="corCategoria(categoria.valor).icone"
+                    (escolher)="atualizarIconeCategoria(categoria.valor, $event)"
+                  />
+                }
+              </div>
+            }
+          </div>
+        </section>
+
+        <!-- BIBLIOTECA DE ÍCONES -->
+        <section class="painel-secao">
+          <div class="secao-titulo">
+            <span class="secao-icone"><i class="bi bi-grid-3x3-gap"></i></span>
+            <h2>Biblioteca de ícones</h2>
+          </div>
+          <p class="secao-descricao">
+            Ícones disponíveis para as categorias acima, o banner de transparência e para escolher em cada atualização das
+            edições. Adicione pelo nome de um ícone do
+            <a href="https://icons.getbootstrap.com/" target="_blank" rel="noopener">Bootstrap Icons</a>
+            (ex.: "stars") ou enviando uma imagem própria.
+          </p>
+
+          <div class="adicionar-icone">
+            <div class="adicionar-icone-nome">
+              <input
+                type="text"
+                placeholder="Nome do ícone Bootstrap (ex.: stars)"
+                [ngModel]="novoIconeNome()"
+                (ngModelChange)="novoIconeNome.set($event)"
+                (keydown.enter)="adicionarIconePorNome()"
+              />
+              <button type="button" class="btn-secundario" [disabled]="!novoIconeNome().trim()" (click)="adicionarIconePorNome()">
+                <i class="bi bi-plus-lg"></i> Adicionar
+              </button>
+            </div>
+
+            <label class="btn-secundario btn-upload">
+              <i class="bi bi-upload"></i> {{ iconeEnviando() ? 'Enviando... ' + iconeProgresso() + '%' : 'Enviar imagem' }}
+              <input type="file" accept="image/*" class="visually-hidden" [disabled]="iconeEnviando()" (change)="onNovoIconeArquivo($event)" />
+            </label>
+          </div>
+
+          <div class="biblioteca-grade">
+            @for (icone of r.icones; track icone.id) {
+              <div class="biblioteca-item" [attr.title]="icone.nome">
+                <app-icone [valor]="icone.valor" />
+                <button type="button" class="biblioteca-remover" [attr.aria-label]="'Remover ' + icone.nome" (click)="removerIcone(icone)">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            } @empty {
+              <p class="secao-descricao">Nenhum ícone na biblioteca ainda.</p>
+            }
+          </div>
+        </section>
+
+        <!-- RODAPÉ -->
+        <section class="painel-secao">
+          <div class="secao-titulo">
+            <span class="secao-icone"><i class="bi bi-layout-text-window-reverse"></i></span>
+            <h2>Rodapé</h2>
+          </div>
+
+          <div class="campo">
+            <label for="footer-titulo">Título</label>
+            <input
+              id="footer-titulo"
+              type="text"
+              [value]="r.footerTitulo"
+              (change)="atualizarCampo('footerTitulo', $any($event.target).value)"
+            />
+          </div>
+          <div class="campo">
+            <label for="footer-texto">Texto de copyright</label>
+            <input
+              id="footer-texto"
+              type="text"
+              [value]="r.footerTexto"
+              (change)="atualizarCampo('footerTexto', $any($event.target).value)"
+            />
+            <p class="dica-campo">O link "Admin" continua aparecendo automaticamente logo depois deste texto.</p>
+          </div>
+        </section>
+
+        <!-- BANNER DE TRANSPARÊNCIA -->
+        <section class="painel-secao">
+          <div class="secao-titulo">
+            <span class="secao-icone"><i class="bi bi-shield-check"></i></span>
+            <h2>Banner de transparência</h2>
+          </div>
+          <p class="secao-descricao">Aparece no rodapé de toda edição pública.</p>
+
+          <div class="transparencia-preview">
+            <app-icone [valor]="r.transparencia.icone" />
+            <div class="transparencia-preview-texto">
+              <h4>{{ r.transparencia.titulo }}</h4>
+              <p>{{ r.transparencia.descricao }}</p>
+            </div>
+            <span class="transparencia-preview-link">{{ r.transparencia.textoBotao }} <i class="bi bi-arrow-right m-0"></i></span>
+          </div>
+
+          <button type="button" class="btn-secundario btn-icone-trocar" (click)="alternarSeletorIcone('transparencia')">
+            <i class="bi bi-emoji-smile"></i> Trocar ícone
+          </button>
+          @if (seletorIconeAberto() === 'transparencia') {
+            <app-icone-picker
+              [icones]="r.icones"
+              [selecionado]="r.transparencia.icone"
+              (escolher)="atualizarTransparencia('icone', $event)"
+            />
+          }
+
+          <div class="campo">
+            <label for="transparencia-titulo">Título</label>
+            <input
+              id="transparencia-titulo"
+              type="text"
+              [value]="r.transparencia.titulo"
+              (change)="atualizarTransparencia('titulo', $any($event.target).value)"
+            />
+          </div>
+          <div class="campo">
+            <label for="transparencia-descricao">Descrição</label>
+            <textarea
+              id="transparencia-descricao"
+              [value]="r.transparencia.descricao"
+              (change)="atualizarTransparencia('descricao', $any($event.target).value)"
+            ></textarea>
+          </div>
+          <div class="campo-linha">
+            <div class="campo">
+              <label for="transparencia-botao">Texto do botão</label>
+              <input
+                id="transparencia-botao"
+                type="text"
+                [value]="r.transparencia.textoBotao"
+                (change)="atualizarTransparencia('textoBotao', $any($event.target).value)"
+              />
+            </div>
+            <div class="campo">
+              <label for="transparencia-link">Link do botão</label>
+              <input
+                id="transparencia-link"
+                type="text"
+                [value]="r.transparencia.linkBotao"
+                (change)="atualizarTransparencia('linkBotao', $any($event.target).value)"
+                placeholder="/ ou https://..."
+              />
+              <p class="dica-campo">Use um caminho interno (ex.: "/") ou um link completo (ex.: "https://...").</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    }
+  </main>
+</div>

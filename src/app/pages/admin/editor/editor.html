@@ -645,10 +645,11 @@
               @for (categoria of categoriasRegulares; track categoria.valor) {
                 <span
                   class="categoria-resumo-item"
-                  [class]="'cor-' + corCategoriaAtualizacao(categoria.valor)"
+                  [style.background]="interfaceConfig.config().categorias[categoria.valor].fundo"
+                  [style.color]="interfaceConfig.config().categorias[categoria.valor].texto"
                   [attr.title]="categoria.label"
                 >
-                  <i [class]="'bi ' + categoria.icone"></i>
+                  <app-icone [valor]="interfaceConfig.config().categorias[categoria.valor].icone" />
                   {{ atualizacoesPorCategoria(categoria.valor).length }}
                 </span>
               }

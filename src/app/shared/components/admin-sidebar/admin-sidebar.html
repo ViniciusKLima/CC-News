@@ -23,6 +23,11 @@
     >
       <i class="bi bi-journal-text"></i> <span>Publicações</span>
     </a>
+    @if (souAdministrador()) {
+      <a class="admin-nav-item" routerLink="/admin/aparencia" routerLinkActive="active">
+        <i class="bi bi-palette"></i> <span>Aparência</span>
+      </a>
+    }
   </nav>
 
   <!-- Área do usuário logado: avatar, nome/perfil e o menu de sair -->

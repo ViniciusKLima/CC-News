@@ -218,8 +218,8 @@
                 <ul class="stats-lista">
                   @for (stat of resumoStats(); track stat.label) {
                     <li>
-                      <span class="stat-icone-sm" [class]="'cor-' + stat.cor">
-                        <i [class]="'bi ' + stat.icone"></i>
+                      <span class="stat-icone-sm" [style.background]="stat.corFundo" [style.color]="stat.corTexto">
+                        <app-icone [valor]="stat.icone" />
                       </span>
                       <span class="stat-label">{{ stat.label }}</span>
                       <span class="stat-valor">{{ stat.valor }}</span>
@@ -238,8 +238,12 @@
                   <ul class="passos-lista">
                     @for (passo of proximosPassos(); track passo.id; let ultimo = $last) {
                       <li class="passo-item" [class.sem-linha]="ultimo">
-                        <span class="passo-icone" [class]="'cor-' + corCategoria(passo.categoria)">
-                          <i [class]="'bi ' + passo.icone"></i>
+                        <span
+                          class="passo-icone"
+                          [style.background]="corCategoria(passo.categoria).fundo"
+                          [style.color]="corCategoria(passo.categoria).texto"
+                        >
+                          <app-icone [valor]="passo.icone" />
                         </span>
                         <div class="passo-conteudo">
                           <span class="passo-titulo">{{ passo.titulo }}</span>
@@ -255,18 +259,22 @@
         }
       </div>
 
+      @let transparencia = interfaceConfig.config().transparencia;
       <div class="transparencia-banner">
-        <i class="bi bi-shield-check"></i>
+        <app-icone [valor]="transparencia.icone" />
         <div class="transparencia-texto">
-          <h4>Transparência que gera confiança</h4>
-          <p>
-            Aqui você acompanha, de forma clara e aberta, tudo o que estamos desenvolvendo, testando e buscando
-            transformar a gestão pública.
-          </p>
+          <h4>{{ transparencia.titulo }}</h4>
+          <p>{{ transparencia.descricao }}</p>
         </div>
-        <a class="transparencia-link" routerLink="/">
-          Sobre o CC News <i class="bi bi-arrow-right m-0"></i>
-        </a>
+        @if (transparencia.linkBotao.startsWith('http')) {
+          <a class="transparencia-link" [href]="transparencia.linkBotao" target="_blank" rel="noopener">
+            {{ transparencia.textoBotao }} <i class="bi bi-arrow-right m-0"></i>
+          </a>
+        } @else {
+          <a class="transparencia-link" [routerLink]="transparencia.linkBotao">
+            {{ transparencia.textoBotao }} <i class="bi bi-arrow-right m-0"></i>
+          </a>
+        }
       </div>
     }
   </section>

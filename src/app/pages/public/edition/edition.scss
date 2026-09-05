@@ -461,6 +461,9 @@
   }
 }
 
+// Fundo e cor de texto vêm inline (ver edition.html): "azul" fixo para a
+// estatística agregada, e a cor configurada por categoria (aba Aparência do
+// admin) para as demais.
 .stat-icone-sm {
   display: flex;
   align-items: center;
@@ -470,31 +473,6 @@
   flex-shrink: 0;
   border-radius: 9px;
   font-size: 0.85rem;
-
-  &.cor-azul {
-    background: var(--bgc-azul-opacity);
-    color: var(--color-primary);
-  }
-
-  &.cor-roxo {
-    background: var(--bgc-purple-opacity);
-    color: var(--bgc-purple);
-  }
-
-  &.cor-verde {
-    background: var(--bgc-verde-opacity);
-    color: var(--color-success);
-  }
-
-  &.cor-laranja {
-    background: var(--bgc-yellow-opacity);
-    color: var(--color-warning);
-  }
-
-  &.cor-rosa {
-    background: #ffe4f0;
-    color: #d6336c;
-  }
 }
 
 .stat-label {
@@ -549,6 +527,8 @@
   }
 }
 
+// Fundo e cor de texto vêm inline (ver edition.html), conforme a cor
+// configurada para a categoria do passo (aba Aparência do admin).
 .passo-icone {
   position: relative;
   display: flex;
@@ -559,31 +539,6 @@
   flex-shrink: 0;
   border-radius: 50%;
   font-size: 0.85rem;
-
-  &.cor-azul {
-    background: var(--bgc-azul-opacity);
-    color: var(--color-primary);
-  }
-
-  &.cor-roxo {
-    background: var(--bgc-purple-opacity);
-    color: var(--bgc-purple);
-  }
-
-  &.cor-verde {
-    background: var(--bgc-verde-opacity);
-    color: var(--color-success);
-  }
-
-  &.cor-laranja {
-    background: var(--bgc-yellow-opacity);
-    color: var(--color-warning);
-  }
-
-  &.cor-rosa {
-    background: #ffe4f0;
-    color: #d6336c;
-  }
 }
 
 .passo-conteudo {

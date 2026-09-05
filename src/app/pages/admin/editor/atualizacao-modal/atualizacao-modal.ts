@@ -21,97 +21,11 @@ import {
   labelCategoria,
 } from '../../../../core/models/edition.model';
 import { CloudinaryService, urlImagemOtimizada } from '../../../../core/services/cloudinary.service';
+import { InterfaceConfigService } from '../../../../core/services/interface-config.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { extrairIdYoutube } from '../../../../core/utils/youtube.util';
 import { FecharAoClicarFora } from '../../../../shared/directives/fechar-ao-clicar-fora.directive';
-
-const ICONES_DISPONIVEIS = [
-  // Gerais
-  'bi-stars',
-  'bi-graph-up-arrow',
-  'bi-tools',
-  'bi-flask',
-  'bi-signpost-2',
-  'bi-shield-lock',
-  'bi-envelope',
-  'bi-image',
-  'bi-map',
-  'bi-person-check',
-  'bi-bell',
-  'bi-printer',
-  'bi-geo-alt',
-  'bi-wallet2',
-  'bi-diagram-3',
-  'bi-tags',
-  'bi-calendar-check',
-  'bi-lightning-charge',
-  'bi-gear',
-  'bi-file-earmark-text',
-  // Órgão público
-  'bi-bank',
-  'bi-building',
-  'bi-buildings',
-  'bi-flag',
-  'bi-patch-check',
-  // Formulários
-  'bi-clipboard-check',
-  'bi-ui-checks',
-  'bi-input-cursor-text',
-  'bi-list-check',
-  'bi-card-checklist',
-  // Endereço
-  'bi-signpost',
-  'bi-house-door',
-  'bi-pin-map',
-  'bi-compass',
-  'bi-truck',
-  // Tecnologia
-  'bi-cpu',
-  'bi-code-slash',
-  'bi-wifi',
-  'bi-phone',
-  'bi-laptop',
-  'bi-cloud',
-  'bi-robot',
-  'bi-database',
-  'bi-qr-code',
-  'bi-hdd-network',
-  // Avaliação e engajamento
-  'bi-star',
-  'bi-star-fill',
-  'bi-hand-thumbs-up',
-  'bi-heart',
-  'bi-trophy',
-  'bi-award',
-  'bi-emoji-smile',
-  'bi-megaphone',
-  'bi-chat-dots',
-  'bi-people',
-  // Segurança e acesso
-  'bi-lock',
-  'bi-unlock',
-  'bi-fingerprint',
-  'bi-universal-access',
-  // Financeiro
-  'bi-cash-coin',
-  'bi-credit-card',
-  'bi-piggy-bank',
-  'bi-receipt',
-  // Dados e indicadores
-  'bi-bar-chart',
-  'bi-pie-chart',
-  'bi-clipboard-data',
-  // Diversos
-  'bi-rocket-takeoff',
-  'bi-puzzle',
-  'bi-magic',
-  'bi-translate',
-  'bi-globe',
-  'bi-arrow-repeat',
-  'bi-clock-history',
-  'bi-exclamation-triangle',
-  'bi-check-circle',
-];
+import { Icone } from '../../../../shared/components/icone/icone';
 
 // Precisa refletir o minmax(38px, 1fr) e o gap de 8px do grid de ícones no
 // SCSS: são usados pra calcular quantas colunas cabem por linha e, com isso,
@@ -130,7 +44,7 @@ const IMPACTO_MAXLENGTH = 140;
 // persistir (Firestore ou lista em memória) é o Editor que o abre.
 @Component({
   selector: 'app-atualizacao-modal',
-  imports: [ReactiveFormsModule, FecharAoClicarFora],
+  imports: [ReactiveFormsModule, FecharAoClicarFora, Icone],
   templateUrl: './atualizacao-modal.html',
   styleUrl: './atualizacao-modal.scss',
 })
@@ -138,6 +52,7 @@ export class AtualizacaoModal implements OnInit, AfterViewInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly cloudinaryService = inject(CloudinaryService);
   private readonly toastService = inject(ToastService);
+  private readonly interfaceConfig = inject(InterfaceConfigService);
 
   @ViewChild('iconeGrid') private readonly iconeGridRef?: ElementRef<HTMLElement>;
   private resizeObserver?: ResizeObserver;
@@ -155,7 +70,7 @@ export class AtualizacaoModal implements OnInit, AfterViewInit, OnDestroy {
   readonly salvarEContinuar = output<Omit<Atualizacao, 'id'>>();
   readonly fechar = output<void>();
 
-  readonly icones = ICONES_DISPONIVEIS;
+  readonly icones = computed(() => this.interfaceConfig.config().icones.map((icone) => icone.valor));
   readonly categorias = CATEGORIAS_ATUALIZACAO;
   readonly tituloMaxlength = TITULO_MAXLENGTH;
   readonly descricaoMaxlength = DESCRICAO_MAXLENGTH;
@@ -174,11 +89,11 @@ export class AtualizacaoModal implements OnInit, AfterViewInit, OnDestroy {
   // vazio numa página enquanto ícones "extras" ficam empurrados pra próxima.
   readonly paginaIcone = signal(0);
   readonly iconesPorPagina = signal(ICONES_POR_PAGINA_INICIAL);
-  readonly totalPaginasIcone = computed(() => Math.max(1, Math.ceil(this.icones.length / this.iconesPorPagina())));
+  readonly totalPaginasIcone = computed(() => Math.max(1, Math.ceil(this.icones().length / this.iconesPorPagina())));
   readonly iconesPaginados = computed(() => {
     const tamanho = this.iconesPorPagina();
     const inicio = this.paginaIcone() * tamanho;
-    return this.icones.slice(inicio, inicio + tamanho);
+    return this.icones().slice(inicio, inicio + tamanho);
   });
 
   readonly form = this.fb.nonNullable.group({
@@ -244,12 +159,12 @@ export class AtualizacaoModal implements OnInit, AfterViewInit, OnDestroy {
 
     if (!this.primeiraMedicaoFeita) {
       this.primeiraMedicaoFeita = true;
-      const indiceIcone = this.icones.indexOf(this.form.controls.icone.value);
+      const indiceIcone = this.icones().indexOf(this.form.controls.icone.value);
       this.paginaIcone.set(indiceIcone > -1 ? Math.floor(indiceIcone / porPagina) : 0);
       return;
     }
 
-    const totalPaginas = Math.max(1, Math.ceil(this.icones.length / porPagina));
+    const totalPaginas = Math.max(1, Math.ceil(this.icones().length / porPagina));
     if (this.paginaIcone() >= totalPaginas) {
       this.paginaIcone.set(totalPaginas - 1);
     }

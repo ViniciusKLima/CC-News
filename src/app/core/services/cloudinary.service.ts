@@ -3,7 +3,11 @@ import { Injectable, inject } from '@angular/core';
 import { environment } from '../../../environments/environment';
 
 // Pastas usadas para organizar os uploads no Cloudinary, uma por tipo de imagem da aplicação.
-export type PastaCloudinary = 'cc-news/edicoes/capas' | 'cc-news/destaques' | 'cc-news/atualizacoes';
+export type PastaCloudinary =
+  | 'cc-news/edicoes/capas'
+  | 'cc-news/destaques'
+  | 'cc-news/atualizacoes'
+  | 'cc-news/interface';
 
 // Tamanhos padrão usados nas telas da aplicação. Cada um vira uma
 // transformação diferente em cima da mesma imagem original, sem precisar

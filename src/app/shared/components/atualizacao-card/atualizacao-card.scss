@@ -117,6 +117,8 @@
   gap: 8px;
 }
 
+// Fundo e cor de texto vêm inline (ver atualizacao-card.html), configuráveis
+// por categoria na aba Aparência do admin (ver InterfaceConfigService).
 .atualizacao-icone {
   display: flex;
   align-items: center;
@@ -126,31 +128,6 @@
   flex-shrink: 0;
   border-radius: 9px;
   font-size: 0.95rem;
-
-  &.cor-azul {
-    background: var(--bgc-azul-opacity);
-    color: var(--color-primary);
-  }
-
-  &.cor-roxo {
-    background: var(--bgc-purple-opacity);
-    color: var(--bgc-purple);
-  }
-
-  &.cor-verde {
-    background: var(--bgc-verde-opacity);
-    color: var(--color-success);
-  }
-
-  &.cor-laranja {
-    background: var(--bgc-yellow-opacity);
-    color: var(--color-warning);
-  }
-
-  &.cor-rosa {
-    background: #ffe4f0;
-    color: #d6336c;
-  }
 }
 
 .status-pill {
@@ -159,31 +136,6 @@
   padding: 3px 10px;
   border-radius: 30px;
   white-space: nowrap;
-
-  &.cor-azul {
-    background: var(--bgc-azul-opacity);
-    color: var(--color-primary);
-  }
-
-  &.cor-roxo {
-    background: var(--bgc-purple-opacity);
-    color: var(--bgc-purple);
-  }
-
-  &.cor-verde {
-    background: var(--bgc-verde-opacity);
-    color: var(--color-success);
-  }
-
-  &.cor-laranja {
-    background: var(--bgc-yellow-opacity);
-    color: var(--color-warning);
-  }
-
-  &.cor-rosa {
-    background: #ffe4f0;
-    color: #d6336c;
-  }
 }
 
 .atualizacao-descricao {

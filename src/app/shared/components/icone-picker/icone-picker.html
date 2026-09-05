@@ -1,0 +1,24 @@
+<div class="icone-picker">
+  <div class="icone-picker-busca">
+    <i class="bi bi-search"></i>
+    <input type="text" placeholder="Buscar ícone..." [ngModel]="busca()" (ngModelChange)="busca.set($event)" />
+  </div>
+
+  <div class="icone-picker-grade" role="radiogroup">
+    @for (icone of iconesFiltrados(); track icone.id) {
+      <button
+        type="button"
+        class="icone-picker-opcao"
+        role="radio"
+        [attr.aria-checked]="selecionado() === icone.valor"
+        [class.selecionado]="selecionado() === icone.valor"
+        [attr.title]="icone.nome"
+        (click)="escolher.emit(icone.valor)"
+      >
+        <app-icone [valor]="icone.valor" />
+      </button>
+    } @empty {
+      <p class="icone-picker-vazio">Nenhum ícone encontrado.</p>
+    }
+  </div>
+</div>

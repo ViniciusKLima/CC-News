@@ -6,7 +6,6 @@ import {
   CATEGORIAS_ATUALIZACAO,
   CategoriaAtualizacao,
   COR_PADRAO_PLATAFORMA,
-  corCategoriaAtualizacao,
   Edicao,
   MESES_NOMES,
   PeriodoEdicao,
@@ -25,9 +24,11 @@ import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmDialogService } from '../../../core/services/confirm-dialog.service';
 import { CONFIRMACOES } from '../../../core/services/confirm-dialog.presets';
 import { CloudinaryService, urlImagemOtimizada } from '../../../core/services/cloudinary.service';
+import { InterfaceConfigService } from '../../../core/services/interface-config.service';
 import { gradienteCapa } from '../../../core/utils/cor.util';
 import { AtualizacaoModal } from './atualizacao-modal/atualizacao-modal';
 import { AtualizacaoCard } from '../../../shared/components/atualizacao-card/atualizacao-card';
+import { Icone } from '../../../shared/components/icone/icone';
 
 const ORDEM_TIPOS: TipoEdicao[] = ['semanal', 'mensal', 'anual', 'especial'];
 
@@ -84,7 +85,7 @@ interface RascunhoEditor {
 // atualizações (abertas em um modal à parte, ver AtualizacaoModal).
 @Component({
   selector: 'app-editor',
-  imports: [ReactiveFormsModule, RouterLink, AtualizacaoModal, AtualizacaoCard],
+  imports: [ReactiveFormsModule, RouterLink, AtualizacaoModal, AtualizacaoCard, Icone],
   templateUrl: './editor.html',
   styleUrl: './editor.scss',
 })
@@ -98,9 +99,9 @@ export class Editor implements OnDestroy {
   private readonly toastService = inject(ToastService);
   private readonly confirmDialogService = inject(ConfirmDialogService);
   private readonly cloudinaryService = inject(CloudinaryService);
+  protected readonly interfaceConfig = inject(InterfaceConfigService);
 
   protected readonly urlImagemOtimizada = urlImagemOtimizada;
-  protected readonly corCategoriaAtualizacao = corCategoriaAtualizacao;
   protected readonly gradienteCapa = gradienteCapa;
 
   // Enquanto o service ainda está carregando os dados, não dá para saber se

@@ -1,6 +1,7 @@
 import { Component, HostListener, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { EditionService } from '../../../core/services/edition.service';
+import { InterfaceConfigService } from '../../../core/services/interface-config.service';
 
 // Cabeçalho fixo da área pública, com o link para a última edição publicada.
 @Component({
@@ -11,6 +12,7 @@ import { EditionService } from '../../../core/services/edition.service';
 })
 export class Header {
   private readonly editionService = inject(EditionService);
+  protected readonly interfaceConfig = inject(InterfaceConfigService);
 
   readonly ultimaEdicao = this.editionService.ultimaEdicaoPublica;
 

@@ -49,8 +49,6 @@ export interface Atualizacao {
   visivel: boolean;
 }
 
-export type CorAcento = 'azul' | 'roxo' | 'verde' | 'laranja' | 'rosa';
-
 /** Controla qual parte da imagem fica visível dentro do container (que permanece sempre à esquerda do card). */
 export type PosicaoImagemDestaque = 'esquerda' | 'centro' | 'direita';
 
@@ -137,20 +135,6 @@ export const MESES_NOMES = [
 
 export function labelCategoria(categoria: CategoriaAtualizacao): string {
   return CATEGORIAS_ATUALIZACAO.find((item) => item.valor === categoria)?.label ?? categoria;
-}
-
-// Cor de acento de cada categoria, usada no ícone e no selo colorido do
-// card de atualização (tanto no admin quanto na edição pública).
-const CORES_CATEGORIA: Record<CategoriaAtualizacao, CorAcento> = {
-  novidades: 'roxo',
-  melhorias: 'verde',
-  correcoes: 'laranja',
-  testes: 'azul',
-  'proximos-passos': 'rosa',
-};
-
-export function corCategoriaAtualizacao(categoria: CategoriaAtualizacao): CorAcento {
-  return CORES_CATEGORIA[categoria];
 }
 
 /** Normaliza um texto livre em slug de URL (minusculas, sem acento, hifens no lugar de espacos). */

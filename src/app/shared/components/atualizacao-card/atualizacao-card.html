@@ -20,10 +20,10 @@
   }
 
   <div class="atualizacao-topo">
-    <span class="atualizacao-icone" [class]="'cor-' + corCategoria()">
-      <i [class]="'bi ' + atualizacao().icone"></i>
+    <span class="atualizacao-icone" [style.background]="corCategoria().fundo" [style.color]="corCategoria().texto">
+      <app-icone [valor]="atualizacao().icone" />
     </span>
-    <span class="status-pill" [class]="'cor-' + corCategoria()">{{ labelCategoria(atualizacao().categoria) }}</span>
+    <span class="status-pill" [style.background]="corCategoria().fundo" [style.color]="corCategoria().texto">{{ labelCategoria(atualizacao().categoria) }}</span>
     <ng-content select="[cardAcoes]"></ng-content>
   </div>
 

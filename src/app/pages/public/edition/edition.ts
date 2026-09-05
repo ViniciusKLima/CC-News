@@ -19,18 +19,19 @@ import {
   Atualizacao,
   CATEGORIAS_ATUALIZACAO,
   CategoriaAtualizacao,
-  corCategoriaAtualizacao,
-  CorAcento,
   Edicao,
   formatarPeriodo,
   labelCategoria,
   labelTipo,
 } from '../../../core/models/edition.model';
+import { CorPar, iconeEhImagem } from '../../../core/models/interface-config.model';
+import { InterfaceConfigService } from '../../../core/services/interface-config.service';
 import { EditionService } from '../../../core/services/edition.service';
 import { PreviewService } from '../../../core/services/preview.service';
 import { urlImagemOtimizada } from '../../../core/services/cloudinary.service';
 import { urlEmbedYoutube } from '../../../core/utils/youtube.util';
 import { AtualizacaoCard } from '../../../shared/components/atualizacao-card/atualizacao-card';
+import { Icone } from '../../../shared/components/icone/icone';
 
 export type FiltroCategoria = 'todos' | CategoriaAtualizacao;
 
@@ -38,14 +39,15 @@ export interface ResumoStat {
   label: string;
   valor: number;
   icone: string;
-  cor: CorAcento;
+  corFundo: string;
+  corTexto: string;
 }
 
 // Página pública de uma edição: destaque, atualizações filtráveis por
 // categoria, resumo com estatísticas e a lista de próximos passos.
 @Component({
   selector: 'app-edition',
-  imports: [Header, Footer, RouterLink, AtualizacaoCard],
+  imports: [Header, Footer, RouterLink, AtualizacaoCard, Icone],
   templateUrl: './edition.html',
   styleUrl: './edition.scss',
 })
@@ -54,6 +56,8 @@ export class Edition implements AfterViewInit {
   private readonly editionService = inject(EditionService);
   private readonly previewService = inject(PreviewService);
   private readonly sanitizer = inject(DomSanitizer);
+  protected readonly interfaceConfig = inject(InterfaceConfigService);
+  protected readonly iconeEhImagem = iconeEhImagem;
 
   // Modo de pré-visualização (rota /admin/preview/:id, ver app.routes.ts):
   // os dados vêm da sessionStorage (PreviewService) em vez do Firestore, e
@@ -166,16 +170,25 @@ export class Edition implements AfterViewInit {
 
   readonly resumoStats = computed<ResumoStat[]>(() => {
     const todas = this.atualizacoesVisiveis();
+    const categorias = this.interfaceConfig.config().categorias;
     const stats: ResumoStat[] = [
-      { label: 'Atualizações nesta edição', valor: todas.length, icone: 'bi-collection', cor: 'azul' },
+      {
+        label: 'Atualizações nesta edição',
+        valor: todas.length,
+        icone: 'bi-collection',
+        corFundo: 'var(--bgc-azul-opacity)',
+        corTexto: 'var(--color-primary)',
+      },
     ];
 
     for (const categoria of CATEGORIAS_ATUALIZACAO) {
+      const aparencia = categorias[categoria.valor];
       stats.push({
         label: categoria.label,
         valor: todas.filter((item) => item.categoria === categoria.valor).length,
-        icone: categoria.icone,
-        cor: corCategoriaAtualizacao(categoria.valor),
+        icone: aparencia.icone,
+        corFundo: aparencia.fundo,
+        corTexto: aparencia.texto,
       });
     }
 
@@ -217,8 +230,8 @@ export class Edition implements AfterViewInit {
     this.indicador.set({ largura: botao.offsetWidth, posicao: botao.offsetLeft });
   }
 
-  corCategoria(categoria: CategoriaAtualizacao): CorAcento {
-    return corCategoriaAtualizacao(categoria);
+  corCategoria(categoria: CategoriaAtualizacao): CorPar {
+    return this.interfaceConfig.config().categorias[categoria];
   }
 
   // Imagem em tela cheia (lightbox)
